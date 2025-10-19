@@ -1,54 +1,57 @@
-import {
+import type {
   CellContext,
   ColumnDefTemplate,
-  createColumnHelper,
   HeaderContext,
-} from "@tanstack/react-table"
-import { FieldValues } from "react-hook-form"
+} from "@tanstack/react-table";
+import { createColumnHelper } from "@tanstack/react-table";
+import type { FieldValues } from "react-hook-form";
 
-import { DataGridColumnType, FieldFunction } from "../types"
+import type {
+  DataGridColumnType,
+  FieldFunction,
+} from "@components/data-grid/types";
 
 type DataGridHelperColumnsProps<TData, TFieldValues extends FieldValues> = {
   /**
    * The id of the column.
    */
-  id: string
+  id: string;
   /**
    * The name of the column, shown in the column visibility menu.
    */
-  name?: string
+  name?: string;
   /**
    * The header template for the column.
    */
-  header: ColumnDefTemplate<HeaderContext<TData, unknown>> | undefined
+  header: ColumnDefTemplate<HeaderContext<TData, unknown>> | undefined;
   /**
    * The cell template for the column.
    */
-  cell: ColumnDefTemplate<CellContext<TData, unknown>> | undefined
+  cell: ColumnDefTemplate<CellContext<TData, unknown>> | undefined;
   /**
    * Callback to set the field path for each cell in the column.
    * If a callback is not provided, or returns null, the cell will not be editable.
    */
-  field?: FieldFunction<TData, TFieldValues>
+  field?: FieldFunction<TData, TFieldValues>;
   /**
    * Whether the column cannot be hidden by the user.
    *
    * @default false
    */
-  disableHiding?: boolean
+  disableHiding?: boolean;
 } & (
   | {
-      field: FieldFunction<TData, TFieldValues>
-      type: DataGridColumnType
+      field: FieldFunction<TData, TFieldValues>;
+      type: DataGridColumnType;
     }
   | { field?: null | undefined; type?: never }
-)
+);
 
 export function createDataGridHelper<
   TData,
-  TFieldValues extends FieldValues
+  TFieldValues extends FieldValues,
 >() {
-  const columnHelper = createColumnHelper<TData>()
+  const columnHelper = createColumnHelper<TData>();
 
   return {
     column: ({
@@ -71,5 +74,5 @@ export function createDataGridHelper<
           type,
         },
       }),
-  }
+  };
 }
