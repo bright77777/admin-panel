@@ -1,14 +1,16 @@
-import { ArrowUpDown } from "@medusajs/icons"
-import { DropdownMenu, IconButton } from "@medusajs/ui"
-import { useState } from "react"
-import { useTranslation } from "react-i18next"
-import { useSearchParams } from "react-router-dom"
+import { useState } from "react";
 
-import { useDocumentDirection } from "../../../hooks/use-document-direction"
+import { ArrowUpDown } from "@medusajs/icons";
+import { DropdownMenu, IconButton } from "@medusajs/ui";
+
+import { useTranslation } from "react-i18next";
+import { useSearchParams } from "react-router-dom";
+
+import { useDocumentDirection } from "@hooks/use-document-direction";
 
 type OrderByProps = {
-  keys: string[]
-}
+  keys: string[];
+};
 
 enum SortDirection {
   ASC = "asc",
@@ -16,90 +18,95 @@ enum SortDirection {
 }
 
 type SortState = {
-  key?: string
-  dir: SortDirection
-}
+  key?: string;
+  dir: SortDirection;
+};
 
 const initState = (params: URLSearchParams): SortState => {
-  const sortParam = params.get("order")
+  const sortParam = params.get("order");
 
   if (!sortParam) {
     return {
       dir: SortDirection.ASC,
-    }
+    };
   }
 
-  const dir = sortParam.startsWith("-") ? SortDirection.DESC : SortDirection.ASC
-  const key = sortParam.replace("-", "")
+  const dir = sortParam.startsWith("-")
+    ? SortDirection.DESC
+    : SortDirection.ASC;
+  const key = sortParam.replace("-", "");
 
   return {
     key,
     dir,
-  }
-}
+  };
+};
 
 const formatKey = (key: string) => {
-  const words = key.split("_")
+  const words = key.split("_");
   const formattedWords = words.map((word, index) => {
     if (index === 0) {
-      return word.charAt(0).toUpperCase() + word.slice(1)
+      return word.charAt(0).toUpperCase() + word.slice(1);
     } else {
-      return word
+      return word;
     }
-  })
-  return formattedWords.join(" ")
-}
+  });
+
+  return formattedWords.join(" ");
+};
 
 export const OrderBy = ({ keys }: OrderByProps) => {
-  const [searchParams, setSearchParams] = useSearchParams()
+  const [searchParams, setSearchParams] = useSearchParams();
   const [state, setState] = useState<{
-    key?: string
-    dir: SortDirection
-  }>(initState(searchParams))
+    key?: string;
+    dir: SortDirection;
+  }>(initState(searchParams));
 
-  const { t } = useTranslation()
-  const direction = useDocumentDirection()
+  const { t } = useTranslation();
+  const direction = useDocumentDirection();
 
   const handleDirChange = (dir: string) => {
     setState((prev) => ({
       ...prev,
       dir: dir as SortDirection,
-    }))
+    }));
     updateOrderParam({
       key: state.key,
       dir: dir as SortDirection,
-    })
-  }
+    });
+  };
 
   const handleKeyChange = (value: string) => {
     setState((prev) => ({
       ...prev,
       key: value,
-    }))
+    }));
 
     updateOrderParam({
       key: value,
       dir: state.dir,
-    })
-  }
+    });
+  };
 
   const updateOrderParam = (state: SortState) => {
     if (!state.key) {
       setSearchParams((prev) => {
-        prev.delete("order")
-        return prev
-      })
+        prev.delete("order");
 
-      return
+        return prev;
+      });
+
+      return;
     }
 
     const orderParam =
-      state.dir === SortDirection.ASC ? state.key : `-${state.key}`
+      state.dir === SortDirection.ASC ? state.key : `-${state.key}`;
     setSearchParams((prev) => {
-      prev.set("order", orderParam)
-      return prev
-    })
-  }
+      prev.set("order", orderParam);
+
+      return prev;
+    });
+  };
 
   return (
     <DropdownMenu dir={direction}>
@@ -147,5 +154,5 @@ export const OrderBy = ({ keys }: OrderByProps) => {
         </DropdownMenu.RadioGroup>
       </DropdownMenu.Content>
     </DropdownMenu>
-  )
-}
+  );
+};
