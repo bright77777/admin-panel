@@ -1,37 +1,34 @@
+import type { CSSProperties, ReactNode } from "react";
+import type React from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+
 import {
   Adjustments,
   AdjustmentsDone,
   ExclamationCircle,
-} from "@medusajs/icons"
-import { Button, DropdownMenu, clx } from "@medusajs/ui"
-import {
+} from "@medusajs/icons";
+import { Button, DropdownMenu, clx } from "@medusajs/ui";
+
+import type {
   Cell,
   CellContext,
   Column,
   ColumnDef,
   Row,
   VisibilityState,
+} from "@tanstack/react-table";
+import {
   flexRender,
   getCoreRowModel,
   useReactTable,
-} from "@tanstack/react-table"
-import { VirtualItem, useVirtualizer } from "@tanstack/react-virtual"
-import React, {
-  CSSProperties,
-  ReactNode,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react"
-import { FieldValues, UseFormReturn } from "react-hook-form"
-import { useTranslation } from "react-i18next"
+} from "@tanstack/react-table";
+import type { VirtualItem } from "@tanstack/react-virtual";
+import { useVirtualizer } from "@tanstack/react-virtual";
+import type { FieldValues, UseFormReturn } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 
-import { useCommandHistory } from "../../../hooks/use-command-history"
-import { useDocumentDirection } from "../../../hooks/use-document-direction"
-import { ConditionalTooltip } from "../../common/conditional-tooltip"
-import { DataGridContext } from "../context"
+import { ConditionalTooltip } from "@components/common/conditional-tooltip";
+import { DataGridContext } from "@components/data-grid/context";
 import {
   useDataGridCellHandlers,
   useDataGridCellMetadata,
@@ -44,30 +41,38 @@ import {
   useDataGridMouseUpEvent,
   useDataGridNavigation,
   useDataGridQueryTool,
-} from "../hooks"
-import { DataGridMatrix } from "../models"
-import { DataGridCoordinates, GridColumnOption } from "../types"
-import { isCellMatch, isSpecialFocusKey } from "../utils"
-import { DataGridKeyboardShortcutModal } from "./data-grid-keyboard-shortcut-modal"
+} from "@components/data-grid/hooks";
+import { DataGridMatrix } from "@components/data-grid/models";
+import type {
+  DataGridCoordinates,
+  GridColumnOption,
+} from "@components/data-grid/types";
+import { isCellMatch, isSpecialFocusKey } from "@components/data-grid/utils";
+
+import { useCommandHistory } from "@hooks/use-command-history.tsx";
+import { useDocumentDirection } from "@hooks/use-document-direction.tsx";
+
+import { DataGridKeyboardShortcutModal } from "./data-grid-keyboard-shortcut-modal";
+
 export interface DataGridRootProps<
   TData,
   TFieldValues extends FieldValues = FieldValues,
 > {
-  data?: TData[]
-  columns: ColumnDef<TData>[]
-  state: UseFormReturn<TFieldValues>
-  getSubRows?: (row: TData) => TData[] | undefined
-  onEditingChange?: (isEditing: boolean) => void
-  disableInteractions?: boolean
-  multiColumnSelection?: boolean
+  data?: TData[];
+  columns: ColumnDef<TData>[];
+  state: UseFormReturn<TFieldValues>;
+  getSubRows?: (row: TData) => TData[] | undefined;
+  onEditingChange?: (isEditing: boolean) => void;
+  disableInteractions?: boolean;
+  multiColumnSelection?: boolean;
 }
 
-const ROW_HEIGHT = 40
+const ROW_HEIGHT = 40;
 
 const getCommonPinningStyles = <TData,>(
-  column: Column<TData>
+  column: Column<TData>,
 ): CSSProperties => {
-  const isPinned = column.getIsPinned()
+  const isPinned = column.getIsPinned();
 
   /**
    * Since our border colors are semi-transparent, we need to set a custom border color
@@ -76,8 +81,8 @@ const getCommonPinningStyles = <TData,>(
    * We do this by checking if the current theme is dark mode, and then setting the border color
    * to the corresponding color.
    */
-  const isDarkMode = document.documentElement.classList.contains("dark")
-  const BORDER_COLOR = isDarkMode ? "rgb(50,50,53)" : "rgb(228,228,231)"
+  const isDarkMode = document.documentElement.classList.contains("dark");
+  const BORDER_COLOR = isDarkMode ? "rgb(50,50,53)" : "rgb(228,228,231)";
 
   return {
     position: isPinned ? "sticky" : "relative",
@@ -87,8 +92,8 @@ const getCommonPinningStyles = <TData,>(
     borderRight: isPinned ? `1px solid ${BORDER_COLOR}` : undefined,
     left: isPinned === "left" ? `${column.getStart("left")}px` : undefined,
     right: isPinned === "right" ? `${column.getAfter("right")}px` : undefined,
-  }
-}
+  };
+};
 
 /**
  * TODO:
@@ -107,32 +112,32 @@ export const DataGridRoot = <
   disableInteractions,
   multiColumnSelection = false,
 }: DataGridRootProps<TData, TFieldValues>) => {
-  const containerRef = useRef<HTMLDivElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  const { redo, undo, execute } = useCommandHistory()
+  const { redo, undo, execute } = useCommandHistory();
   const {
     register,
     control,
     getValues,
     setValue,
     formState: { errors },
-  } = state
+  } = state;
 
-  const [internalTrapActive, setTrapActive] = useState(true)
+  const [internalTrapActive, setTrapActive] = useState(true);
 
-  const trapActive = !disableInteractions && internalTrapActive
+  const trapActive = !disableInteractions && internalTrapActive;
 
-  const [anchor, setAnchor] = useState<DataGridCoordinates | null>(null)
-  const [rangeEnd, setRangeEnd] = useState<DataGridCoordinates | null>(null)
-  const [dragEnd, setDragEnd] = useState<DataGridCoordinates | null>(null)
+  const [anchor, setAnchor] = useState<DataGridCoordinates | null>(null);
+  const [rangeEnd, setRangeEnd] = useState<DataGridCoordinates | null>(null);
+  const [dragEnd, setDragEnd] = useState<DataGridCoordinates | null>(null);
 
-  const [isSelecting, setIsSelecting] = useState(false)
-  const [isDragging, setIsDragging] = useState(false)
+  const [isSelecting, setIsSelecting] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
 
-  const [isEditing, setIsEditing] = useState(false)
+  const [isEditing, setIsEditing] = useState(false);
 
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
-  const [rowVisibility, setRowVisibility] = useState<VisibilityState>({})
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+  const [rowVisibility, setRowVisibility] = useState<VisibilityState>({});
 
   const grid = useReactTable({
     data: data,
@@ -152,16 +157,16 @@ export const DataGridRoot = <
       size: 200,
       maxSize: 400,
     },
-  })
+  });
 
-  const { flatRows } = grid.getRowModel()
-  const flatColumns = grid.getAllFlatColumns()
+  const { flatRows } = grid.getRowModel();
+  const flatColumns = grid.getAllFlatColumns();
 
   const visibleRows = useMemo(
     () => flatRows.filter((_, index) => rowVisibility?.[index] !== false),
-    [flatRows, rowVisibility]
-  )
-  const visibleColumns = grid.getVisibleLeafColumns()
+    [flatRows, rowVisibility],
+  );
+  const visibleColumns = grid.getVisibleLeafColumns();
 
   const rowVirtualizer = useVirtualizer({
     count: visibleRows.length,
@@ -172,22 +177,22 @@ export const DataGridRoot = <
       const toRender = new Set(
         Array.from(
           { length: range.endIndex - range.startIndex + 1 },
-          (_, i) => range.startIndex + i
-        )
-      )
+          (_, i) => range.startIndex + i,
+        ),
+      );
 
       if (anchor && visibleRows[anchor.row]) {
-        toRender.add(anchor.row)
+        toRender.add(anchor.row);
       }
 
       if (rangeEnd && visibleRows[rangeEnd.row]) {
-        toRender.add(rangeEnd.row)
+        toRender.add(rangeEnd.row);
       }
 
-      return Array.from(toRender).sort((a, b) => a - b)
+      return Array.from(toRender).sort((a, b) => a - b);
     },
-  })
-  const virtualRows = rowVirtualizer.getVirtualItems()
+  });
+  const virtualRows = rowVirtualizer.getVirtualItems();
 
   const columnVirtualizer = useVirtualizer({
     count: visibleColumns.length,
@@ -196,40 +201,40 @@ export const DataGridRoot = <
     horizontal: true,
     overscan: 3,
     rangeExtractor: (range) => {
-      const startIndex = range.startIndex
-      const endIndex = range.endIndex
+      const startIndex = range.startIndex;
+      const endIndex = range.endIndex;
 
       const toRender = new Set(
         Array.from(
           { length: endIndex - startIndex + 1 },
-          (_, i) => startIndex + i
-        )
-      )
+          (_, i) => startIndex + i,
+        ),
+      );
 
       if (anchor && visibleColumns[anchor.col]) {
-        toRender.add(anchor.col)
+        toRender.add(anchor.col);
       }
 
       if (rangeEnd && visibleColumns[rangeEnd.col]) {
-        toRender.add(rangeEnd.col)
+        toRender.add(rangeEnd.col);
       }
 
       // The first column is pinned, so we always render it
-      toRender.add(0)
+      toRender.add(0);
 
-      return Array.from(toRender).sort((a, b) => a - b)
+      return Array.from(toRender).sort((a, b) => a - b);
     },
-  })
-  const virtualColumns = columnVirtualizer.getVirtualItems()
+  });
+  const virtualColumns = columnVirtualizer.getVirtualItems();
 
-  let virtualPaddingLeft: number | undefined
-  let virtualPaddingRight: number | undefined
+  let virtualPaddingLeft: number | undefined;
+  let virtualPaddingRight: number | undefined;
 
   if (columnVirtualizer && virtualColumns?.length) {
-    virtualPaddingLeft = virtualColumns[0]?.start ?? 0
+    virtualPaddingLeft = virtualColumns[0]?.start ?? 0;
     virtualPaddingRight =
       columnVirtualizer.getTotalSize() -
-      (virtualColumns[virtualColumns.length - 1]?.end ?? 0)
+      (virtualColumns[virtualColumns.length - 1]?.end ?? 0);
   }
 
   const matrix = useMemo(
@@ -237,45 +242,45 @@ export const DataGridRoot = <
       new DataGridMatrix<TData, TFieldValues>(
         flatRows,
         columns,
-        multiColumnSelection
+        multiColumnSelection,
       ),
-    [flatRows, columns, multiColumnSelection]
-  )
-  const queryTool = useDataGridQueryTool(containerRef)
+    [flatRows, columns, multiColumnSelection],
+  );
+  const queryTool = useDataGridQueryTool(containerRef);
 
   const setSingleRange = useCallback(
     (coordinates: DataGridCoordinates | null) => {
-      setAnchor(coordinates)
-      setRangeEnd(coordinates)
+      setAnchor(coordinates);
+      setRangeEnd(coordinates);
     },
-    []
-  )
+    [],
+  );
 
   const { errorCount, isHighlighted, toggleErrorHighlighting } =
-    useDataGridErrorHighlighting(matrix, grid, errors)
+    useDataGridErrorHighlighting(matrix, grid, errors);
 
   const handleToggleErrorHighlighting = useCallback(() => {
     toggleErrorHighlighting(
       rowVisibility,
       columnVisibility,
       setRowVisibility,
-      setColumnVisibility
-    )
-  }, [toggleErrorHighlighting, rowVisibility, columnVisibility])
+      setColumnVisibility,
+    );
+  }, [toggleErrorHighlighting, rowVisibility, columnVisibility]);
 
   const {
     columnOptions,
     handleToggleColumn,
     handleResetColumns,
     isDisabled: isColumsDisabled,
-  } = useDataGridColumnVisibility(grid, matrix)
+  } = useDataGridColumnVisibility(grid, matrix);
 
   const handleToggleColumnVisibility = useCallback(
     (index: number) => {
-      return handleToggleColumn(index)
+      return handleToggleColumn(index);
     },
-    [handleToggleColumn]
-  )
+    [handleToggleColumn],
+  );
 
   const { navigateToField, scrollToCoordinates } = useDataGridNavigation<
     TData,
@@ -291,7 +296,7 @@ export const DataGridRoot = <
     setSingleRange,
     visibleColumns,
     visibleRows,
-  })
+  });
 
   const { createSnapshot, restoreSnapshot } = useDataGridCellSnapshot<
     TData,
@@ -299,22 +304,22 @@ export const DataGridRoot = <
   >({
     matrix,
     form: state,
-  })
+  });
 
   const onEditingChangeHandler = useCallback(
     (value: boolean) => {
       if (onEditingChange) {
-        onEditingChange(value)
+        onEditingChange(value);
       }
 
       if (value) {
-        createSnapshot(anchor)
+        createSnapshot(anchor);
       }
 
-      setIsEditing(value)
+      setIsEditing(value);
     },
-    [anchor, createSnapshot, onEditingChange]
-  )
+    [anchor, createSnapshot, onEditingChange],
+  );
 
   const { getSelectionValues, setSelectionValues } = useDataGridFormHandlers<
     TData,
@@ -323,7 +328,7 @@ export const DataGridRoot = <
     matrix,
     form: state,
     anchor,
-  })
+  });
 
   const { handleKeyDownEvent, handleSpecialFocusKeys } =
     useDataGridKeydownEvent<TData, TFieldValues>({
@@ -347,7 +352,7 @@ export const DataGridRoot = <
       undo,
       redo,
       setValue,
-    })
+    });
 
   const { handleMouseUpEvent } = useDataGridMouseUpEvent<TData, TFieldValues>({
     matrix,
@@ -361,7 +366,7 @@ export const DataGridRoot = <
     getSelectionValues,
     setSelectionValues,
     execute,
-  })
+  });
 
   const { handleCopyEvent, handlePasteEvent } = useDataGridClipboardEvents<
     TData,
@@ -374,7 +379,7 @@ export const DataGridRoot = <
     getSelectionValues,
     setSelectionValues,
     execute,
-  })
+  });
 
   const {
     getWrapperFocusHandler,
@@ -399,14 +404,14 @@ export const DataGridRoot = <
     setValue,
     execute,
     multiColumnSelection,
-  })
+  });
 
   const { getCellErrorMetadata, getCellMetadata } = useDataGridCellMetadata<
     TData,
     TFieldValues
   >({
     matrix,
-  })
+  });
 
   /** Effects */
 
@@ -415,51 +420,52 @@ export const DataGridRoot = <
    */
   useEffect(() => {
     if (!trapActive) {
-      return
+      return;
     }
 
-    window.addEventListener("keydown", handleKeyDownEvent)
-    window.addEventListener("mouseup", handleMouseUpEvent)
+    window.addEventListener("keydown", handleKeyDownEvent);
+    window.addEventListener("mouseup", handleMouseUpEvent);
 
     // Copy and paste event listeners need to be added to the window
-    window.addEventListener("copy", handleCopyEvent)
-    window.addEventListener("paste", handlePasteEvent)
+    window.addEventListener("copy", handleCopyEvent);
+    window.addEventListener("paste", handlePasteEvent);
 
     return () => {
-      window.removeEventListener("keydown", handleKeyDownEvent)
-      window.removeEventListener("mouseup", handleMouseUpEvent)
+      window.removeEventListener("keydown", handleKeyDownEvent);
+      window.removeEventListener("mouseup", handleMouseUpEvent);
 
-      window.removeEventListener("copy", handleCopyEvent)
-      window.removeEventListener("paste", handlePasteEvent)
-    }
+      window.removeEventListener("copy", handleCopyEvent);
+      window.removeEventListener("paste", handlePasteEvent);
+    };
   }, [
     trapActive,
     handleKeyDownEvent,
     handleMouseUpEvent,
     handleCopyEvent,
     handlePasteEvent,
-  ])
+  ]);
 
   useEffect(() => {
     const specialFocusHandler = (e: KeyboardEvent) => {
       if (isSpecialFocusKey(e)) {
-        handleSpecialFocusKeys(e)
-        return
-      }
-    }
+        handleSpecialFocusKeys(e);
 
-    window.addEventListener("keydown", specialFocusHandler)
+        return;
+      }
+    };
+
+    window.addEventListener("keydown", specialFocusHandler);
 
     return () => {
-      window.removeEventListener("keydown", specialFocusHandler)
-    }
-  }, [handleSpecialFocusKeys])
+      window.removeEventListener("keydown", specialFocusHandler);
+    };
+  }, [handleSpecialFocusKeys]);
 
   const handleHeaderInteractionChange = useCallback((isActive: boolean) => {
     if (isActive) {
-      setTrapActive(false)
+      setTrapActive(false);
     }
-  }, [])
+  }, []);
 
   /**
    * Auto corrective effect for ensuring we always
@@ -467,28 +473,28 @@ export const DataGridRoot = <
    */
   useEffect(() => {
     if (!anchor) {
-      return
+      return;
     }
 
     if (rangeEnd) {
-      return
+      return;
     }
 
-    setRangeEnd(anchor)
-  }, [anchor, rangeEnd])
+    setRangeEnd(anchor);
+  }, [anchor, rangeEnd]);
 
   /**
    * Ensure that we set a anchor on first render.
    */
   useEffect(() => {
     if (!anchor && matrix) {
-      const coords = matrix.getFirstNavigableCell()
+      const coords = matrix.getFirstNavigableCell();
 
       if (coords) {
-        setSingleRange(coords)
+        setSingleRange(coords);
       }
     }
-  }, [anchor, matrix, setSingleRange])
+  }, [anchor, matrix, setSingleRange]);
 
   const values = useMemo(
     () => ({
@@ -532,25 +538,25 @@ export const DataGridRoot = <
       getCellMetadata,
       getCellErrorMetadata,
       navigateToField,
-    ]
-  )
+    ],
+  );
 
   const handleRestoreGridFocus = useCallback(() => {
     if (anchor && !trapActive) {
-      setTrapActive(true)
+      setTrapActive(true);
 
-      setSingleRange(anchor)
-      scrollToCoordinates(anchor, "both")
+      setSingleRange(anchor);
+      scrollToCoordinates(anchor, "both");
 
       requestAnimationFrame(() => {
-        queryTool?.getContainer(anchor)?.focus()
-      })
+        queryTool?.getContainer(anchor)?.focus();
+      });
     }
-  }, [anchor, trapActive, setSingleRange, scrollToCoordinates, queryTool])
+  }, [anchor, trapActive, setSingleRange, scrollToCoordinates, queryTool]);
 
   return (
     <DataGridContext.Provider value={values}>
-      <div className="bg-ui-bg-subtle flex size-full flex-col">
+      <div className="flex size-full flex-col bg-ui-bg-subtle">
         <DataGridHeader
           columnOptions={columnOptions}
           isDisabled={isColumsDisabled}
@@ -562,9 +568,14 @@ export const DataGridRoot = <
           onHeaderInteractionChange={handleHeaderInteractionChange}
         />
         <div className="size-full overflow-hidden">
+          {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events,jsx-a11y/no-noninteractive-element-interactions */}
           <div
             ref={containerRef}
+            /* @todo fix a11y */
+            /* eslint-disable-next-line jsx-a11y/no-autofocus */
             autoFocus
+            /* @todo fix a11y */
+            /* eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex */
             tabIndex={0}
             className="relative h-full select-none overflow-auto outline-none"
             onFocus={handleRestoreGridFocus}
@@ -572,10 +583,10 @@ export const DataGridRoot = <
             data-container={true}
             role="application"
           >
-            <div role="grid" className="text-ui-fg-subtle grid">
+            <div role="grid" className="grid text-ui-fg-subtle">
               <div
                 role="rowgroup"
-                className="txt-compact-small-plus bg-ui-bg-subtle sticky top-0 z-[1] grid"
+                className="txt-compact-small-plus sticky top-0 z-[1] grid bg-ui-bg-subtle"
               >
                 {grid.getHeaderGroups().map((headerGroup) => (
                   <div
@@ -590,8 +601,8 @@ export const DataGridRoot = <
                       />
                     ) : null}
                     {virtualColumns.reduce((acc, vc, index, array) => {
-                      const header = headerGroup.headers[vc.index]
-                      const previousVC = array[index - 1]
+                      const header = headerGroup.headers[vc.index];
+                      const previousVC = array[index - 1];
 
                       if (previousVC && vc.index !== previousVC.index + 1) {
                         // If there's a gap between the current and previous virtual columns
@@ -603,8 +614,8 @@ export const DataGridRoot = <
                               display: "flex",
                               width: `${vc.start - previousVC.end}px`,
                             }}
-                          />
-                        )
+                          />,
+                        );
                       }
 
                       acc.push(
@@ -616,18 +627,18 @@ export const DataGridRoot = <
                             width: header.getSize(),
                             ...getCommonPinningStyles(header.column),
                           }}
-                          className="bg-ui-bg-base txt-compact-small-plus flex items-center border-b border-r px-4 py-2.5"
+                          className="txt-compact-small-plus flex items-center border-b border-r bg-ui-bg-base px-4 py-2.5"
                         >
                           {header.isPlaceholder
                             ? null
                             : flexRender(
                                 header.column.columnDef.header,
-                                header.getContext()
+                                header.getContext(),
                               )}
-                        </div>
-                      )
+                        </div>,
+                      );
 
-                      return acc
+                      return acc;
                     }, [] as ReactNode[])}
                     {virtualPaddingRight ? (
                       <div
@@ -649,8 +660,8 @@ export const DataGridRoot = <
                 }}
               >
                 {virtualRows.map((virtualRow) => {
-                  const row = visibleRows[virtualRow.index] as Row<TData>
-                  const rowIndex = flatRows.findIndex((r) => r.id === row.id)
+                  const row = visibleRows[virtualRow.index] as Row<TData>;
+                  const rowIndex = flatRows.findIndex((r) => r.id === row.id);
 
                   return (
                     <DataGridRow
@@ -666,7 +677,7 @@ export const DataGridRoot = <
                       onDragToFillStart={onDragToFillStart}
                       multiColumnSelection={multiColumnSelection}
                     />
-                  )
+                  );
                 })}
               </div>
             </div>
@@ -674,19 +685,19 @@ export const DataGridRoot = <
         </div>
       </div>
     </DataGridContext.Provider>
-  )
-}
+  );
+};
 
 type DataGridHeaderProps = {
-  columnOptions: GridColumnOption[]
-  isDisabled: boolean
-  onToggleColumn: (index: number) => (value: boolean) => void
-  onResetColumns: () => void
-  isHighlighted: boolean
-  errorCount: number
-  onToggleErrorHighlighting: () => void
-  onHeaderInteractionChange: (isActive: boolean) => void
-}
+  columnOptions: GridColumnOption[];
+  isDisabled: boolean;
+  onToggleColumn: (index: number) => (value: boolean) => void;
+  onResetColumns: () => void;
+  isHighlighted: boolean;
+  errorCount: number;
+  onToggleErrorHighlighting: () => void;
+  onHeaderInteractionChange: (isActive: boolean) => void;
+};
 
 const DataGridHeader = ({
   columnOptions,
@@ -698,25 +709,26 @@ const DataGridHeader = ({
   onToggleErrorHighlighting,
   onHeaderInteractionChange,
 }: DataGridHeaderProps) => {
-  const [shortcutsOpen, setShortcutsOpen] = useState(false)
-  const [columnsOpen, setColumnsOpen] = useState(false)
-  const { t } = useTranslation()
-  const direction = useDocumentDirection()
+  const [shortcutsOpen, setShortcutsOpen] = useState(false);
+  const [columnsOpen, setColumnsOpen] = useState(false);
+  const { t } = useTranslation();
+  const direction = useDocumentDirection();
 
   // Since all columns are checked by default, we can check if any column is unchecked
-  const hasChanged = columnOptions.some((column) => !column.checked)
+  const hasChanged = columnOptions.some((column) => !column.checked);
 
   const handleShortcutsOpenChange = (value: boolean) => {
-    onHeaderInteractionChange(value)
-    setShortcutsOpen(value)
-  }
+    onHeaderInteractionChange(value);
+    setShortcutsOpen(value);
+  };
 
   const handleColumnsOpenChange = (value: boolean) => {
-    onHeaderInteractionChange(value)
-    setColumnsOpen(value)
-  }
+    onHeaderInteractionChange(value);
+    setColumnsOpen(value);
+  };
+
   return (
-    <div className="bg-ui-bg-base flex items-center justify-between border-b p-4">
+    <div className="flex items-center justify-between border-b bg-ui-bg-base p-4">
       <div className="flex items-center gap-x-2">
         <DropdownMenu
           dir={direction}
@@ -736,10 +748,10 @@ const DataGridHeader = ({
           </ConditionalTooltip>
           <DropdownMenu.Content>
             {columnOptions.map((column, index) => {
-              const { checked, disabled, id, name } = column
+              const { checked, disabled, id, name } = column;
 
               if (disabled) {
-                return null
+                return null;
               }
 
               return (
@@ -751,7 +763,7 @@ const DataGridHeader = ({
                 >
                   {name}
                 </DropdownMenu.CheckboxItem>
-              )
+              );
             })}
           </DropdownMenu.Content>
         </DropdownMenu>
@@ -793,17 +805,17 @@ const DataGridHeader = ({
         />
       </div>
     </div>
-  )
-}
+  );
+};
 
 type DataGridCellProps<TData> = {
-  cell: Cell<TData, unknown>
-  columnIndex: number
-  rowIndex: number
-  anchor: DataGridCoordinates | null
-  onDragToFillStart: (e: React.MouseEvent<HTMLElement>) => void
-  multiColumnSelection: boolean
-}
+  cell: Cell<TData, unknown>;
+  columnIndex: number;
+  rowIndex: number;
+  anchor: DataGridCoordinates | null;
+  onDragToFillStart: (e: React.MouseEvent<HTMLElement>) => void;
+  multiColumnSelection: boolean;
+};
 
 const DataGridCell = <TData,>({
   cell,
@@ -816,9 +828,9 @@ const DataGridCell = <TData,>({
   const coords: DataGridCoordinates = {
     row: rowIndex,
     col: columnIndex,
-  }
+  };
 
-  const isAnchor = isCellMatch(coords, anchor)
+  const isAnchor = isCellMatch(coords, anchor);
 
   return (
     <div
@@ -832,7 +844,7 @@ const DataGridCell = <TData,>({
       data-row-index={rowIndex}
       data-column-index={columnIndex}
       className={clx(
-        "relative flex items-center border-b border-r p-0 outline-none"
+        "relative flex items-center border-b border-r p-0 outline-none",
       )}
       tabIndex={-1}
     >
@@ -841,35 +853,41 @@ const DataGridCell = <TData,>({
           ...cell.getContext(),
           columnIndex,
           rowIndex: rowIndex,
-        } as CellContext<TData, any>)}
+        } as CellContext<TData, unknown>)}
         {isAnchor && (
+          //@todo fix a11y
+          // eslint-disable-next-line jsx-a11y/no-static-element-interactions
           <div
             onMouseDown={onDragToFillStart}
             className={clx(
-              "bg-ui-fg-interactive absolute bottom-0 right-0 z-[3] size-1.5 cursor-ns-resize",
+              "absolute bottom-0 right-0 z-[3] size-1.5 cursor-ns-resize bg-ui-fg-interactive",
               {
                 "cursor-nwse-resize": multiColumnSelection,
-              }
+              },
             )}
           />
         )}
       </div>
     </div>
-  )
-}
+  );
+};
 
 type DataGridRowProps<TData> = {
-  row: Row<TData>
-  rowIndex: number
-  virtualRow: VirtualItem<Element>
-  virtualPaddingLeft?: number
-  virtualPaddingRight?: number
-  virtualColumns: VirtualItem<Element>[]
-  flatColumns: Column<TData, unknown>[]
-  anchor: DataGridCoordinates | null
-  onDragToFillStart: (e: React.MouseEvent<HTMLElement>) => void
-  multiColumnSelection: boolean
-}
+  row: Row<TData>;
+  rowIndex: number;
+  //@todo fix type
+  // @ts-expect-error TS2315: Type VirtualItem is not generic.
+  virtualRow: VirtualItem<Element>;
+  virtualPaddingLeft?: number;
+  virtualPaddingRight?: number;
+  //@todo fix type
+  // @ts-expect-error TS2315: Type VirtualItem is not generic.
+  virtualColumns: VirtualItem<Element>[];
+  flatColumns: Column<TData, unknown>[];
+  anchor: DataGridCoordinates | null;
+  onDragToFillStart: (e: React.MouseEvent<HTMLElement>) => void;
+  multiColumnSelection: boolean;
+};
 
 const DataGridRow = <TData,>({
   row,
@@ -883,7 +901,7 @@ const DataGridRow = <TData,>({
   onDragToFillStart,
   multiColumnSelection,
 }: DataGridRowProps<TData>) => {
-  const visibleCells = row.getVisibleCells()
+  const visibleCells = row.getVisibleCells();
 
   return (
     <div
@@ -892,7 +910,7 @@ const DataGridRow = <TData,>({
       style={{
         transform: `translateY(${virtualRow.start}px)`,
       }}
-      className="bg-ui-bg-subtle txt-compact-small absolute flex h-10 w-full"
+      className="txt-compact-small absolute flex h-10 w-full bg-ui-bg-subtle"
     >
       {virtualPaddingLeft ? (
         <div
@@ -901,10 +919,10 @@ const DataGridRow = <TData,>({
         />
       ) : null}
       {virtualColumns.reduce((acc, vc, index, array) => {
-        const cell = visibleCells[vc.index]
-        const column = cell.column
-        const columnIndex = flatColumns.findIndex((c) => c.id === column.id)
-        const previousVC = array[index - 1]
+        const cell = visibleCells[vc.index];
+        const column = cell.column;
+        const columnIndex = flatColumns.findIndex((c) => c.id === column.id);
+        const previousVC = array[index - 1];
 
         if (previousVC && vc.index !== previousVC.index + 1) {
           // If there's a gap between the current and previous virtual columns
@@ -916,8 +934,8 @@ const DataGridRow = <TData,>({
                 display: "flex",
                 width: `${vc.start - previousVC.end}px`,
               }}
-            />
-          )
+            />,
+          );
         }
 
         acc.push(
@@ -929,10 +947,10 @@ const DataGridRow = <TData,>({
             anchor={anchor}
             onDragToFillStart={onDragToFillStart}
             multiColumnSelection={multiColumnSelection}
-          />
-        )
+          />,
+        );
 
-        return acc
+        return acc;
       }, [] as ReactNode[])}
       {virtualPaddingRight ? (
         <div
@@ -941,5 +959,5 @@ const DataGridRow = <TData,>({
         />
       ) : null}
     </div>
-  )
-}
+  );
+};

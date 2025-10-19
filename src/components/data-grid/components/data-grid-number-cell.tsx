@@ -1,68 +1,83 @@
-import { clx } from "@medusajs/ui"
-import { useEffect, useState } from "react"
-import { Controller, ControllerRenderProps } from "react-hook-form"
-import { useCombinedRefs } from "../../../hooks/use-combined-refs"
-import { useDataGridCell, useDataGridCellError } from "../hooks"
-import { DataGridCellProps, InputProps } from "../types"
-import { DataGridCellContainer } from "./data-grid-cell-container"
+import { useEffect, useState } from "react";
 
+import { clx } from "@medusajs/ui";
+
+import type { ControllerRenderProps } from "react-hook-form";
+import { Controller } from "react-hook-form";
+
+import {
+  useDataGridCell,
+  useDataGridCellError,
+} from "@components/data-grid/hooks";
+import type {
+  DataGridCellProps,
+  InputProps,
+} from "@components/data-grid/types";
+
+import { useCombinedRefs } from "@hooks/use-combined-refs.tsx";
+
+import { DataGridCellContainer } from "./data-grid-cell-container";
+
+//@todo fix type
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const DataGridNumberCell = <TData, TValue = any>({
   context,
   ...rest
 }: DataGridCellProps<TData, TValue> & {
-  min?: number
-  max?: number
-  placeholder?: string
+  min?: number;
+  max?: number;
+  placeholder?: string;
 }) => {
   const { field, control, renderProps } = useDataGridCell({
     context,
-  })
-  const errorProps = useDataGridCellError({ context })
+  });
+  const errorProps = useDataGridCellError({ context });
 
-  const { container, input } = renderProps
+  const { container, input } = renderProps;
 
   return (
     <Controller
       control={control}
       name={field}
-      render={({ field }) => {
-        return (
-          <DataGridCellContainer {...container} {...errorProps}>
-            <Inner field={field} inputProps={input} {...rest} />
-          </DataGridCellContainer>
-        )
-      }}
+      render={({ field }) => (
+        <DataGridCellContainer {...container} {...errorProps}>
+          <Inner field={field} inputProps={input} {...rest} />
+        </DataGridCellContainer>
+      )}
     />
-  )
-}
+  );
+};
 
 const Inner = ({
   field,
   inputProps,
   ...props
 }: {
-  field: ControllerRenderProps<any, string>
-  inputProps: InputProps
-  min?: number
-  max?: number
-  placeholder?: string
+  //@todo fix type
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  field: ControllerRenderProps<any, string>;
+  inputProps: InputProps;
+  min?: number;
+  max?: number;
+  placeholder?: string;
 }) => {
-  const { ref, value, onChange: _, onBlur, ...fieldProps } = field
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { ref, value, onChange: _, onBlur, ...fieldProps } = field;
   const {
     ref: inputRef,
     onChange,
     onBlur: onInputBlur,
     onFocus,
     ...attributes
-  } = inputProps
+  } = inputProps;
 
-  const [localValue, setLocalValue] = useState(value)
+  const [localValue, setLocalValue] = useState(value);
 
   useEffect(() => {
-    setLocalValue(value)
-  }, [value])
+    setLocalValue(value);
+  }, [value]);
 
-  const combinedRefs = useCombinedRefs(inputRef, ref)
+  const combinedRefs = useCombinedRefs(inputRef, ref);
 
   return (
     <div className="size-full">
@@ -71,18 +86,18 @@ const Inner = ({
         value={localValue}
         onChange={(e) => setLocalValue(e.target.value)}
         onBlur={() => {
-          onBlur()
-          onInputBlur()
+          onBlur();
+          onInputBlur();
 
           // We propagate the change to the field only when the input is blurred
-          onChange(localValue, value)
+          onChange(localValue, value);
         }}
         onFocus={onFocus}
         type="number"
         inputMode="decimal"
         className={clx(
           "txt-compact-small size-full bg-transparent outline-none",
-          "placeholder:text-ui-fg-muted"
+          "placeholder:text-ui-fg-muted",
         )}
         tabIndex={-1}
         {...props}
@@ -90,5 +105,5 @@ const Inner = ({
         {...attributes}
       />
     </div>
-  )
-}
+  );
+};
