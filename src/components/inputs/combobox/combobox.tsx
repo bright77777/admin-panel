@@ -1,3 +1,29 @@
+import type {
+  CSSProperties,
+  ComponentPropsWithoutRef,
+  ForwardedRef,
+  ReactNode,
+} from "react";
+import {
+  Fragment,
+  useCallback,
+  useDeferredValue,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+  useState,
+  useTransition,
+} from "react";
+
+import {
+  CheckMini,
+  EllipseMiniSolid,
+  PlusMini,
+  TrianglesMini,
+  XMarkMini,
+} from "@medusajs/icons";
+import { Text, clx } from "@medusajs/ui";
+
 import {
   Combobox as PrimitiveCombobox,
   ComboboxDisclosure as PrimitiveComboboxDisclosure,
@@ -7,58 +33,36 @@ import {
   ComboboxPopover as PrimitiveComboboxPopover,
   ComboboxProvider as PrimitiveComboboxProvider,
   Separator as PrimitiveSeparator,
-} from "@ariakit/react"
-import {
-  CheckMini,
-  EllipseMiniSolid,
-  PlusMini,
-  TrianglesMini,
-  XMarkMini,
-} from "@medusajs/icons"
-import { clx, Text } from "@medusajs/ui"
-import { matchSorter } from "match-sorter"
-import {
-  ComponentPropsWithoutRef,
-  CSSProperties,
-  ForwardedRef,
-  Fragment,
-  ReactNode,
-  useCallback,
-  useDeferredValue,
-  useImperativeHandle,
-  useMemo,
-  useRef,
-  useState,
-  useTransition,
-} from "react"
-import { useTranslation } from "react-i18next"
+} from "@ariakit/react";
+import { matchSorter } from "match-sorter";
+import { useTranslation } from "react-i18next";
 
-import { genericForwardRef } from "../../utilities/generic-forward-ref"
+import { genericForwardRef } from "@components/utilities/generic-forward-ref";
 
 type ComboboxOption = {
-  value: string
-  label: string
-  disabled?: boolean
-}
+  value: string;
+  label: string;
+  disabled?: boolean;
+};
 
-type Value = string[] | string
+type Value = string[] | string;
 
-const TABLUAR_NUM_WIDTH = 8
-const TAG_BASE_WIDTH = 28
+const TABLUAR_NUM_WIDTH = 8;
+const TAG_BASE_WIDTH = 28;
 
 interface ComboboxProps<T extends Value = Value>
   extends Omit<ComponentPropsWithoutRef<"input">, "onChange" | "value"> {
-  value?: T
-  onChange?: (value?: T) => void
-  searchValue?: string
-  onSearchValueChange?: (value: string) => void
-  options: ComboboxOption[]
-  fetchNextPage?: () => void
-  isFetchingNextPage?: boolean
-  onCreateOption?: (value: string) => void
-  noResultsPlaceholder?: ReactNode
-  allowClear?: boolean
-  forceHideInput?: boolean // always hide input -> used for singe value select that don't have query/filter
+  value?: T;
+  onChange?: (value?: T) => void;
+  searchValue?: string;
+  onSearchValueChange?: (value: string) => void;
+  options: ComboboxOption[];
+  fetchNextPage?: () => void;
+  isFetchingNextPage?: boolean;
+  onCreateOption?: (value: string) => void;
+  noResultsPlaceholder?: ReactNode;
+  allowClear?: boolean;
+  forceHideInput?: boolean; // always hide input -> used for singe value select that don't have query/filter
 }
 
 const ComboboxImpl = <T extends Value = string>(
@@ -78,34 +82,36 @@ const ComboboxImpl = <T extends Value = string>(
     forceHideInput,
     ...inputProps
   }: ComboboxProps<T>,
-  ref: ForwardedRef<HTMLInputElement>
+  ref: ForwardedRef<HTMLInputElement>,
 ) => {
-  const [open, setOpen] = useState(false)
-  const [isPending, startTransition] = useTransition()
-  const { t } = useTranslation()
+  const [open, setOpen] = useState(false);
+  const [isPending, startTransition] = useTransition();
+  const { t } = useTranslation();
 
-  const comboboxRef = useRef<HTMLInputElement>(null)
-  const listboxRef = useRef<HTMLDivElement>(null)
+  const comboboxRef = useRef<HTMLInputElement>(null);
+  const listboxRef = useRef<HTMLDivElement>(null);
 
-  useImperativeHandle(ref, () => comboboxRef.current!)
+  useImperativeHandle(ref, () => comboboxRef.current!);
 
-  const isValueControlled = controlledValue !== undefined
-  const isSearchControlled = controlledSearchValue !== undefined
+  const isValueControlled = controlledValue !== undefined;
+  const isSearchControlled = controlledSearchValue !== undefined;
 
-  const isArrayValue = Array.isArray(controlledValue)
-  const emptyState = (isArrayValue ? [] : "") as T
+  const isArrayValue = Array.isArray(controlledValue);
+  const emptyState = (isArrayValue ? [] : "") as T;
 
   const [uncontrolledSearchValue, setUncontrolledSearchValue] = useState(
-    controlledSearchValue || ""
-  )
-  const defferedSearchValue = useDeferredValue(uncontrolledSearchValue)
+    controlledSearchValue || "",
+  );
+  const defferedSearchValue = useDeferredValue(uncontrolledSearchValue);
 
-  const [uncontrolledValue, setUncontrolledValue] = useState<T>(emptyState)
+  const [uncontrolledValue, setUncontrolledValue] = useState<T>(emptyState);
 
   const searchValue = isSearchControlled
     ? controlledSearchValue
-    : uncontrolledSearchValue
-  const selectedValues = isValueControlled ? controlledValue : uncontrolledValue
+    : uncontrolledSearchValue;
+  const selectedValues = isValueControlled
+    ? controlledValue
+    : uncontrolledValue;
 
   const handleValueChange = (newValues?: T) => {
     // check if the value already exists in options
@@ -113,35 +119,36 @@ const ComboboxImpl = <T extends Value = string>(
       .filter((o) => !o.disabled)
       .find((o) => {
         if (isArrayValue) {
-          return newValues?.includes(o.value)
+          return newValues?.includes(o.value);
         }
-        return o.value === newValues
-      })
+
+        return o.value === newValues;
+      });
 
     // If the value does not exist in the options, and the component has a handler
     // for creating new options, call it.
     if (!exists && onCreateOption && newValues) {
-      onCreateOption(newValues as string)
+      onCreateOption(newValues as string);
     }
 
     if (!isValueControlled) {
-      setUncontrolledValue(newValues || emptyState)
+      setUncontrolledValue(newValues || emptyState);
     }
 
     if (onChange) {
-      onChange(newValues)
+      onChange(newValues);
     }
 
-    setUncontrolledSearchValue("")
-  }
+    setUncontrolledSearchValue("");
+  };
 
   const handleSearchChange = (query: string) => {
-    setUncontrolledSearchValue(query)
+    setUncontrolledSearchValue(query);
 
     if (onSearchValueChange) {
-      onSearchValueChange(query)
+      onSearchValueChange(query);
     }
-  }
+  };
 
   /**
    * Filter and sort the options based on the search value,
@@ -151,78 +158,78 @@ const ComboboxImpl = <T extends Value = string>(
    */
   const matches = useMemo(() => {
     if (isSearchControlled) {
-      return []
+      return [];
     }
 
     // do not use `matcher` if the input is hidden
     if (forceHideInput) {
-      return options
+      return options;
     }
 
     return matchSorter(options, defferedSearchValue, {
       keys: ["label"],
-    })
-  }, [options, defferedSearchValue, isSearchControlled, forceHideInput])
+    });
+  }, [options, defferedSearchValue, isSearchControlled, forceHideInput]);
 
   const observer = useRef(
     new IntersectionObserver(
       (entries) => {
-        const first = entries[0]
+        const first = entries[0];
         if (first.isIntersecting) {
-          fetchNextPage?.()
+          fetchNextPage?.();
         }
       },
-      { threshold: 1 }
-    )
-  )
+      { threshold: 1 },
+    ),
+  );
 
   const lastOptionRef = useCallback(
     (node: HTMLDivElement) => {
       if (isFetchingNextPage) {
-        return
+        return;
       }
       if (observer.current) {
-        observer.current.disconnect()
+        observer.current.disconnect();
       }
       if (node) {
-        observer.current.observe(node)
+        observer.current.observe(node);
       }
     },
-    [isFetchingNextPage]
-  )
+    [isFetchingNextPage],
+  );
 
   const handleOpenChange = (open: boolean) => {
     if (!open) {
-      setUncontrolledSearchValue("")
+      setUncontrolledSearchValue("");
     }
 
-    setOpen(open)
-  }
+    setOpen(open);
+  };
 
-  const hasValue = selectedValues?.length > 0
+  const hasValue = selectedValues?.length > 0;
 
-  const showTag = hasValue && isArrayValue
-  const showSelected = showTag && !searchValue && !open
+  const showTag = hasValue && isArrayValue;
+  const showSelected = showTag && !searchValue && !open;
 
-  const hideInput = forceHideInput || (!isArrayValue && hasValue && !open)
-  const selectedLabel = options.find((o) => o.value === selectedValues)?.label
+  const hideInput = forceHideInput || (!isArrayValue && hasValue && !open);
+  const selectedLabel = options.find((o) => o.value === selectedValues)?.label;
 
-  const hidePlaceholder = showSelected || open
+  const hidePlaceholder = showSelected || open;
 
   const tagWidth = useMemo(() => {
     if (!Array.isArray(selectedValues)) {
-      return TAG_BASE_WIDTH + TABLUAR_NUM_WIDTH // There can only be a single digit
+      return TAG_BASE_WIDTH + TABLUAR_NUM_WIDTH; // There can only be a single digit
     }
 
-    const count = selectedValues.length
-    const digits = count.toString().length
+    const count = selectedValues.length;
+    const digits = count.toString().length;
 
-    return TAG_BASE_WIDTH + digits * TABLUAR_NUM_WIDTH
-  }, [selectedValues])
+    return TAG_BASE_WIDTH + digits * TABLUAR_NUM_WIDTH;
+  }, [selectedValues]);
 
   const results = useMemo(() => {
-    return isSearchControlled ? options : matches
-  }, [matches, options, isSearchControlled])
+    return isSearchControlled ? options : matches;
+  }, [matches, options, isSearchControlled]);
 
   return (
     <PrimitiveComboboxProvider
@@ -232,18 +239,18 @@ const ComboboxImpl = <T extends Value = string>(
       setSelectedValue={(value) => handleValueChange(value as T)}
       value={uncontrolledSearchValue}
       setValue={(query) => {
-        startTransition(() => handleSearchChange(query))
+        startTransition(() => handleSearchChange(query));
       }}
     >
       <div
         className={clx(
           "relative flex cursor-pointer items-center gap-x-2 overflow-hidden",
           "h-8 w-full rounded-md",
-          "bg-ui-bg-field transition-fg shadow-borders-base",
+          "bg-ui-bg-field shadow-borders-base transition-fg",
           "has-[input:focus]:shadow-borders-interactive-with-active",
           "has-[:invalid]:shadow-borders-error has-[[aria-invalid=true]]:shadow-borders-error",
-          "has-[:disabled]:bg-ui-bg-disabled has-[:disabled]:text-ui-fg-disabled has-[:disabled]:cursor-not-allowed",
-          className
+          "has-[:disabled]:cursor-not-allowed has-[:disabled]:bg-ui-bg-disabled has-[:disabled]:text-ui-fg-disabled",
+          className,
         )}
         style={
           {
@@ -255,10 +262,12 @@ const ComboboxImpl = <T extends Value = string>(
           <button
             type="button"
             onClick={(e) => {
-              e.preventDefault()
-              handleValueChange(isArrayValue ? ([] as unknown as T) : undefined)
+              e.preventDefault();
+              handleValueChange(
+                isArrayValue ? ([] as unknown as T) : undefined,
+              );
             }}
-            className="bg-ui-bg-base hover:bg-ui-bg-base-hover txt-compact-small-plus text-ui-fg-subtle focus-within:border-ui-fg-interactive transition-fg absolute start-0.5 top-0.5 z-[1] flex h-[28px] items-center rounded-[4px] border py-[3px] pe-1 ps-1.5 outline-none"
+            className="txt-compact-small-plus absolute start-0.5 top-0.5 z-[1] flex h-[28px] items-center rounded-[4px] border bg-ui-bg-base py-[3px] pe-1 ps-1.5 text-ui-fg-subtle outline-none transition-fg focus-within:border-ui-fg-interactive hover:bg-ui-bg-base-hover"
           >
             <span className="tabular-nums">{selectedValues.length}</span>
             <XMarkMini className="text-ui-fg-muted" />
@@ -272,7 +281,7 @@ const ComboboxImpl = <T extends Value = string>(
                 {
                   "start-[calc(var(--tag-width)+8px)]": showTag,
                   "start-2": !showTag,
-                }
+                },
               )}
             >
               <Text size="small" leading="compact">
@@ -287,7 +296,7 @@ const ComboboxImpl = <T extends Value = string>(
                 {
                   "start-[calc(var(--tag-width)+8px)]": showTag,
                   "start-2": !showTag,
-                }
+                },
               )}
             >
               <Text size="small" leading="compact" className="truncate">
@@ -300,13 +309,13 @@ const ComboboxImpl = <T extends Value = string>(
             ref={comboboxRef}
             onFocus={() => setOpen(true)}
             className={clx(
-              "txt-compact-small text-ui-fg-base !placeholder:text-ui-fg-muted transition-fg size-full cursor-pointer bg-transparent pe-8 ps-2 outline-none focus:cursor-text",
+              "!placeholder:text-ui-fg-muted txt-compact-small size-full cursor-pointer bg-transparent pe-8 ps-2 text-ui-fg-base outline-none transition-fg focus:cursor-text",
               "hover:bg-ui-bg-field-hover",
               {
                 "opacity-0": hideInput,
                 "ps-2": !showTag,
                 "ps-[calc(var(--tag-width)+8px)]": showTag,
-              }
+              },
             )}
             placeholder={hidePlaceholder ? undefined : placeholder}
             {...inputProps}
@@ -316,10 +325,10 @@ const ComboboxImpl = <T extends Value = string>(
           <button
             type="button"
             onClick={(e) => {
-              e.preventDefault()
-              handleValueChange(undefined)
+              e.preventDefault();
+              handleValueChange(undefined);
             }}
-            className="bg-ui-bg-base hover:bg-ui-bg-base-hover txt-compact-small-plus text-ui-fg-subtle focus-within:border-ui-fg-interactive transition-fg absolute end-[28px] top-0.5 z-[1] flex h-[28px] items-center rounded-[4px] border px-1.5 py-[2px] outline-none"
+            className="txt-compact-small-plus absolute end-[28px] top-0.5 z-[1] flex h-[28px] items-center rounded-[4px] border bg-ui-bg-base px-1.5 py-[2px] text-ui-fg-subtle outline-none transition-fg focus-within:border-ui-fg-interactive hover:bg-ui-bg-base-hover"
           >
             <XMarkMini className="text-ui-fg-muted" />
           </button>
@@ -330,11 +339,11 @@ const ComboboxImpl = <T extends Value = string>(
               <button
                 {...props}
                 type="button"
-                className="text-ui-fg-muted transition-fg hover:bg-ui-bg-field-hover absolute end-0 flex size-8 items-center justify-center rounded-r outline-none"
+                className="absolute end-0 flex size-8 items-center justify-center rounded-r text-ui-fg-muted outline-none transition-fg hover:bg-ui-bg-field-hover"
               >
                 <TrianglesMini />
               </button>
-            )
+            );
           }}
         />
       </div>
@@ -344,11 +353,11 @@ const ComboboxImpl = <T extends Value = string>(
         ref={listboxRef}
         role="listbox"
         className={clx(
-          "shadow-elevation-flyout bg-ui-bg-base z-50 rounded-[8px] p-1",
+          "z-50 rounded-[8px] bg-ui-bg-base p-1 shadow-elevation-flyout",
           "max-h-[200px] overflow-y-auto",
           "data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95",
           "data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95",
-          "data-[side=bottom]:slide-in-from-top-2 data-[side=start]:slide-in-from-end-2 data-[side=end]:slide-in-from-start-2 data-[side=top]:slide-in-from-bottom-2"
+          "data-[side=start]:slide-in-from-end-2 data-[side=end]:slide-in-from-start-2 data-[side=bottom]:slide-in-from-top-2 data-[side=top]:slide-in-from-bottom-2",
         )}
         style={{
           pointerEvents: open ? "auto" : "none",
@@ -363,11 +372,11 @@ const ComboboxImpl = <T extends Value = string>(
             setValueOnClick={false}
             disabled={disabled}
             className={clx(
-              "transition-fg bg-ui-bg-base data-[active-item=true]:bg-ui-bg-base-hover group flex cursor-pointer items-center gap-x-2 rounded-[4px] px-2 py-1",
+              "group flex cursor-pointer items-center gap-x-2 rounded-[4px] bg-ui-bg-base px-2 py-1 transition-fg data-[active-item=true]:bg-ui-bg-base-hover",
               {
                 "text-ui-fg-disabled": disabled,
                 "bg-ui-bg-component": disabled,
-              }
+              },
             )}
           >
             <PrimitiveComboboxItemCheck className="flex !size-5 items-center justify-center">
@@ -380,8 +389,8 @@ const ComboboxImpl = <T extends Value = string>(
         ))}
         {!!fetchNextPage && <div ref={lastOptionRef} className="w-px" />}
         {isFetchingNextPage && (
-          <div className="transition-fg bg-ui-bg-base flex items-center rounded-[4px] px-2 py-1.5">
-            <div className="bg-ui-bg-component size-full h-5 w-full animate-pulse rounded-[4px]" />
+          <div className="flex items-center rounded-[4px] bg-ui-bg-base px-2 py-1.5 transition-fg">
+            <div className="size-full h-5 w-full animate-pulse rounded-[4px] bg-ui-bg-component" />
           </div>
         )}
         {!results.length &&
@@ -400,12 +409,12 @@ const ComboboxImpl = <T extends Value = string>(
           ))}
         {!results.length && onCreateOption && (
           <Fragment>
-            <PrimitiveSeparator className="bg-ui-border-base -mx-1" />
+            <PrimitiveSeparator className="-mx-1 bg-ui-border-base" />
             <PrimitiveComboboxItem
               value={uncontrolledSearchValue}
               focusOnHover
               setValueOnClick={false}
-              className="transition-fg bg-ui-bg-base data-[active-item=true]:bg-ui-bg-base-hover group mt-1 flex cursor-pointer items-center gap-x-2 rounded-[4px] px-2 py-1.5"
+              className="group mt-1 flex cursor-pointer items-center gap-x-2 rounded-[4px] bg-ui-bg-base px-2 py-1.5 transition-fg data-[active-item=true]:bg-ui-bg-base-hover"
             >
               <PlusMini className="text-ui-fg-subtle" />
               <Text size="small" leading="compact">
@@ -416,7 +425,7 @@ const ComboboxImpl = <T extends Value = string>(
         )}
       </PrimitiveComboboxPopover>
     </PrimitiveComboboxProvider>
-  )
-}
+  );
+};
 
-export const Combobox = genericForwardRef(ComboboxImpl)
+export const Combobox = genericForwardRef(ComboboxImpl);
