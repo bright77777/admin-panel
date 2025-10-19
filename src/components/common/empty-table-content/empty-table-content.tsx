@@ -1,23 +1,25 @@
-import { ExclamationCircle, MagnifyingGlass, PlusMini } from "@medusajs/icons"
-import { Button, Text, clx } from "@medusajs/ui"
-import React from "react"
-import { useTranslation } from "react-i18next"
-import { Link } from "react-router-dom"
+import type React from "react";
+
+import { ExclamationCircle, MagnifyingGlass, PlusMini } from "@medusajs/icons";
+import { Button, Text, clx } from "@medusajs/ui";
+
+import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
 
 export type NoResultsProps = {
-  title?: string
-  message?: string
-  className?: string
-}
+  title?: string;
+  message?: string;
+  className?: string;
+};
 
 export const NoResults = ({ title, message, className }: NoResultsProps) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   return (
     <div
       className={clx(
         "flex h-[400px] w-full items-center justify-center",
-        className
+        className,
       )}
     >
       <div className="flex flex-col items-center gap-y-2">
@@ -30,23 +32,23 @@ export const NoResults = ({ title, message, className }: NoResultsProps) => {
         </Text>
       </div>
     </div>
-  )
-}
+  );
+};
 
 type ActionProps = {
   action?: {
-    to: string
-    label: string
-  }
-}
+    to: string;
+    label: string;
+  };
+};
 
 type NoRecordsProps = {
-  title?: string
-  message?: string
-  className?: string
-  buttonVariant?: string
-  icon?: React.ReactNode
-} & ActionProps
+  title?: string;
+  message?: string;
+  className?: string;
+  buttonVariant?: string;
+  icon?: React.ReactNode;
+} & ActionProps;
 
 const DefaultButton = ({ action }: ActionProps) =>
   action && (
@@ -55,7 +57,7 @@ const DefaultButton = ({ action }: ActionProps) =>
         {action.label}
       </Button>
     </Link>
-  )
+  );
 
 const TransparentIconLeftButton = ({ action }: ActionProps) =>
   action && (
@@ -64,7 +66,7 @@ const TransparentIconLeftButton = ({ action }: ActionProps) =>
         <PlusMini /> {action.label}
       </Button>
     </Link>
-  )
+  );
 
 export const NoRecords = ({
   title,
@@ -74,13 +76,13 @@ export const NoRecords = ({
   buttonVariant = "default",
   icon = <ExclamationCircle className="text-ui-fg-subtle" />,
 }: NoRecordsProps) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   return (
     <div
       className={clx(
         "flex h-[150px] w-full flex-col items-center justify-center gap-y-4",
-        className
+        className,
       )}
     >
       <div className="flex flex-col items-center gap-y-3">
@@ -102,5 +104,5 @@ export const NoRecords = ({
         <TransparentIconLeftButton action={action} />
       )}
     </div>
-  )
-}
+  );
+};
