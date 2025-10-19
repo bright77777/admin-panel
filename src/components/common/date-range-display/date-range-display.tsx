@@ -1,27 +1,29 @@
-import { Text, clx } from "@medusajs/ui"
-import { useTranslation } from "react-i18next"
-import { useDate } from "../../../hooks/use-date"
+import { Text, clx } from "@medusajs/ui";
+
+import { useTranslation } from "react-i18next";
+
+import { useDate } from "@hooks/use-date.tsx";
 
 type DateRangeDisplayProps = {
-  startsAt?: Date | string | null
-  endsAt?: Date | string | null
-  showTime?: boolean
-}
+  startsAt?: Date | string | null;
+  endsAt?: Date | string | null;
+  showTime?: boolean;
+};
 
 export const DateRangeDisplay = ({
   startsAt,
   endsAt,
   showTime = false,
 }: DateRangeDisplayProps) => {
-  const startDate = startsAt ? new Date(startsAt) : null
-  const endDate = endsAt ? new Date(endsAt) : null
+  const startDate = startsAt ? new Date(startsAt) : null;
+  const endDate = endsAt ? new Date(endsAt) : null;
 
-  const { t } = useTranslation()
-  const { getFullDate } = useDate()
+  const { t } = useTranslation();
+  const { getFullDate } = useDate();
 
   return (
     <div className="grid gap-3 md:grid-cols-2">
-      <div className="shadow-elevation-card-rest bg-ui-bg-component text-ui-fg-subtle flex items-center gap-x-3 rounded-md px-3 py-1.5">
+      <div className="flex items-center gap-x-3 rounded-md bg-ui-bg-component px-3 py-1.5 text-ui-fg-subtle shadow-elevation-card-rest">
         <Bar date={startDate} />
         <div>
           <Text weight="plus" size="small">
@@ -38,7 +40,7 @@ export const DateRangeDisplay = ({
         </div>
       </div>
 
-      <div className="shadow-elevation-card-rest bg-ui-bg-component text-ui-fg-subtle flex items-center gap-x-3 rounded-md px-3 py-1.5">
+      <div className="flex items-center gap-x-3 rounded-md bg-ui-bg-component px-3 py-1.5 text-ui-fg-subtle shadow-elevation-card-rest">
         <Bar date={endDate} />
         <div>
           <Text size="small" weight="plus">
@@ -55,19 +57,19 @@ export const DateRangeDisplay = ({
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
 const Bar = ({ date }: { date: Date | null }) => {
-  const now = new Date()
+  const now = new Date();
 
-  const isDateInFuture = date && date > now
+  const isDateInFuture = date && date > now;
 
   return (
     <div
-      className={clx("bg-ui-tag-neutral-icon h-8 w-1 rounded-full", {
+      className={clx("h-8 w-1 rounded-full bg-ui-tag-neutral-icon", {
         "bg-ui-tag-orange-icon": isDateInFuture,
       })}
     />
-  )
-}
+  );
+};
