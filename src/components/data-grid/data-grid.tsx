@@ -1,4 +1,4 @@
-import { FieldValues } from "react-hook-form"
+import type { FieldValues } from "react-hook-form";
 
 import {
   DataGridBooleanCell,
@@ -6,21 +6,21 @@ import {
   DataGridNumberCell,
   DataGridReadOnlyCell,
   DataGridRoot,
+  type DataGridRootProps,
   DataGridSkeleton,
   DataGridTextCell,
-  type DataGridRootProps,
-} from "./components"
+} from "@components/data-grid/components";
 
 interface DataGridProps<TData, TFieldValues extends FieldValues = FieldValues>
   extends DataGridRootProps<TData, TFieldValues> {
-  isLoading?: boolean
+  isLoading?: boolean;
 }
 
 const _DataGrid = <TData, TFieldValues extends FieldValues = FieldValues>({
   isLoading,
   ...props
-}: DataGridProps<TData, TFieldValues>) => {
-  return isLoading ? (
+}: DataGridProps<TData, TFieldValues>) =>
+  isLoading ? (
     <DataGridSkeleton
       columns={props.columns}
       rows={
@@ -29,8 +29,7 @@ const _DataGrid = <TData, TFieldValues extends FieldValues = FieldValues>({
     />
   ) : (
     <DataGridRoot {...props} />
-  )
-}
+  );
 
 export const DataGrid = Object.assign(_DataGrid, {
   BooleanCell: DataGridBooleanCell,
@@ -38,4 +37,4 @@ export const DataGrid = Object.assign(_DataGrid, {
   NumberCell: DataGridNumberCell,
   CurrencyCell: DataGridCurrencyCell,
   ReadonlyCell: DataGridReadOnlyCell,
-})
+});
