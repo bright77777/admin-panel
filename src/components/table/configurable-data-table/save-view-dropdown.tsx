@@ -1,27 +1,28 @@
-import React from "react"
-import { Button, DropdownMenu, usePrompt } from "@medusajs/ui"
-import { ChevronDownMini } from "@medusajs/icons"
-import { useTranslation } from "react-i18next"
+import type React from "react";
+
+import { ChevronDownMini } from "@medusajs/icons";
+import { Button, DropdownMenu, usePrompt } from "@medusajs/ui";
+
+import { useTranslation } from "react-i18next";
 
 interface SaveViewDropdownProps {
-  isDefaultView: boolean
-  currentViewId?: string
-  currentViewName?: string
-  onSaveAsDefault: () => void
-  onUpdateExisting: () => void
-  onSaveAsNew: () => void
+  isDefaultView: boolean;
+  currentViewId?: string;
+  currentViewName?: string;
+  onSaveAsDefault: () => void;
+  onUpdateExisting: () => void;
+  onSaveAsNew: () => void;
 }
 
 export const SaveViewDropdown: React.FC<SaveViewDropdownProps> = ({
   isDefaultView,
-  currentViewId,
   currentViewName,
   onSaveAsDefault,
   onUpdateExisting,
   onSaveAsNew,
 }) => {
-  const { t } = useTranslation()
-  const prompt = usePrompt()
+  const { t } = useTranslation();
+  const prompt = usePrompt();
 
   const handleSaveAsDefault = async () => {
     const result = await prompt({
@@ -29,34 +30,32 @@ export const SaveViewDropdown: React.FC<SaveViewDropdownProps> = ({
       description: t("views.prompts.updateDefault.description"),
       confirmText: t("views.prompts.updateDefault.confirmText"),
       cancelText: t("views.prompts.updateDefault.cancelText"),
-    })
+    });
 
     if (result) {
-      onSaveAsDefault()
+      onSaveAsDefault();
     }
-  }
+  };
 
   const handleUpdateExisting = async () => {
     const result = await prompt({
       title: t("views.prompts.updateView.title"),
-      description: t("views.prompts.updateView.description", { name: currentViewName }),
+      description: t("views.prompts.updateView.description", {
+        name: currentViewName,
+      }),
       confirmText: t("views.prompts.updateView.confirmText"),
       cancelText: t("views.prompts.updateView.cancelText"),
-    })
+    });
 
     if (result) {
-      onUpdateExisting()
+      onUpdateExisting();
     }
-  }
+  };
 
   return (
     <DropdownMenu>
       <DropdownMenu.Trigger asChild>
-        <Button
-          variant="secondary"
-          size="small"
-          type="button"
-        >
+        <Button variant="secondary" size="small" type="button">
           {t("views.save")}
           <ChevronDownMini />
         </Button>
@@ -83,5 +82,5 @@ export const SaveViewDropdown: React.FC<SaveViewDropdownProps> = ({
         )}
       </DropdownMenu.Content>
     </DropdownMenu>
-  )
-}
+  );
+};
