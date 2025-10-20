@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 import {
   BookOpen,
   CircleHalfSolid,
@@ -7,7 +9,7 @@ import {
   TimelineVertical,
   User as UserIcon,
   XMark,
-} from "@medusajs/icons"
+} from "@medusajs/icons";
 import {
   Avatar,
   DropdownMenu,
@@ -17,32 +19,34 @@ import {
   Kbd,
   Text,
   clx,
-} from "@medusajs/ui"
-import { Dialog as RadixDialog } from "radix-ui"
-import { useTranslation } from "react-i18next"
+} from "@medusajs/ui";
 
-import { Skeleton } from "../../common/skeleton"
+import { Dialog as RadixDialog } from "radix-ui";
+import { useTranslation } from "react-i18next";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
-import { useState } from "react"
-import { Link, useLocation, useNavigate } from "react-router-dom"
-import { useLogout, useMe } from "../../../hooks/api"
-import { queryClient } from "../../../lib/query-client"
-import { useGlobalShortcuts } from "../../../providers/keybind-provider/hooks"
-import { useTheme } from "../../../providers/theme-provider"
-import { useDocumentDirection } from "../../../hooks/use-document-direction"
+import { Skeleton } from "@components//common/skeleton";
+
+import { useLogout, useMe } from "@hooks/api";
+import { useDocumentDirection } from "@hooks/use-document-direction";
+
+import { queryClient } from "@lib/query-client";
+
+import { useGlobalShortcuts } from "@providers/keybind-provider/hooks";
+import { useTheme } from "@providers/theme-provider";
 
 export const UserMenu = () => {
-  const { t } = useTranslation()
-  const location = useLocation()
-  const direction = useDocumentDirection()
+  const { t } = useTranslation();
+  const location = useLocation();
+  const direction = useDocumentDirection();
 
-  const [openMenu, setOpenMenu] = useState(false)
-  const [openModal, setOpenModal] = useState(false)
+  const [openMenu, setOpenMenu] = useState(false);
+  const [openModal, setOpenModal] = useState(false);
 
   const toggleModal = () => {
-    setOpenMenu(false)
-    setOpenModal(!openModal)
-  }
+    setOpenMenu(false);
+    setOpenModal(!openModal);
+  };
 
   return (
     <div>
@@ -53,26 +57,26 @@ export const UserMenu = () => {
           <DropdownMenu.Separator />
           <DropdownMenu.Item asChild>
             <Link to="/settings/profile" state={{ from: location.pathname }}>
-              <UserIcon className="text-ui-fg-subtle me-2" />
+              <UserIcon className="me-2 text-ui-fg-subtle" />
               {t("app.menus.user.profileSettings")}
             </Link>
           </DropdownMenu.Item>
           <DropdownMenu.Separator />
           <DropdownMenu.Item asChild>
             <Link to="https://docs.medusajs.com" target="_blank">
-              <BookOpen className="text-ui-fg-subtle me-2" />
+              <BookOpen className="me-2 text-ui-fg-subtle" />
               {t("app.menus.user.documentation")}
             </Link>
           </DropdownMenu.Item>
           <DropdownMenu.Item asChild>
             <Link to="https://medusajs.com/changelog/" target="_blank">
-              <TimelineVertical className="text-ui-fg-subtle me-2" />
+              <TimelineVertical className="me-2 text-ui-fg-subtle" />
               {t("app.menus.user.changelog")}
             </Link>
           </DropdownMenu.Item>
           <DropdownMenu.Separator />
           <DropdownMenu.Item onClick={toggleModal}>
-            <Keyboard className="text-ui-fg-subtle me-2" />
+            <Keyboard className="me-2 text-ui-fg-subtle" />
             {t("app.menus.user.shortcuts")}
           </DropdownMenu.Item>
           <ThemeToggle />
@@ -82,28 +86,28 @@ export const UserMenu = () => {
       </DropdownMenu>
       <GlobalKeybindsModal open={openModal} onOpenChange={setOpenModal} />
     </div>
-  )
-}
+  );
+};
 
 const UserBadge = () => {
-  const { user, isPending, isError, error } = useMe()
+  const { user, isPending, isError, error } = useMe();
 
-  const name = [user?.first_name, user?.last_name].filter(Boolean).join(" ")
-  const displayName = name || user?.email
+  const name = [user?.first_name, user?.last_name].filter(Boolean).join(" ");
+  const displayName = name || user?.email;
 
-  const fallback = displayName ? displayName[0].toUpperCase() : null
+  const fallback = displayName ? displayName[0].toUpperCase() : null;
 
   if (isPending) {
     return (
-      <button className="shadow-borders-base flex max-w-[192px] select-none items-center gap-x-2 overflow-hidden text-ellipsis whitespace-nowrap rounded-full py-1 ps-1 pe-2.5">
+      <button className="flex max-w-[192px] select-none items-center gap-x-2 overflow-hidden text-ellipsis whitespace-nowrap rounded-full py-1 pe-2.5 ps-1 shadow-borders-base">
         <Skeleton className="h-5 w-5 rounded-full" />
         <Skeleton className="h-[9px] w-[70px]" />
       </button>
-    )
+    );
   }
 
   if (isError) {
-    throw error
+    throw error;
   }
 
   return (
@@ -111,10 +115,10 @@ const UserBadge = () => {
       <DropdownMenu.Trigger
         disabled={!user}
         className={clx(
-          "bg-ui-bg-subtle grid w-full cursor-pointer grid-cols-[24px_1fr_15px] items-center gap-2 rounded-md py-1 ps-0.5 pe-2 outline-none",
+          "grid w-full cursor-pointer grid-cols-[24px_1fr_15px] items-center gap-2 rounded-md bg-ui-bg-subtle py-1 pe-2 ps-0.5 outline-none",
           "hover:bg-ui-bg-subtle-hover",
           "data-[state=open]:bg-ui-bg-subtle-hover",
-          "focus-visible:shadow-borders-focus"
+          "focus-visible:shadow-borders-focus",
         )}
       >
         <div className="flex size-6 items-center justify-center">
@@ -141,26 +145,31 @@ const UserBadge = () => {
         <EllipsisHorizontal className="text-ui-fg-muted" />
       </DropdownMenu.Trigger>
     </div>
-  )
-}
+  );
+};
 
 const ThemeToggle = () => {
-  const { t } = useTranslation()
-  const { theme, setTheme } = useTheme()
+  const { t } = useTranslation();
+  const { theme, setTheme } = useTheme();
 
   return (
     <DropdownMenu.SubMenu>
-      <DropdownMenu.SubMenuTrigger dir="ltr" className="rounded-md rtl:rotate-180">
-        <CircleHalfSolid className="text-ui-fg-subtle me-2" />
-        <span className="rtl:rotate-180">{t("app.menus.user.theme.label")}</span>
+      <DropdownMenu.SubMenuTrigger
+        dir="ltr"
+        className="rounded-md rtl:rotate-180"
+      >
+        <CircleHalfSolid className="me-2 text-ui-fg-subtle" />
+        <span className="rtl:rotate-180">
+          {t("app.menus.user.theme.label")}
+        </span>
       </DropdownMenu.SubMenuTrigger>
       <DropdownMenu.SubMenuContent>
         <DropdownMenu.RadioGroup value={theme}>
           <DropdownMenu.RadioItem
             value="system"
             onClick={(e) => {
-              e.preventDefault()
-              setTheme("system")
+              e.preventDefault();
+              setTheme("system");
             }}
           >
             {t("app.menus.user.theme.system")}
@@ -168,8 +177,8 @@ const ThemeToggle = () => {
           <DropdownMenu.RadioItem
             value="light"
             onClick={(e) => {
-              e.preventDefault()
-              setTheme("light")
+              e.preventDefault();
+              setTheme("light");
             }}
           >
             {t("app.menus.user.theme.light")}
@@ -177,8 +186,8 @@ const ThemeToggle = () => {
           <DropdownMenu.RadioItem
             value="dark"
             onClick={(e) => {
-              e.preventDefault()
-              setTheme("dark")
+              e.preventDefault();
+              setTheme("dark");
             }}
           >
             {t("app.menus.user.theme.dark")}
@@ -186,14 +195,14 @@ const ThemeToggle = () => {
         </DropdownMenu.RadioGroup>
       </DropdownMenu.SubMenuContent>
     </DropdownMenu.SubMenu>
-  )
-}
+  );
+};
 
 const Logout = () => {
-  const { t } = useTranslation()
-  const navigate = useNavigate()
+  const { t } = useTranslation();
+  const navigate = useNavigate();
 
-  const { mutateAsync: logoutMutation } = useLogout()
+  const { mutateAsync: logoutMutation } = useLogout();
 
   const handleLogout = async () => {
     await logoutMutation(undefined, {
@@ -201,11 +210,11 @@ const Logout = () => {
         /**
          * When the user logs out, we want to clear the query cache
          */
-        queryClient.clear()
-        navigate("/login")
+        queryClient.clear();
+        navigate("/login");
       },
-    })
-  }
+    });
+  };
 
   return (
     <DropdownMenu.Item onClick={handleLogout}>
@@ -214,29 +223,31 @@ const Logout = () => {
         <span>{t("app.menus.actions.logout")}</span>
       </div>
     </DropdownMenu.Item>
-  )
-}
+  );
+};
 
 const GlobalKeybindsModal = (props: {
-  open: boolean
-  onOpenChange: (open: boolean) => void
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }) => {
-  const { t } = useTranslation()
-  const globalShortcuts = useGlobalShortcuts()
+  const { t } = useTranslation();
+  const globalShortcuts = useGlobalShortcuts();
 
-  const [searchValue, onSearchValueChange] = useState("")
+  const [searchValue, onSearchValueChange] = useState("");
 
   const searchResults = searchValue
     ? globalShortcuts.filter((shortcut) => {
-        return shortcut.label.toLowerCase().includes(searchValue?.toLowerCase())
+        return shortcut.label
+          .toLowerCase()
+          .includes(searchValue?.toLowerCase());
       })
-    : globalShortcuts
+    : globalShortcuts;
 
   return (
     <RadixDialog.Root {...props}>
       <RadixDialog.Portal>
-        <RadixDialog.Overlay className="bg-ui-bg-overlay fixed inset-0" />
-        <RadixDialog.Content className="bg-ui-bg-subtle shadow-elevation-modal fixed left-[50%] top-[50%] flex h-full max-h-[612px] w-full max-w-[560px] translate-x-[-50%] translate-y-[-50%] flex-col divide-y overflow-hidden rounded-lg">
+        <RadixDialog.Overlay className="fixed inset-0 bg-ui-bg-overlay" />
+        <RadixDialog.Content className="fixed left-[50%] top-[50%] flex h-full max-h-[612px] w-full max-w-[560px] translate-x-[-50%] translate-y-[-50%] flex-col divide-y overflow-hidden rounded-lg bg-ui-bg-subtle shadow-elevation-modal">
           <div className="flex flex-col gap-y-3 px-6 py-4">
             <div className="flex items-center justify-between">
               <div>
@@ -263,53 +274,49 @@ const GlobalKeybindsModal = (props: {
             </div>
           </div>
           <div className="flex flex-col divide-y overflow-y-auto">
-            {searchResults.map((shortcut, index) => {
-              return (
-                <div
-                  key={index}
-                  className="text-ui-fg-subtle flex items-center justify-between px-6 py-3"
-                >
-                  <Text size="small">{shortcut.label}</Text>
-                  <div className="flex items-center gap-x-1">
-                    {shortcut.keys.Mac?.map((key, index) => {
-                      return (
-                        <div className="flex items-center gap-x-1" key={index}>
-                          <Kbd>{key}</Kbd>
-                          {index < (shortcut.keys.Mac?.length || 0) - 1 && (
-                            <span className="txt-compact-xsmall text-ui-fg-subtle">
-                              {t("app.keyboardShortcuts.then")}
-                            </span>
-                          )}
-                        </div>
-                      )
-                    })}
-                  </div>
+            {searchResults.map((shortcut, index) => (
+              <div
+                key={index}
+                className="flex items-center justify-between px-6 py-3 text-ui-fg-subtle"
+              >
+                <Text size="small">{shortcut.label}</Text>
+                <div className="flex items-center gap-x-1">
+                  {shortcut.keys.Mac?.map((key, index) => (
+                    <div className="flex items-center gap-x-1" key={index}>
+                      <Kbd>{key}</Kbd>
+                      {index < (shortcut.keys.Mac?.length || 0) - 1 && (
+                        <span className="txt-compact-xsmall text-ui-fg-subtle">
+                          {t("app.keyboardShortcuts.then")}
+                        </span>
+                      )}
+                    </div>
+                  ))}
                 </div>
-              )
-            })}
+              </div>
+            ))}
           </div>
         </RadixDialog.Content>
       </RadixDialog.Portal>
     </RadixDialog.Root>
-  )
-}
+  );
+};
 
 const UserItem = () => {
-  const { user, isPending, isError, error } = useMe()
+  const { user, isPending, isError, error } = useMe();
 
-  const loaded = !isPending && !!user
+  const loaded = !isPending && !!user;
 
   if (!loaded) {
-    return <div></div>
+    return <div></div>;
   }
 
-  const name = [user.first_name, user.last_name].filter(Boolean).join(" ")
-  const email = user.email
-  const fallback = name ? name[0].toUpperCase() : email[0].toUpperCase()
-  const avatar = user.avatar_url
+  const name = [user.first_name, user.last_name].filter(Boolean).join(" ");
+  const email = user.email;
+  const fallback = name ? name[0].toUpperCase() : email[0].toUpperCase();
+  const avatar = user.avatar_url;
 
   if (isError) {
-    throw error
+    throw error;
   }
 
   return (
@@ -333,12 +340,12 @@ const UserItem = () => {
           <Text
             size="xsmall"
             leading="compact"
-            className="text-ui-fg-subtle overflow-hidden text-ellipsis whitespace-nowrap"
+            className="overflow-hidden text-ellipsis whitespace-nowrap text-ui-fg-subtle"
           >
             {email}
           </Text>
         )}
       </div>
     </div>
-  )
-}
+  );
+};
