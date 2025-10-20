@@ -24,7 +24,7 @@ export const SEARCH_AREAS = [
   "secretApiKey",
   "command",
   "navigation",
-] as const
+] as const;
 
-export const DEFAULT_SEARCH_LIMIT = 3
-export const SEARCH_LIMIT_INCREMENT = 20
+export const DEFAULT_SEARCH_LIMIT = 3;
+export const SEARCH_LIMIT_INCREMENT = 20;

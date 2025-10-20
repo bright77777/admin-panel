@@ -102,8 +102,6 @@ export const useDataGridCellHandlers = <
   );
 
   const getInputChangeHandler = useCallback(
-    // Using `any` here as the generic type of Path<TFieldValues> will
-    // not be inferred correctly.
     // @todo fix any type
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (field: any) => (next: any, prev: any) => {
