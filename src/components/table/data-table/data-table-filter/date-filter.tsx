@@ -1,37 +1,41 @@
-import { EllipseMiniSolid } from "@medusajs/icons"
-import { DatePicker, Text, clx } from "@medusajs/ui"
-import isEqual from "lodash/isEqual"
-import { Popover as RadixPopover } from "radix-ui"
-import { useMemo, useState } from "react"
+import { useMemo, useState } from "react";
 
-import { t } from "i18next"
-import { useTranslation } from "react-i18next"
-import { useDate } from "../../../../hooks/use-date"
-import { useSelectedParams } from "../hooks"
-import { useDataTableFilterContext } from "./context"
-import FilterChip from "./filter-chip"
-import { IFilter } from "./types"
+import { EllipseMiniSolid } from "@medusajs/icons";
+import { DatePicker, Text, clx } from "@medusajs/ui";
 
-type DateFilterProps = IFilter
+import { t } from "i18next";
+import isEqual from "lodash/isEqual";
+import { Popover as RadixPopover } from "radix-ui";
+import { useTranslation } from "react-i18next";
+
+import { useSelectedParams } from "@components/table/data-table/hooks";
+
+import { useDate } from "@hooks/use-date";
+
+import { useDataTableFilterContext } from "./context";
+import FilterChip from "./filter-chip";
+import type { IFilter } from "./types";
+
+type DateFilterProps = IFilter;
 
 type DateComparisonOperator = {
   /**
    * The filtered date must be greater than or equal to this value.
    */
-  $gte?: string
+  $gte?: string;
   /**
    * The filtered date must be less than or equal to this value.
    */
-  $lte?: string
+  $lte?: string;
   /**
    * The filtered date must be less than this value.
    */
-  $lt?: string
+  $lt?: string;
   /**
    * The filtered date must be greater than this value.
    */
-  $gt?: string
-}
+  $gt?: string;
+};
 
 export const DateFilter = ({
   filter,
@@ -39,96 +43,98 @@ export const DateFilter = ({
   readonly,
   openOnMount,
 }: DateFilterProps) => {
-  const [open, setOpen] = useState(openOnMount)
-  const [showCustom, setShowCustom] = useState(false)
+  const [open, setOpen] = useState(openOnMount);
+  const [showCustom, setShowCustom] = useState(false);
 
-  const { getFullDate } = useDate()
+  const { getFullDate } = useDate();
 
-  const { key, label } = filter
+  const { key, label } = filter;
 
-  const { removeFilter } = useDataTableFilterContext()
-  const selectedParams = useSelectedParams({ param: key, prefix })
+  const { removeFilter } = useDataTableFilterContext();
+  const selectedParams = useSelectedParams({ param: key, prefix });
 
-  const presets = usePresets()
+  const presets = usePresets();
 
   const handleSelectPreset = (value: DateComparisonOperator) => {
-    selectedParams.add(JSON.stringify(value))
-    setShowCustom(false)
-  }
+    selectedParams.add(JSON.stringify(value));
+    setShowCustom(false);
+  };
 
   const handleSelectCustom = () => {
-    selectedParams.delete()
-    setShowCustom((prev) => !prev)
-  }
+    selectedParams.delete();
+    setShowCustom((prev) => !prev);
+  };
 
-  const currentValue = selectedParams.get()
+  const currentValue = selectedParams.get();
 
-  const currentDateComparison = parseDateComparison(currentValue)
-  const customStartValue = getDateFromComparison(currentDateComparison, "$gte")
-  const customEndValue = getDateFromComparison(currentDateComparison, "$lte")
+  const currentDateComparison = parseDateComparison(currentValue);
+  const customStartValue = getDateFromComparison(currentDateComparison, "$gte");
+  const customEndValue = getDateFromComparison(currentDateComparison, "$lte");
 
   const handleCustomDateChange = (value: Date | null, pos: "start" | "end") => {
-    const key = pos === "start" ? "$gte" : "$lte"
+    const key = pos === "start" ? "$gte" : "$lte";
 
-    let dateValue = value
+    let dateValue = value;
 
     // offset to the end of the day so the results include the selected end date
     if (key === "$lte" && value) {
-      dateValue = new Date(value.getTime())
-      dateValue.setHours(23, 59, 59, 999)
+      dateValue = new Date(value.getTime());
+      dateValue.setHours(23, 59, 59, 999);
     }
 
     selectedParams.add(
       JSON.stringify({
         ...(currentDateComparison || {}),
         [key]: dateValue?.toISOString(),
-      })
-    )
-  }
+      }),
+    );
+  };
 
   const getDisplayValueFromPresets = () => {
-    const preset = presets.find((p) => isEqual(p.value, currentDateComparison))
-    return preset?.label
-  }
+    const preset = presets.find((p) => isEqual(p.value, currentDateComparison));
+
+    return preset?.label;
+  };
 
   const formatCustomDate = (date: Date | undefined) => {
-    return date ? getFullDate({ date: date }) : undefined
-  }
+    return date ? getFullDate({ date: date }) : undefined;
+  };
 
   const getCustomDisplayValue = () => {
     const formattedDates = [customStartValue, customEndValue].map(
-      formatCustomDate
-    )
-    return formattedDates.filter(Boolean).join(" - ")
-  }
+      formatCustomDate,
+    );
 
-  const displayValue = getDisplayValueFromPresets() || getCustomDisplayValue()
+    return formattedDates.filter(Boolean).join(" - ");
+  };
+
+  const displayValue = getDisplayValueFromPresets() || getCustomDisplayValue();
 
   const [previousValue, setPreviousValue] = useState<string | undefined>(
-    displayValue
-  )
+    displayValue,
+  );
 
   const handleRemove = () => {
-    selectedParams.delete()
-    removeFilter(key)
-  }
+    selectedParams.delete();
+    removeFilter(key);
+  };
 
-  let timeoutId: ReturnType<typeof setTimeout> | null = null
+  let timeoutId: ReturnType<typeof setTimeout> | null = null;
 
   const handleOpenChange = (open: boolean) => {
-    setOpen(open)
-    setPreviousValue(displayValue)
+    setOpen(open);
+    setPreviousValue(displayValue);
 
     if (timeoutId) {
-      clearTimeout(timeoutId)
+      clearTimeout(timeoutId);
     }
 
     if (!open && !currentValue.length) {
       timeoutId = setTimeout(() => {
-        removeFilter(key)
-      }, 200)
+        removeFilter(key);
+      }, 200);
     }
-  }
+  };
 
   return (
     <RadixPopover.Root modal open={open} onOpenChange={handleOpenChange}>
@@ -147,7 +153,7 @@ export const DateFilter = ({
             sideOffset={8}
             collisionPadding={24}
             className={clx(
-              "bg-ui-bg-base text-ui-fg-base shadow-elevation-flyout h-full max-h-[var(--radix-popper-available-height)] w-[300px] overflow-auto rounded-lg"
+              "h-full max-h-[var(--radix-popper-available-height)] w-[300px] overflow-auto rounded-lg bg-ui-bg-base text-ui-fg-base shadow-elevation-flyout",
             )}
             onInteractOutside={(e) => {
               if (e.target instanceof HTMLElement) {
@@ -155,7 +161,7 @@ export const DateFilter = ({
                   e.target.attributes.getNamedItem("data-name")?.value ===
                   "filters_menu_content"
                 ) {
-                  e.preventDefault()
+                  e.preventDefault();
                 }
               }
             }}
@@ -164,22 +170,23 @@ export const DateFilter = ({
               {presets.map((preset) => {
                 const isSelected = selectedParams
                   .get()
-                  .includes(JSON.stringify(preset.value))
+                  .includes(JSON.stringify(preset.value));
+
                 return (
                   <li key={preset.label}>
                     <button
-                      className="bg-ui-bg-base hover:bg-ui-bg-base-hover focus-visible:bg-ui-bg-base-pressed text-ui-fg-base data-[disabled]:text-ui-fg-disabled txt-compact-small relative flex w-full cursor-pointer select-none items-center rounded-md px-2 py-1.5 outline-none transition-colors data-[disabled]:pointer-events-none"
+                      className="txt-compact-small relative flex w-full cursor-pointer select-none items-center rounded-md bg-ui-bg-base px-2 py-1.5 text-ui-fg-base outline-none transition-colors hover:bg-ui-bg-base-hover focus-visible:bg-ui-bg-base-pressed data-[disabled]:pointer-events-none data-[disabled]:text-ui-fg-disabled"
                       type="button"
                       onClick={() => {
-                        handleSelectPreset(preset.value)
+                        handleSelectPreset(preset.value);
                       }}
                     >
                       <div
                         className={clx(
-                          "transition-fg flex h-5 w-5 items-center justify-center",
+                          "flex h-5 w-5 items-center justify-center transition-fg",
                           {
                             "[&_svg]:invisible": !isSelected,
-                          }
+                          },
                         )}
                       >
                         <EllipseMiniSolid />
@@ -187,20 +194,20 @@ export const DateFilter = ({
                       {preset.label}
                     </button>
                   </li>
-                )
+                );
               })}
               <li>
                 <button
-                  className="bg-ui-bg-base hover:bg-ui-bg-base-hover focus-visible:bg-ui-bg-base-pressed text-ui-fg-base data-[disabled]:text-ui-fg-disabled txt-compact-small relative flex w-full cursor-pointer select-none items-center rounded-md px-2 py-1.5 outline-none transition-colors data-[disabled]:pointer-events-none"
+                  className="txt-compact-small relative flex w-full cursor-pointer select-none items-center rounded-md bg-ui-bg-base px-2 py-1.5 text-ui-fg-base outline-none transition-colors hover:bg-ui-bg-base-hover focus-visible:bg-ui-bg-base-pressed data-[disabled]:pointer-events-none data-[disabled]:text-ui-fg-disabled"
                   type="button"
                   onClick={handleSelectCustom}
                 >
                   <div
                     className={clx(
-                      "transition-fg flex h-5 w-5 items-center justify-center",
+                      "flex h-5 w-5 items-center justify-center transition-fg",
                       {
                         "[&_svg]:invisible": !showCustom,
-                      }
+                      },
                     )}
                   >
                     <EllipseMiniSolid />
@@ -238,7 +245,7 @@ export const DateFilter = ({
                       minValue={customStartValue}
                       value={customEndValue || undefined}
                       onChange={(d) => {
-                        handleCustomDateChange(d, "end")
+                        handleCustomDateChange(d, "end");
                       }}
                     />
                   </div>
@@ -249,14 +256,14 @@ export const DateFilter = ({
         </RadixPopover.Portal>
       )}
     </RadixPopover.Root>
-  )
-}
+  );
+};
 
-const today = new Date()
-today.setHours(0, 0, 0, 0)
+const today = new Date();
+today.setHours(0, 0, 0, 0);
 
 const usePresets = () => {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   return useMemo(
     () => [
@@ -270,7 +277,7 @@ const usePresets = () => {
         label: t("filters.date.lastSevenDays"),
         value: {
           $gte: new Date(
-            today.getTime() - 7 * 24 * 60 * 60 * 1000
+            today.getTime() - 7 * 24 * 60 * 60 * 1000,
           ).toISOString(), // 7 days ago
         },
       },
@@ -278,7 +285,7 @@ const usePresets = () => {
         label: t("filters.date.lastThirtyDays"),
         value: {
           $gte: new Date(
-            today.getTime() - 30 * 24 * 60 * 60 * 1000
+            today.getTime() - 30 * 24 * 60 * 60 * 1000,
           ).toISOString(), // 30 days ago
         },
       },
@@ -286,7 +293,7 @@ const usePresets = () => {
         label: t("filters.date.lastNinetyDays"),
         value: {
           $gte: new Date(
-            today.getTime() - 90 * 24 * 60 * 60 * 1000
+            today.getTime() - 90 * 24 * 60 * 60 * 1000,
           ).toISOString(), // 90 days ago
         },
       },
@@ -294,35 +301,35 @@ const usePresets = () => {
         label: t("filters.date.lastTwelveMonths"),
         value: {
           $gte: new Date(
-            today.getTime() - 365 * 24 * 60 * 60 * 1000
+            today.getTime() - 365 * 24 * 60 * 60 * 1000,
           ).toISOString(), // 365 days ago
         },
       },
     ],
-    [t]
-  )
-}
+    [t],
+  );
+};
 
 const parseDateComparison = (value: string[]) => {
   return value?.length
     ? (JSON.parse(value.join(",")) as DateComparisonOperator)
-    : null
-}
+    : null;
+};
 
 const getDateFromComparison = (
   comparison: DateComparisonOperator | null,
-  key: "$gte" | "$lte"
+  key: "$gte" | "$lte",
 ) => {
   if (!comparison?.[key]) {
-    return undefined
+    return undefined;
   }
 
-  const compareDate = new Date(comparison[key] as string)
+  const compareDate = new Date(comparison[key] as string);
 
   if (key === "$lte") {
     // offset back to the display date
-    compareDate.setHours(0, 0, 0, 0)
+    compareDate.setHours(0, 0, 0, 0);
   }
 
-  return compareDate
-}
+  return compareDate;
+};

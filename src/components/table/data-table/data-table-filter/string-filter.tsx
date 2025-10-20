@@ -1,13 +1,18 @@
-import { Input, Label, clx } from "@medusajs/ui"
-import { debounce } from "lodash"
-import { Popover as RadixPopover } from "radix-ui"
-import { ChangeEvent, useCallback, useEffect, useState } from "react"
-import { useSelectedParams } from "../hooks"
-import { useDataTableFilterContext } from "./context"
-import FilterChip from "./filter-chip"
-import { IFilter } from "./types"
+import type { ChangeEvent } from "react";
+import { useCallback, useEffect, useState } from "react";
 
-type StringFilterProps = IFilter
+import { Input, Label, clx } from "@medusajs/ui";
+
+import { debounce } from "lodash";
+import { Popover as RadixPopover } from "radix-ui";
+
+import { useSelectedParams } from "@components/table/data-table/hooks";
+
+import { useDataTableFilterContext } from "./context";
+import FilterChip from "./filter-chip";
+import type { IFilter } from "./types";
+
+type StringFilterProps = IFilter;
 
 export const StringFilter = ({
   filter,
@@ -15,60 +20,59 @@ export const StringFilter = ({
   readonly,
   openOnMount,
 }: StringFilterProps) => {
-  const [open, setOpen] = useState(openOnMount)
+  const [open, setOpen] = useState(openOnMount);
 
-  const { key, label } = filter
+  const { key, label } = filter;
 
-  const { removeFilter } = useDataTableFilterContext()
-  const selectedParams = useSelectedParams({ param: key, prefix })
+  const { removeFilter } = useDataTableFilterContext();
+  const selectedParams = useSelectedParams({ param: key, prefix });
 
-  const query = selectedParams.get()
+  const query = selectedParams.get();
 
   const [previousValue, setPreviousValue] = useState<string | undefined>(
-    query?.[0]
-  )
+    query?.[0],
+  );
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   const debouncedOnChange = useCallback(
     debounce((e: ChangeEvent<HTMLInputElement>) => {
-      const value = e.target.value
+      const value = e.target.value;
 
       if (!value) {
-        selectedParams.delete()
+        selectedParams.delete();
       } else {
-        selectedParams.add(value)
+        selectedParams.add(value);
       }
     }, 500),
-    [selectedParams]
-  )
+    [selectedParams],
+  );
 
   useEffect(() => {
     return () => {
-      debouncedOnChange.cancel()
-    }
-  }, [debouncedOnChange])
+      debouncedOnChange.cancel();
+    };
+  }, [debouncedOnChange]);
 
-  let timeoutId: ReturnType<typeof setTimeout> | null = null
+  let timeoutId: ReturnType<typeof setTimeout> | null = null;
 
   const handleOpenChange = (open: boolean) => {
-    setOpen(open)
-    setPreviousValue(query?.[0])
+    setOpen(open);
+    setPreviousValue(query?.[0]);
 
     if (timeoutId) {
-      clearTimeout(timeoutId)
+      clearTimeout(timeoutId);
     }
 
     if (!open && !query.length) {
       timeoutId = setTimeout(() => {
-        removeFilter(key)
-      }, 200)
+        removeFilter(key);
+      }, 200);
     }
-  }
+  };
 
   const handleRemove = () => {
-    selectedParams.delete()
-    removeFilter(key)
-  }
+    selectedParams.delete();
+    removeFilter(key);
+  };
 
   return (
     <RadixPopover.Root modal open={open} onOpenChange={handleOpenChange}>
@@ -88,7 +92,7 @@ export const StringFilter = ({
             sideOffset={8}
             collisionPadding={8}
             className={clx(
-              "bg-ui-bg-base text-ui-fg-base shadow-elevation-flyout z-[1] h-full max-h-[200px] w-[300px] overflow-hidden rounded-lg outline-none"
+              "z-[1] h-full max-h-[200px] w-[300px] overflow-hidden rounded-lg bg-ui-bg-base text-ui-fg-base shadow-elevation-flyout outline-none",
             )}
             onInteractOutside={(e) => {
               if (e.target instanceof HTMLElement) {
@@ -96,8 +100,8 @@ export const StringFilter = ({
                   e.target.attributes.getNamedItem("data-name")?.value ===
                   "filters_menu_content"
                 ) {
-                  e.preventDefault()
-                  e.stopPropagation()
+                  e.preventDefault();
+                  e.stopPropagation();
                 }
               }
             }}
@@ -121,5 +125,5 @@ export const StringFilter = ({
         </RadixPopover.Portal>
       )}
     </RadixPopover.Root>
-  )
-}
+  );
+};
