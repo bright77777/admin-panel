@@ -1,11 +1,12 @@
-import { useTranslation } from "react-i18next"
+import type { HttpTypes } from "@medusajs/types";
 
-import { Thumbnail } from "../../../../common/thumbnail"
-import { HttpTypes } from "@medusajs/types"
+import { useTranslation } from "react-i18next";
+
+import { Thumbnail } from "@components/common/thumbnail";
 
 type ProductCellProps = {
-  product: Pick<HttpTypes.AdminProduct, "thumbnail" | "title">
-}
+  product: Pick<HttpTypes.AdminProduct, "thumbnail" | "title">;
+};
 
 export const ProductCell = ({ product }: ProductCellProps) => {
   return (
@@ -17,15 +18,15 @@ export const ProductCell = ({ product }: ProductCellProps) => {
         {product.title}
       </span>
     </div>
-  )
-}
+  );
+};
 
 export const ProductHeader = () => {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   return (
     <div className="flex h-full w-full items-center">
       <span>{t("fields.product")}</span>
     </div>
-  )
-}
+  );
+};
