@@ -1,15 +1,17 @@
-import { Tooltip } from "@medusajs/ui"
-import ReactCountryFlag from "react-country-flag"
-import { PlaceholderCell } from "../../common/placeholder-cell"
-import { HttpTypes } from "@medusajs/types"
+import type { HttpTypes } from "@medusajs/types";
+import { Tooltip } from "@medusajs/ui";
+
+import ReactCountryFlag from "react-country-flag";
+
+import { PlaceholderCell } from "@components/table/table-cells/common/placeholder-cell";
 
 export const CountryCell = ({
   country,
 }: {
-  country?: HttpTypes.AdminRegionCountry | null
+  country?: HttpTypes.AdminRegionCountry | null;
 }) => {
   if (!country) {
-    return <PlaceholderCell />
+    return <PlaceholderCell />;
   }
 
   return (
@@ -28,5 +30,5 @@ export const CountryCell = ({
         </div>
       </Tooltip>
     </div>
-  )
-}
+  );
+};
