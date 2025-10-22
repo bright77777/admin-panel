@@ -1,18 +1,18 @@
-import { zodResolver } from "@hookform/resolvers/zod"
-import { Button, toast } from "@medusajs/ui"
-import { useForm } from "react-hook-form"
-import { useTranslation } from "react-i18next"
-import * as zod from "zod"
+import { Button, toast } from "@medusajs/ui";
 
-import {
-  RouteFocusModal,
-  useRouteModal,
-} from "../../../../../components/modals"
-import { KeyboundForm } from "../../../../../components/utilities/keybound-form"
-import { VisuallyHidden } from "../../../../../components/utilities/visually-hidden"
-import { useCreateCampaign } from "../../../../../hooks/api/campaigns"
-import { CreateCampaignFormFields } from "../../../common/components/create-campaign-form-fields"
-import { DEFAULT_CAMPAIGN_VALUES } from "../../../common/constants"
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
+import * as zod from "zod";
+
+import { RouteFocusModal, useRouteModal } from "@components/modals";
+import { KeyboundForm } from "@components/utilities/keybound-form";
+import { VisuallyHidden } from "@components/utilities/visually-hidden";
+
+import { useCreateCampaign } from "@hooks/api";
+
+import { CreateCampaignFormFields } from "@routes/campaigns/common/components/create-campaign-form-fields";
+import { DEFAULT_CAMPAIGN_VALUES } from "@routes/campaigns/common/constants.ts";
 
 export const CreateCampaignSchema = zod.object({
   name: zod.string().min(1),
@@ -26,22 +26,22 @@ export const CreateCampaignSchema = zod.object({
     type: zod.enum(["spend", "usage", "use_by_attribute"]),
     currency_code: zod.string().nullish(),
   }),
-})
+});
 
 export const CreateCampaignForm = () => {
-  const { t } = useTranslation()
-  const { handleSuccess } = useRouteModal()
-  const { mutateAsync, isPending } = useCreateCampaign()
+  const { t } = useTranslation();
+  const { handleSuccess } = useRouteModal();
+  const { mutateAsync, isPending } = useCreateCampaign();
 
   const form = useForm<zod.infer<typeof CreateCampaignSchema>>({
     defaultValues: DEFAULT_CAMPAIGN_VALUES,
     resolver: zodResolver(CreateCampaignSchema),
-  })
+  });
 
   const handleSubmit = form.handleSubmit(async (data) => {
-    const attribute = data.budget.attribute || null
+    const attribute = data.budget.attribute || null;
 
-    const type = attribute ? "use_by_attribute" : data.budget.type
+    const type = attribute ? "use_by_attribute" : data.budget.type;
 
     await mutateAsync(
       {
@@ -62,16 +62,16 @@ export const CreateCampaignForm = () => {
           toast.success(
             t("campaigns.create.successToast", {
               name: campaign.name,
-            })
-          )
-          handleSuccess(`/campaigns/${campaign.id}`)
+            }),
+          );
+          handleSuccess(`/campaigns/${campaign.id}`);
         },
         onError: (error) => {
-          toast.error(error.message)
+          toast.error(error.message);
         },
-      }
-    )
-  })
+      },
+    );
+  });
 
   return (
     <RouteFocusModal.Form form={form}>
@@ -109,5 +109,5 @@ export const CreateCampaignForm = () => {
         </RouteFocusModal.Footer>
       </KeyboundForm>
     </RouteFocusModal.Form>
-  )
-}
+  );
+};

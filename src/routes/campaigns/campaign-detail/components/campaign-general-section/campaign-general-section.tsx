@@ -1,5 +1,5 @@
-import { PencilSquare, Trash } from "@medusajs/icons"
-import { AdminCampaignResponse } from "@medusajs/types"
+import { PencilSquare, Trash } from "@medusajs/icons";
+import type { AdminCampaignResponse } from "@medusajs/types";
 import {
   Badge,
   Container,
@@ -8,28 +8,33 @@ import {
   Text,
   toast,
   usePrompt,
-} from "@medusajs/ui"
-import { useTranslation } from "react-i18next"
-import { useNavigate } from "react-router-dom"
-import { ActionMenu } from "../../../../../components/common/action-menu"
-import { useDeleteCampaign } from "../../../../../hooks/api/campaigns"
-import { currencies } from "../../../../../lib/data/currencies"
+} from "@medusajs/ui";
+
+import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
+
+import { ActionMenu } from "@components/common/action-menu";
+
+import { useDeleteCampaign } from "@hooks/api";
+
+import { currencies } from "@lib/data/currencies";
+
 import {
   campaignStatus,
   statusColor,
-} from "../../../common/utils/campaign-status"
+} from "@routes/campaigns/common/utils/campaign-status";
 
 type CampaignGeneralSectionProps = {
-  campaign: AdminCampaignResponse["campaign"]
-}
+  campaign: AdminCampaignResponse["campaign"];
+};
 
 export const CampaignGeneralSection = ({
   campaign,
 }: CampaignGeneralSectionProps) => {
-  const { t } = useTranslation()
-  const prompt = usePrompt()
-  const navigate = useNavigate()
-  const { mutateAsync } = useDeleteCampaign(campaign.id)
+  const { t } = useTranslation();
+  const prompt = usePrompt();
+  const navigate = useNavigate();
+  const { mutateAsync } = useDeleteCampaign(campaign.id);
 
   const handleDelete = async () => {
     const res = await prompt({
@@ -39,10 +44,10 @@ export const CampaignGeneralSection = ({
       }),
       confirmText: t("actions.delete"),
       cancelText: t("actions.cancel"),
-    })
+    });
 
     if (!res) {
-      return
+      return;
     }
 
     await mutateAsync(undefined, {
@@ -50,18 +55,18 @@ export const CampaignGeneralSection = ({
         toast.success(
           t("campaigns.delete.successToast", {
             name: campaign.name,
-          })
-        )
+          }),
+        );
 
-        navigate("/campaigns", { replace: true })
+        navigate("/campaigns", { replace: true });
       },
       onError: (error) => {
-        toast.error(error.message)
+        toast.error(error.message);
       },
-    })
-  }
+    });
+  };
 
-  const status = campaignStatus(campaign)
+  const status = campaignStatus(campaign);
 
   return (
     <Container className="divide-y p-0">
@@ -98,7 +103,7 @@ export const CampaignGeneralSection = ({
         </div>
       </div>
 
-      <div className="text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4">
+      <div className="grid grid-cols-2 items-center px-6 py-4 text-ui-fg-subtle">
         <Text size="small" leading="compact" weight="plus">
           {t("campaigns.fields.identifier")}
         </Text>
@@ -108,7 +113,7 @@ export const CampaignGeneralSection = ({
         </Text>
       </div>
 
-      <div className="text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4">
+      <div className="grid grid-cols-2 items-center px-6 py-4 text-ui-fg-subtle">
         <Text size="small" leading="compact" weight="plus">
           {t("fields.description")}
         </Text>
@@ -119,7 +124,7 @@ export const CampaignGeneralSection = ({
       </div>
 
       {campaign?.budget && campaign.budget.type === "spend" && (
-        <div className="text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4">
+        <div className="grid grid-cols-2 items-center px-6 py-4 text-ui-fg-subtle">
           <Text size="small" leading="compact" weight="plus">
             {t("fields.currency")}
           </Text>
@@ -133,5 +138,5 @@ export const CampaignGeneralSection = ({
         </div>
       )}
     </Container>
-  )
-}
+  );
+};

@@ -1,39 +1,43 @@
-import { PencilSquare, Trash } from "@medusajs/icons"
-import { AdminCampaign, AdminPromotion } from "@medusajs/types"
-import { Button, Checkbox, Container, Heading, usePrompt } from "@medusajs/ui"
-import { RowSelectionState, createColumnHelper } from "@tanstack/react-table"
-import { useMemo, useState } from "react"
-import { useTranslation } from "react-i18next"
-import { Link } from "react-router-dom"
+import { useMemo, useState } from "react";
 
-import { ActionMenu } from "../../../../../components/common/action-menu"
-import { _DataTable } from "../../../../../components/table/data-table"
-import { useAddOrRemoveCampaignPromotions } from "../../../../../hooks/api/campaigns"
-import { usePromotions } from "../../../../../hooks/api/promotions"
-import { usePromotionTableColumns } from "../../../../../hooks/table/columns/use-promotion-table-columns"
-import { usePromotionTableFilters } from "../../../../../hooks/table/filters/use-promotion-table-filters"
-import { usePromotionTableQuery } from "../../../../../hooks/table/query/use-promotion-table-query"
-import { useDataTable } from "../../../../../hooks/use-data-table"
+import { PencilSquare, Trash } from "@medusajs/icons";
+import type { AdminCampaign, AdminPromotion } from "@medusajs/types";
+import { Button, Checkbox, Container, Heading, usePrompt } from "@medusajs/ui";
+
+import type { RowSelectionState } from "@tanstack/react-table";
+import { createColumnHelper } from "@tanstack/react-table";
+import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
+
+import { ActionMenu } from "@components/common/action-menu";
+import { _DataTable } from "@components/table/data-table";
+
+import { useAddOrRemoveCampaignPromotions } from "@hooks/api";
+import { usePromotions } from "@hooks/api";
+import { usePromotionTableColumns } from "@hooks/table/columns/use-promotion-table-columns";
+import { usePromotionTableFilters } from "@hooks/table/filters";
+import { usePromotionTableQuery } from "@hooks/table/query/use-promotion-table-query";
+import { useDataTable } from "@hooks/use-data-table";
 
 type CampaignPromotionSectionProps = {
-  campaign: AdminCampaign
-}
+  campaign: AdminCampaign;
+};
 
-const PAGE_SIZE = 10
+const PAGE_SIZE = 10;
 
 export const CampaignPromotionSection = ({
   campaign,
 }: CampaignPromotionSectionProps) => {
-  const [rowSelection, setRowSelection] = useState<RowSelectionState>({})
-  const { t } = useTranslation()
-  const prompt = usePrompt()
-  const columns = useColumns()
-  const filters = usePromotionTableFilters()
-  const { searchParams, raw } = usePromotionTableQuery({ pageSize: PAGE_SIZE })
+  const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
+  const { t } = useTranslation();
+  const prompt = usePrompt();
+  const columns = useColumns();
+  const filters = usePromotionTableFilters();
+  const { searchParams, raw } = usePromotionTableQuery({ pageSize: PAGE_SIZE });
   const { promotions, count, isLoading, isError, error } = usePromotions({
     ...searchParams,
     campaign_id: campaign.id,
-  })
+  });
 
   const { table } = useDataTable({
     data: promotions ?? [],
@@ -48,16 +52,16 @@ export const CampaignPromotionSection = ({
       updater: setRowSelection,
     },
     meta: { campaignId: campaign.id },
-  })
+  });
 
   if (isError) {
-    throw error
+    throw error;
   }
 
-  const { mutateAsync } = useAddOrRemoveCampaignPromotions(campaign.id)
+  const { mutateAsync } = useAddOrRemoveCampaignPromotions(campaign.id);
 
   const handleRemove = async () => {
-    const keys = Object.keys(rowSelection)
+    const keys = Object.keys(rowSelection);
 
     const res = await prompt({
       title: t("campaigns.promotions.remove.title", { count: keys.length }),
@@ -66,17 +70,17 @@ export const CampaignPromotionSection = ({
       }),
       confirmText: t("actions.continue"),
       cancelText: t("actions.cancel"),
-    })
+    });
 
     if (!res) {
-      return
+      return;
     }
 
     await mutateAsync(
       { remove: keys },
-      { onSuccess: () => setRowSelection({}) }
-    )
-  }
+      { onSuccess: () => setRowSelection({}) },
+    );
+  };
 
   return (
     <Container className="divide-y p-0">
@@ -118,20 +122,20 @@ export const CampaignPromotionSection = ({
         }}
       />
     </Container>
-  )
-}
+  );
+};
 
 const PromotionActions = ({
   promotion,
   campaignId,
 }: {
-  promotion: AdminPromotion
-  campaignId: string
+  promotion: AdminPromotion;
+  campaignId: string;
 }) => {
-  const { t } = useTranslation()
-  const { mutateAsync } = useAddOrRemoveCampaignPromotions(campaignId)
+  const { t } = useTranslation();
+  const { mutateAsync } = useAddOrRemoveCampaignPromotions(campaignId);
 
-  const prompt = usePrompt()
+  const prompt = usePrompt();
 
   const handleRemove = async () => {
     const res = await prompt({
@@ -143,16 +147,16 @@ const PromotionActions = ({
       }),
       confirmText: t("actions.continue"),
       cancelText: t("actions.cancel"),
-    })
+    });
 
     if (!res) {
-      return
+      return;
     }
 
     await mutateAsync({
       remove: [promotion.id],
-    })
-  }
+    });
+  };
 
   return (
     <ActionMenu
@@ -177,13 +181,13 @@ const PromotionActions = ({
         },
       ]}
     />
-  )
-}
+  );
+};
 
-const columnHelper = createColumnHelper<AdminPromotion>()
+const columnHelper = createColumnHelper<AdminPromotion>();
 
 const useColumns = () => {
-  const columns = usePromotionTableColumns()
+  const columns = usePromotionTableColumns();
 
   return useMemo(
     () => [
@@ -201,7 +205,7 @@ const useColumns = () => {
                 table.toggleAllPageRowsSelected(!!value)
               }
             />
-          )
+          );
         },
         cell: ({ row }) => {
           return (
@@ -209,10 +213,10 @@ const useColumns = () => {
               checked={row.getIsSelected()}
               onCheckedChange={(value) => row.toggleSelected(!!value)}
               onClick={(e) => {
-                e.stopPropagation()
+                e.stopPropagation();
               }}
             />
-          )
+          );
         },
       }),
       ...columns,
@@ -220,18 +224,18 @@ const useColumns = () => {
         id: "actions",
         cell: ({ row, table }) => {
           const { campaignId } = table.options.meta as {
-            campaignId: string
-          }
+            campaignId: string;
+          };
 
           return (
             <PromotionActions
               promotion={row.original}
               campaignId={campaignId}
             />
-          )
+          );
         },
       }),
     ],
-    [columns]
-  )
-}
+    [columns],
+  );
+};

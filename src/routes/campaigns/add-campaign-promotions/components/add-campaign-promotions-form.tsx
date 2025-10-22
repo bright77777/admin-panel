@@ -1,80 +1,81 @@
-import { zodResolver } from "@hookform/resolvers/zod"
-import { AdminCampaign, HttpTypes } from "@medusajs/types"
-import { Button, Checkbox, Hint, Tooltip, toast } from "@medusajs/ui"
-import { keepPreviousData } from "@tanstack/react-query"
-import {
-  OnChangeFn,
-  RowSelectionState,
-  createColumnHelper,
-} from "@tanstack/react-table"
-import { useMemo, useState } from "react"
-import { useForm } from "react-hook-form"
-import { useTranslation } from "react-i18next"
-import * as zod from "zod"
-import { RouteFocusModal, useRouteModal } from "../../../../components/modals"
-import { _DataTable } from "../../../../components/table/data-table"
-import { KeyboundForm } from "../../../../components/utilities/keybound-form"
-import { useAddOrRemoveCampaignPromotions } from "../../../../hooks/api/campaigns"
-import { usePromotions } from "../../../../hooks/api/promotions"
-import { usePromotionTableColumns } from "../../../../hooks/table/columns/use-promotion-table-columns"
-import { usePromotionTableFilters } from "../../../../hooks/table/filters/use-promotion-table-filters"
-import { usePromotionTableQuery } from "../../../../hooks/table/query/use-promotion-table-query"
-import { useDataTable } from "../../../../hooks/use-data-table"
+import { useMemo, useState } from "react";
+
+import type { AdminCampaign, HttpTypes } from "@medusajs/types";
+import { Button, Checkbox, Hint, Tooltip, toast } from "@medusajs/ui";
+
+import { zodResolver } from "@hookform/resolvers/zod";
+import { keepPreviousData } from "@tanstack/react-query";
+import type { OnChangeFn, RowSelectionState } from "@tanstack/react-table";
+import { createColumnHelper } from "@tanstack/react-table";
+import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
+import * as zod from "zod";
+
+import { RouteFocusModal, useRouteModal } from "@components/modals";
+import { _DataTable } from "@components/table/data-table";
+import { KeyboundForm } from "@components/utilities/keybound-form";
+
+import { useAddOrRemoveCampaignPromotions } from "@hooks/api";
+import { usePromotions } from "@hooks/api";
+import { usePromotionTableColumns } from "@hooks/table/columns/use-promotion-table-columns";
+import { usePromotionTableFilters } from "@hooks/table/filters";
+import { usePromotionTableQuery } from "@hooks/table/query/use-promotion-table-query";
+import { useDataTable } from "@hooks/use-data-table";
 
 type AddCampaignPromotionsFormProps = {
-  campaign: AdminCampaign
-}
+  campaign: AdminCampaign;
+};
 
 const AddCampaignPromotionsSchema = zod.object({
   promotion_ids: zod.array(zod.string()).min(1),
-})
+});
 
-const PAGE_SIZE = 50
+const PAGE_SIZE = 50;
 
 export const AddCampaignPromotionsForm = ({
   campaign,
 }: AddCampaignPromotionsFormProps) => {
-  const { t } = useTranslation()
-  const { handleSuccess } = useRouteModal()
+  const { t } = useTranslation();
+  const { handleSuccess } = useRouteModal();
 
   const form = useForm<zod.infer<typeof AddCampaignPromotionsSchema>>({
     defaultValues: { promotion_ids: [] },
     resolver: zodResolver(AddCampaignPromotionsSchema),
-  })
+  });
 
-  const { setValue } = form
+  const { setValue } = form;
   const { mutateAsync, isPending } = useAddOrRemoveCampaignPromotions(
-    campaign.id
-  )
-  const [rowSelection, setRowSelection] = useState<RowSelectionState>({})
+    campaign.id,
+  );
+  const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
 
   const updater: OnChangeFn<RowSelectionState> = (fn) => {
-    const state = typeof fn === "function" ? fn(rowSelection) : fn
-    const ids = Object.keys(state)
+    const state = typeof fn === "function" ? fn(rowSelection) : fn;
+    const ids = Object.keys(state);
 
     setValue("promotion_ids", ids, {
       shouldDirty: true,
       shouldTouch: true,
-    })
+    });
 
-    setRowSelection(state)
-  }
+    setRowSelection(state);
+  };
 
-  const { searchParams, raw } = usePromotionTableQuery({ pageSize: PAGE_SIZE })
+  const { searchParams, raw } = usePromotionTableQuery({ pageSize: PAGE_SIZE });
   const {
     promotions,
     count,
     isPending: isLoading,
-  } = usePromotions({ ...searchParams }, { placeholderData: keepPreviousData })
+  } = usePromotions({ ...searchParams }, { placeholderData: keepPreviousData });
 
-  const columns = useColumns()
-  const filters = usePromotionTableFilters()
+  const columns = useColumns();
+  const filters = usePromotionTableFilters();
 
   const { table } = useDataTable({
     data: promotions ?? [],
     columns,
     enableRowSelection: (row) => {
-      return row.original.campaign_id !== campaign.id
+      return row.original.campaign_id !== campaign.id;
     },
     enablePagination: true,
     getRowId: (row) => row.id,
@@ -89,7 +90,7 @@ export const AddCampaignPromotionsForm = ({
       currencyCode: campaign?.budget?.currency_code,
       budgetType: campaign?.budget?.type,
     },
-  })
+  });
 
   const handleSubmit = form.handleSubmit(async (values) => {
     await mutateAsync(
@@ -99,14 +100,14 @@ export const AddCampaignPromotionsForm = ({
           toast.success(
             t("campaigns.promotions.toast.success", {
               count: values.promotion_ids.length,
-            })
-          )
-          handleSuccess()
+            }),
+          );
+          handleSuccess();
         },
         onError: (error) => toast.error(error.message),
-      }
-    )
-  })
+      },
+    );
+  });
 
   return (
     <RouteFocusModal.Form form={form}>
@@ -160,14 +161,14 @@ export const AddCampaignPromotionsForm = ({
         </RouteFocusModal.Footer>
       </KeyboundForm>
     </RouteFocusModal.Form>
-  )
-}
+  );
+};
 
-const columnHelper = createColumnHelper<HttpTypes.AdminPromotion>()
+const columnHelper = createColumnHelper<HttpTypes.AdminPromotion>();
 
 const useColumns = () => {
-  const base = usePromotionTableColumns()
-  const { t } = useTranslation()
+  const base = usePromotionTableColumns();
+  const { t } = useTranslation();
 
   return useMemo(
     () => [
@@ -183,26 +184,26 @@ const useColumns = () => {
               }
               onCheckedChange={(value) => table.toggleAllRowsSelected(!!value)}
             />
-          )
+          );
         },
         cell: ({ row, table }) => {
           const { campaignId, currencyCode, budgetType } = table.options
             .meta as {
-            campaignId: string
-            currencyCode: string
-            budgetType: string
-          }
+            campaignId: string;
+            currencyCode: string;
+            budgetType: string;
+          };
 
-          const isTypeSpend = budgetType === "spend"
-          const isAdded = row.original.campaign_id === campaignId
+          const isTypeSpend = budgetType === "spend";
+          const isAdded = row.original.campaign_id === campaignId;
           const isAddedToADiffCampaign =
             !!row.original.campaign_id &&
-            row.original.campaign_id !== campaignId
+            row.original.campaign_id !== campaignId;
           const currencyMismatch =
             isTypeSpend &&
-            row.original.application_method?.currency_code !== currencyCode
-          const isSelected = row.getIsSelected() || isAdded
-          const isIndeterminate = currencyMismatch || isAddedToADiffCampaign
+            row.original.application_method?.currency_code !== currencyCode;
+          const isSelected = row.getIsSelected() || isAdded;
+          const isIndeterminate = currencyMismatch || isAddedToADiffCampaign;
 
           const Component = (
             <Checkbox
@@ -210,10 +211,10 @@ const useColumns = () => {
               disabled={isAdded || isAddedToADiffCampaign || currencyMismatch}
               onCheckedChange={(value) => row.toggleSelected(!!value)}
               onClick={(e) => {
-                e.stopPropagation()
+                e.stopPropagation();
               }}
             />
-          )
+          );
 
           if (isAddedToADiffCampaign) {
             return (
@@ -225,7 +226,7 @@ const useColumns = () => {
               >
                 {Component}
               </Tooltip>
-            )
+            );
           }
 
           if (currencyMismatch) {
@@ -236,7 +237,7 @@ const useColumns = () => {
               >
                 {Component}
               </Tooltip>
-            )
+            );
           }
 
           if (isAdded) {
@@ -247,14 +248,14 @@ const useColumns = () => {
               >
                 {Component}
               </Tooltip>
-            )
+            );
           }
 
-          return Component
+          return Component;
         },
       }),
       ...base,
     ],
-    [t, base]
-  )
-}
+    [t, base],
+  );
+};

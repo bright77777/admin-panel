@@ -1,10 +1,9 @@
-import { RouteFocusModal } from "../../../components/modals"
-import { CreateCampaignForm } from "./components/create-campaign-form"
+import { RouteFocusModal } from "@components/modals";
 
-export const CampaignCreate = () => {
-  return (
-    <RouteFocusModal>
-      <CreateCampaignForm />
-    </RouteFocusModal>
-  )
-}
+import { CreateCampaignForm } from "@routes/campaigns/campaign-create/components/create-campaign-form";
+
+export const CampaignCreate = () => (
+  <RouteFocusModal>
+    <CreateCampaignForm />
+  </RouteFocusModal>
+);
