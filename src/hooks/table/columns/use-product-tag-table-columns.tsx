@@ -1,14 +1,17 @@
-import { HttpTypes } from "@medusajs/types"
-import { createColumnHelper } from "@tanstack/react-table"
-import { useMemo } from "react"
-import { useTranslation } from "react-i18next"
-import { DateCell } from "../../../components/table/table-cells/common/date-cell"
-import { TextCell } from "../../../components/table/table-cells/common/text-cell"
+import { useMemo } from "react";
 
-const columnHelper = createColumnHelper<HttpTypes.AdminProductTag>()
+import type { HttpTypes } from "@medusajs/types";
+
+import { createColumnHelper } from "@tanstack/react-table";
+import { useTranslation } from "react-i18next";
+
+import { DateCell } from "@components/table/table-cells/common/date-cell";
+import { TextCell } from "@components/table/table-cells/common/text-cell";
+
+const columnHelper = createColumnHelper<HttpTypes.AdminProductTag>();
 
 export const useProductTagTableColumns = () => {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   return useMemo(
     () => [
@@ -20,16 +23,16 @@ export const useProductTagTableColumns = () => {
         header: () => t("fields.createdAt"),
 
         cell: ({ getValue }) => {
-          return <DateCell date={getValue()} />
+          return <DateCell date={getValue()} />;
         },
       }),
       columnHelper.accessor("updated_at", {
         header: () => t("fields.updatedAt"),
         cell: ({ getValue }) => {
-          return <DateCell date={getValue()} />
+          return <DateCell date={getValue()} />;
         },
       }),
     ],
-    [t]
-  )
-}
+    [t],
+  );
+};

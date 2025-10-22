@@ -1,28 +1,30 @@
-import { createColumnHelper } from "@tanstack/react-table"
-import { useMemo } from "react"
+import { useMemo } from "react";
+
+import type { HttpTypes } from "@medusajs/types";
+
+import { createColumnHelper } from "@tanstack/react-table";
 
 import {
   EmailCell,
   EmailHeader,
-} from "../../../components/table/table-cells/common/email-cell"
+} from "@components/table/table-cells/common/email-cell";
 import {
   NameCell,
   NameHeader,
-} from "../../../components/table/table-cells/common/name-cell"
+} from "@components/table/table-cells/common/name-cell";
 import {
   AccountCell,
   AccountHeader,
-} from "../../../components/table/table-cells/customer/account-cell/account-cell"
+} from "@components/table/table-cells/customer/account-cell";
 import {
   FirstSeenCell,
   FirstSeenHeader,
-} from "../../../components/table/table-cells/customer/first-seen-cell"
-import { HttpTypes } from "@medusajs/types"
+} from "@components/table/table-cells/customer/first-seen-cell";
 
-const columnHelper = createColumnHelper<HttpTypes.AdminCustomer>()
+const columnHelper = createColumnHelper<HttpTypes.AdminCustomer>();
 
-export const useCustomerTableColumns = () => {
-  return useMemo(
+export const useCustomerTableColumns = () =>
+  useMemo(
     () => [
       columnHelper.accessor("email", {
         header: () => <EmailHeader />,
@@ -46,6 +48,5 @@ export const useCustomerTableColumns = () => {
         cell: ({ getValue }) => <FirstSeenCell createdAt={getValue()} />,
       }),
     ],
-    []
-  )
-}
+    [],
+  );

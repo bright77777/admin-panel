@@ -16,8 +16,8 @@ export const useCommissionRulesTableColumns = ({
   onSuccess,
 }: {
   onSuccess?: () => void;
-}) => {
-  return useMemo(
+}) =>
+  useMemo(
     () => [
       columnHelper.accessor("name", {
         header: () => <TextHeader text="Rule Name" />,
@@ -49,17 +49,14 @@ export const useCommissionRulesTableColumns = ({
       }),
       columnHelper.accessor("id", {
         header: () => <TextHeader text="Status" />,
-        cell: (props) => {
-          return (
-            <CommissionActionMenu
-              id={props.row.original.id!}
-              is_active={props.row.original.is_active!}
-              onSuccess={onSuccess}
-            />
-          );
-        },
+        cell: (props) => (
+          <CommissionActionMenu
+            id={props.row.original.id!}
+            is_active={props.row.original.is_active!}
+            onSuccess={onSuccess}
+          />
+        ),
       }),
     ],
     [],
   );
-};

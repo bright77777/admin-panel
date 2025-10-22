@@ -1,14 +1,17 @@
-import { createColumnHelper } from "@tanstack/react-table";
 import { useMemo } from "react";
 
-import { formatDate } from "../../../lib/date";
-import { VendorSeller } from "../../../types";
-import { SellerStatusBadge } from "../../../components/common/seller-status-badge";
+import { createColumnHelper } from "@tanstack/react-table";
+
+import { SellerStatusBadge } from "@components/common/seller-status-badge";
+
+import { formatDate } from "@lib/date";
+
+import type { VendorSeller } from "@/types";
 
 const columnHelper = createColumnHelper<VendorSeller>();
 
-export const useSellersTableColumns = () => {
-  return useMemo(
+export const useSellersTableColumns = () =>
+  useMemo(
     () => [
       columnHelper.display({
         id: "email",
@@ -33,6 +36,5 @@ export const useSellersTableColumns = () => {
         cell: ({ row }) => formatDate(row.original.created_at),
       }),
     ],
-    []
+    [],
   );
-};

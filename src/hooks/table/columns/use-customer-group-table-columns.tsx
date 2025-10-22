@@ -1,17 +1,19 @@
-import { createColumnHelper } from "@tanstack/react-table"
-import { useMemo } from "react"
+import { useMemo } from "react";
 
-import { useTranslation } from "react-i18next"
+import type { HttpTypes } from "@medusajs/types";
+
+import { createColumnHelper } from "@tanstack/react-table";
+import { useTranslation } from "react-i18next";
+
 import {
   TextCell,
   TextHeader,
-} from "../../../components/table/table-cells/common/text-cell"
-import { HttpTypes } from "@medusajs/types"
+} from "@components/table/table-cells/common/text-cell";
 
-const columnHelper = createColumnHelper<HttpTypes.AdminCustomerGroup>()
+const columnHelper = createColumnHelper<HttpTypes.AdminCustomerGroup>();
 
 export const useCustomerGroupTableColumns = () => {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   return useMemo(
     () => [
@@ -22,12 +24,12 @@ export const useCustomerGroupTableColumns = () => {
       columnHelper.accessor("customers", {
         header: () => <TextHeader text={t("customers.domain")} />,
         cell: ({ getValue }) => {
-          const count = getValue()?.length ?? 0
+          const count = getValue()?.length ?? 0;
 
-          return <TextCell text={count} />
+          return <TextCell text={count} />;
         },
       }),
     ],
-    [t]
-  )
-}
+    [t],
+  );
+};
