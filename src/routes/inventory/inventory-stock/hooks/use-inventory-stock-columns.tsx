@@ -1,20 +1,24 @@
-import { HttpTypes } from "@medusajs/types"
-import { useMemo } from "react"
-import { useTranslation } from "react-i18next"
-import { createDataGridHelper } from "../../../../components/data-grid"
-import { DataGridReadOnlyCell } from "../../../../components/data-grid/components"
-import { DataGridTogglableNumberCell } from "../../../../components/data-grid/components/data-grid-toggleable-number-cell"
-import { InventoryStockSchema } from "../schema"
+import { useMemo } from "react";
+
+import type { HttpTypes } from "@medusajs/types";
+
+import { useTranslation } from "react-i18next";
+
+import { createDataGridHelper } from "@components/data-grid";
+import { DataGridReadOnlyCell } from "@components/data-grid/components";
+import { DataGridTogglableNumberCell } from "@components/data-grid/components/data-grid-toggleable-number-cell.tsx";
+
+import type { InventoryStockSchema } from "@routes/inventory/inventory-stock/schema";
 
 const helper = createDataGridHelper<
   HttpTypes.AdminInventoryItem,
   InventoryStockSchema
->()
+>();
 
 export const useInventoryStockColumns = (
-  locations: HttpTypes.AdminStockLocation[] = []
+  locations: HttpTypes.AdminStockLocation[] = [],
 ) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   return useMemo(
     () => [
@@ -23,12 +27,13 @@ export const useInventoryStockColumns = (
         name: "Title",
         header: "Title",
         cell: (context) => {
-          const item = context.row.original
+          const item = context.row.original;
+
           return (
             <DataGridReadOnlyCell context={context} color="normal">
               <span title={item.title || undefined}>{item.title || "-"}</span>
             </DataGridReadOnlyCell>
-          )
+          );
         },
         disableHiding: true,
       }),
@@ -37,13 +42,13 @@ export const useInventoryStockColumns = (
         name: "SKU",
         header: "SKU",
         cell: (context) => {
-          const item = context.row.original
+          const item = context.row.original;
 
           return (
             <DataGridReadOnlyCell context={context} color="normal">
               <span title={item.sku || undefined}>{item.sku || "-"}</span>
             </DataGridReadOnlyCell>
-          )
+          );
         },
         disableHiding: true,
       }),
@@ -53,24 +58,20 @@ export const useInventoryStockColumns = (
           name: location.name,
           header: location.name,
           field: (context) => {
-            const item = context.row.original
+            const item = context.row.original;
 
-            return `inventory_items.${item.id}.locations.${location.id}` as const
+            return `inventory_items.${item.id}.locations.${location.id}` as const;
           },
           type: "togglable-number",
-          cell: (context) => {
-            return (
-              <DataGridTogglableNumberCell
-                context={context}
-                disabledToggleTooltip={t(
-                  "inventory.stock.disabledToggleTooltip"
-                )}
-              />
-            )
-          },
-        })
+          cell: (context) => (
+            <DataGridTogglableNumberCell
+              context={context}
+              disabledToggleTooltip={t("inventory.stock.disabledToggleTooltip")}
+            />
+          ),
+        }),
       ),
     ],
-    [locations, t]
-  )
-}
+    [locations, t],
+  );
+};

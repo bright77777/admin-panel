@@ -1,47 +1,51 @@
-import { zodResolver } from "@hookform/resolvers/zod"
-import { HttpTypes } from "@medusajs/types"
-import { Button, toast } from "@medusajs/ui"
-import { useRef } from "react"
-import { DefaultValues, useForm } from "react-hook-form"
-import { useTranslation } from "react-i18next"
-import { DataGrid } from "../../../../../components/data-grid"
-import {
-  RouteFocusModal,
-  useRouteModal,
-} from "../../../../../components/modals"
-import { KeyboundForm } from "../../../../../components/utilities/keybound-form"
-import { useBatchInventoryItemsLocationLevels } from "../../../../../hooks/api"
-import { castNumber } from "../../../../../lib/cast-number"
-import { useInventoryStockColumns } from "../../hooks/use-inventory-stock-columns"
-import {
+import { useRef } from "react";
+
+import type { HttpTypes } from "@medusajs/types";
+import { Button, toast } from "@medusajs/ui";
+
+import { zodResolver } from "@hookform/resolvers/zod";
+import type { DefaultValues } from "react-hook-form";
+import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
+
+import { DataGrid } from "@components/data-grid";
+import { RouteFocusModal, useRouteModal } from "@components/modals";
+import { KeyboundForm } from "@components/utilities/keybound-form";
+
+import { useBatchInventoryItemsLocationLevels } from "@hooks/api";
+
+import { castNumber } from "@lib/cast-number";
+
+import { useInventoryStockColumns } from "@routes/inventory/inventory-stock/hooks/use-inventory-stock-columns";
+import type {
   InventoryItemSchema,
   InventoryLocationsSchema,
-  InventoryStockSchema,
-} from "../../schema"
+} from "@routes/inventory/inventory-stock/schema";
+import { InventoryStockSchema } from "@routes/inventory/inventory-stock/schema";
 
 type InventoryStockFormProps = {
-  items: HttpTypes.AdminInventoryItem[]
-  locations: HttpTypes.AdminStockLocation[]
-}
+  items: HttpTypes.AdminInventoryItem[];
+  locations: HttpTypes.AdminStockLocation[];
+};
 
 export const InventoryStockForm = ({
   items,
   locations,
 }: InventoryStockFormProps) => {
-  const { t } = useTranslation()
-  const { setCloseOnEscape, handleSuccess } = useRouteModal()
+  const { t } = useTranslation();
+  const { setCloseOnEscape, handleSuccess } = useRouteModal();
 
-  const initialValues = useRef(getDefaultValues(items, locations))
-  console.log("initialValues", initialValues.current)
+  const initialValues = useRef(getDefaultValues(items, locations));
+  console.log("initialValues", initialValues.current);
 
   const form = useForm<InventoryStockSchema>({
     defaultValues: getDefaultValues(items, locations),
     resolver: zodResolver(InventoryStockSchema),
-  })
+  });
 
-  const columns = useInventoryStockColumns(locations)
+  const columns = useInventoryStockColumns(locations);
 
-  const { mutateAsync, isPending } = useBatchInventoryItemsLocationLevels()
+  const { mutateAsync, isPending } = useBatchInventoryItemsLocationLevels();
 
   const onSubmit = form.handleSubmit(async (data) => {
     const payload: HttpTypes.AdminBatchInventoryItemsLocationLevels = {
@@ -49,25 +53,25 @@ export const InventoryStockForm = ({
       update: [],
       delete: [],
       force: true,
-    }
+    };
 
     for (const [inventory_item_id, item] of Object.entries(
-      data.inventory_items
+      data.inventory_items,
     )) {
       for (const [location_id, level] of Object.entries(item.locations)) {
         if (level.id) {
           const wasChecked =
             initialValues.current?.inventory_items?.[inventory_item_id]
-              ?.locations?.[location_id]?.checked
+              ?.locations?.[location_id]?.checked;
 
           if (wasChecked && !level.checked) {
-            payload.delete.push(level.id)
+            payload.delete.push(level.id);
           } else {
             const newQuantity =
-              level.quantity !== "" ? castNumber(level.quantity) : 0
+              level.quantity !== "" ? castNumber(level.quantity) : 0;
             const originalQuantity =
               initialValues.current?.inventory_items?.[inventory_item_id]
-                ?.locations?.[location_id]?.quantity
+                ?.locations?.[location_id]?.quantity;
 
             if (newQuantity !== originalQuantity) {
               payload.update.push({
@@ -75,7 +79,7 @@ export const InventoryStockForm = ({
                 inventory_item_id,
                 location_id,
                 stocked_quantity: newQuantity,
-              })
+              });
             }
           }
         }
@@ -85,21 +89,21 @@ export const InventoryStockForm = ({
             inventory_item_id,
             location_id,
             stocked_quantity: castNumber(level.quantity),
-          })
+          });
         }
       }
     }
 
     await mutateAsync(payload, {
       onSuccess: () => {
-        toast.success(t("inventory.stock.successToast"))
-        handleSuccess()
+        toast.success(t("inventory.stock.successToast"));
+        handleSuccess();
       },
       onError: (error) => {
-        toast.error(error.message)
+        toast.error(error.message);
       },
-    })
-  })
+    });
+  });
 
   return (
     <RouteFocusModal.Form form={form}>
@@ -111,7 +115,7 @@ export const InventoryStockForm = ({
             data={items}
             state={form}
             onEditingChange={(editing) => {
-              setCloseOnEscape(!editing)
+              setCloseOnEscape(!editing);
             }}
           />
         </RouteFocusModal.Body>
@@ -129,36 +133,41 @@ export const InventoryStockForm = ({
         </RouteFocusModal.Footer>
       </KeyboundForm>
     </RouteFocusModal.Form>
-  )
-}
+  );
+};
 
 function getDefaultValues(
   items: HttpTypes.AdminInventoryItem[],
-  locations: HttpTypes.AdminStockLocation[]
+  locations: HttpTypes.AdminStockLocation[],
 ): DefaultValues<InventoryStockSchema> {
   return {
-    inventory_items: items.reduce((acc, item) => {
-      const locationsMap = locations.reduce((locationAcc, location) => {
-        const level = item.location_levels?.find(
-          (level) => level.location_id === location.id
-        )
+    inventory_items: items.reduce(
+      (acc, item) => {
+        const locationsMap = locations.reduce((locationAcc, location) => {
+          const level = item.location_levels?.find(
+            (level) => level.location_id === location.id,
+          );
 
-        locationAcc[location.id] = {
-          id: level?.id,
-          quantity:
-            typeof level?.stocked_quantity === "number"
-              ? level?.stocked_quantity
-              : "",
-          checked: !!level,
-          disabledToggle:
-            (level?.incoming_quantity || 0) > 0 ||
-            (level?.reserved_quantity || 0) > 0,
-        }
-        return locationAcc
-      }, {} as InventoryLocationsSchema)
+          locationAcc[location.id] = {
+            id: level?.id,
+            quantity:
+              typeof level?.stocked_quantity === "number"
+                ? level?.stocked_quantity
+                : "",
+            checked: !!level,
+            disabledToggle:
+              (level?.incoming_quantity || 0) > 0 ||
+              (level?.reserved_quantity || 0) > 0,
+          };
 
-      acc[item.id] = { locations: locationsMap }
-      return acc
-    }, {} as Record<string, InventoryItemSchema>),
-  }
+          return locationAcc;
+        }, {} as InventoryLocationsSchema);
+
+        acc[item.id] = { locations: locationsMap };
+
+        return acc;
+      },
+      {} as Record<string, InventoryItemSchema>,
+    ),
+  };
 }

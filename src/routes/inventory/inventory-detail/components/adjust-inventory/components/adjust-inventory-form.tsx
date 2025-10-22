@@ -1,48 +1,53 @@
-import { zodResolver } from "@hookform/resolvers/zod"
-import { HttpTypes, InventoryLevelDTO, StockLocationDTO } from "@medusajs/types"
-import { Button, Input, Text, toast } from "@medusajs/ui"
-import { useForm, useWatch } from "react-hook-form"
-import { useTranslation } from "react-i18next"
-import { z } from "zod"
+import type {
+  HttpTypes,
+  InventoryLevelDTO,
+  StockLocationDTO,
+} from "@medusajs/types";
+import { Button, Input, Text, toast } from "@medusajs/ui";
 
-import { Form } from "../../../../../../components/common/form"
-import { RouteDrawer, useRouteModal } from "../../../../../../components/modals"
-import { KeyboundForm } from "../../../../../../components/utilities/keybound-form"
-import { useUpdateInventoryLevel } from "../../../../../../hooks/api/inventory"
-import { castNumber } from "../../../../../../lib/cast-number"
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm, useWatch } from "react-hook-form";
+import { useTranslation } from "react-i18next";
+import { z } from "zod";
+
+import { Form } from "@components/common/form";
+import { RouteDrawer, useRouteModal } from "@components/modals";
+import { KeyboundForm } from "@components/utilities/keybound-form";
+
+import { useUpdateInventoryLevel } from "@hooks/api";
+
+import { castNumber } from "@lib/cast-number";
 
 type AdjustInventoryFormProps = {
-  item: HttpTypes.AdminInventoryItem
-  level: InventoryLevelDTO
-  location: StockLocationDTO
-}
+  item: HttpTypes.AdminInventoryItem;
+  level: InventoryLevelDTO;
+  location: StockLocationDTO;
+};
 
 const AttributeGridRow = ({
   title,
   value,
 }: {
-  title: string
-  value: string | number
-}) => {
-  return (
-    <div className="grid grid-cols-2 divide-x">
-      <Text className="px-2 py-1.5" size="small" leading="compact">
-        {title}
-      </Text>
-      <Text className="px-2 py-1.5" size="small" leading="compact">
-        {value}
-      </Text>
-    </div>
-  )
-}
+  title: string;
+  value: string | number;
+}) => (
+  <div className="grid grid-cols-2 divide-x">
+    <Text className="px-2 py-1.5" size="small" leading="compact">
+      {title}
+    </Text>
+    <Text className="px-2 py-1.5" size="small" leading="compact">
+      {value}
+    </Text>
+  </div>
+);
 
 export const AdjustInventoryForm = ({
   item,
   level,
   location,
 }: AdjustInventoryFormProps) => {
-  const { t } = useTranslation()
-  const { handleSuccess } = useRouteModal()
+  const { t } = useTranslation();
+  const { handleSuccess } = useRouteModal();
 
   const AdjustInventorySchema = z
     .object({
@@ -51,7 +56,7 @@ export const AdjustInventoryForm = ({
     .superRefine((data, ctx) => {
       const quantity = data.stocked_quantity
         ? castNumber(data.stocked_quantity)
-        : null
+        : null;
 
       if (quantity === null) {
         ctx.addIssue({
@@ -59,9 +64,9 @@ export const AdjustInventoryForm = ({
           expected: "number",
           received: "undefined",
           path: ["stocked_quantity"],
-        })
+        });
 
-        return
+        return;
       }
 
       if (quantity < level.reserved_quantity) {
@@ -71,30 +76,30 @@ export const AdjustInventoryForm = ({
             quantity: level.reserved_quantity,
           }),
           path: ["stocked_quantity"],
-        })
+        });
       }
-    })
+    });
 
   const form = useForm<z.infer<typeof AdjustInventorySchema>>({
     defaultValues: {
       stocked_quantity: level.stocked_quantity,
     },
     resolver: zodResolver(AdjustInventorySchema),
-  })
+  });
 
   const stockedQuantityUpdate = useWatch({
     control: form.control,
     name: "stocked_quantity",
-  })
+  });
 
   const availableQuantity = stockedQuantityUpdate
     ? castNumber(stockedQuantityUpdate) - level.reserved_quantity
-    : 0 - level.reserved_quantity
+    : 0 - level.reserved_quantity;
 
   const { mutateAsync, isPending: isLoading } = useUpdateInventoryLevel(
     item.id,
-    level.location_id
-  )
+    level.location_id,
+  );
 
   const handleSubmit = form.handleSubmit(async (value) => {
     await mutateAsync(
@@ -103,15 +108,15 @@ export const AdjustInventoryForm = ({
       },
       {
         onSuccess: () => {
-          toast.success(t("inventory.toast.updateLevel"))
-          handleSuccess()
+          toast.success(t("inventory.toast.updateLevel"));
+          handleSuccess();
         },
         onError: (e) => {
-          toast.error(e.message)
+          toast.error(e.message);
         },
-      }
-    )
-  })
+      },
+    );
+  });
 
   return (
     <RouteDrawer.Form form={form}>
@@ -120,7 +125,7 @@ export const AdjustInventoryForm = ({
         className="flex flex-1 flex-col overflow-hidden"
       >
         <RouteDrawer.Body className="flex flex-1 flex-col gap-y-8 overflow-auto">
-          <div className="text-ui-fg-subtle shadow-elevation-card-rest grid grid-rows-4 divide-y rounded-lg border">
+          <div className="grid grid-rows-4 divide-y rounded-lg border text-ui-fg-subtle shadow-elevation-card-rest">
             <AttributeGridRow
               title={t("fields.title")}
               value={item.title ?? "-"}
@@ -156,7 +161,7 @@ export const AdjustInventoryForm = ({
                   </Form.Control>
                   <Form.ErrorMessage />
                 </Form.Item>
-              )
+              );
             }}
           />
         </RouteDrawer.Body>
@@ -174,5 +179,5 @@ export const AdjustInventoryForm = ({
         </RouteDrawer.Footer>
       </KeyboundForm>
     </RouteDrawer.Form>
-  )
-}
+  );
+};

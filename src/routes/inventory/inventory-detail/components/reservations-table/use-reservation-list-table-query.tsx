@@ -1,11 +1,11 @@
-import { useQueryParams } from "../../../../../hooks/use-query-params"
+import { useQueryParams } from "@hooks/use-query-params";
 
 export const useReservationsTableQuery = ({
   pageSize = 20,
   prefix,
 }: {
-  pageSize?: number
-  prefix?: string
+  pageSize?: number;
+  prefix?: string;
 }) => {
   const raw = useQueryParams(
     [
@@ -17,19 +17,19 @@ export const useReservationsTableQuery = ({
       "description",
       "created_by",
     ],
-    prefix
-  )
+    prefix,
+  );
 
-  const { quantity, ...params } = raw
+  const { quantity, ...params } = raw;
 
   const searchParams = {
     limit: pageSize,
     quantity: quantity ? JSON.parse(quantity) : undefined,
     ...params,
-  }
+  };
 
   return {
     searchParams,
     raw,
-  }
-}
+  };
+};

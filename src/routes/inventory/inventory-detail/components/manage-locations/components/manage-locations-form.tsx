@@ -1,68 +1,74 @@
-import {
+import { useMemo, useState } from "react";
+
+import type {
   AdminInventoryItem,
   AdminStockLocation,
   HttpTypes,
-} from "@medusajs/types"
-import { Button, Text, toast } from "@medusajs/ui"
-import { useTranslation } from "react-i18next"
-import { RouteDrawer, useRouteModal } from "../../../../../../components/modals"
-import { useBatchInventoryItemLocationLevels } from "../../../../../../hooks/api/inventory"
-import { sdk } from "../../../../../../lib/client"
+} from "@medusajs/types";
+import { Button, Text, toast } from "@medusajs/ui";
 
-import { useMemo, useState } from "react"
-import { LocationItem } from "./location-item"
-import { LocationSearchInput } from "./location-search-input"
-import { InfiniteList } from "../../../../../../components/common/infinite-list/infinite-list"
-import { useStockLocations } from "../../../../../../hooks/api/stock-locations"
+import { useTranslation } from "react-i18next";
+
+import { InfiniteList } from "@components/common/infinite-list";
+import { RouteDrawer, useRouteModal } from "@components/modals";
+
+import { useBatchInventoryItemLocationLevels } from "@hooks/api";
+import { useStockLocations } from "@hooks/api";
+
+import { sdk } from "@lib/client";
+
+import { LocationItem } from "./location-item";
+import { LocationSearchInput } from "./location-search-input";
 
 type EditInventoryItemAttributeFormProps = {
-  item: AdminInventoryItem
-  locations: AdminStockLocation[]
-}
+  item: AdminInventoryItem;
+  locations: AdminStockLocation[];
+};
 
 export const ManageLocationsForm = ({
   item,
 }: EditInventoryItemAttributeFormProps) => {
   const existingLocationLevels = useMemo(
     () => new Set(item.location_levels?.map((l) => l.location_id) ?? []),
-    [item.location_levels]
-  )
+    [item.location_levels],
+  );
 
-  const { t } = useTranslation()
-  const { handleSuccess } = useRouteModal()
-  const [searchQuery, setSearchQuery] = useState("")
+  const { t } = useTranslation();
+  const { handleSuccess } = useRouteModal();
+  const [searchQuery, setSearchQuery] = useState("");
   const [selectedLocationIds, setSelectedLocationIds] = useState<Set<string>>(
-    existingLocationLevels
-  )
+    existingLocationLevels,
+  );
 
-  const { count } = useStockLocations({ limit: 1, fields: "id" })
+  const { count } = useStockLocations({ limit: 1, fields: "id" });
 
   const handleLocationSelect = (locationId: string, selected: boolean) => {
     setSelectedLocationIds((prev) => {
-      const newSet = new Set(prev)
+      const newSet = new Set(prev);
       if (selected) {
-        newSet.add(locationId)
+        newSet.add(locationId);
       } else {
-        newSet.delete(locationId)
+        newSet.delete(locationId);
       }
-      return newSet
-    })
-  }
 
-  const { mutateAsync } = useBatchInventoryItemLocationLevels(item.id)
+      return newSet;
+    });
+  };
+
+  const { mutateAsync } = useBatchInventoryItemLocationLevels(item.id);
 
   const handleSubmit = async () => {
     const toCreate = Array.from(selectedLocationIds).filter(
-      (id) => !existingLocationLevels.has(id)
-    )
+      (id) => !existingLocationLevels.has(id),
+    );
 
     const toDeleteLocations = Array.from(existingLocationLevels).filter(
-      (id) => !selectedLocationIds.has(id)
-    )
+      (id) => !selectedLocationIds.has(id),
+    );
 
     const toDelete = toDeleteLocations
       .map((id) => item.location_levels?.find((l) => l.location_id === id)?.id)
-      .filter(Boolean) as unknown as string[]
+      .filter(Boolean) as unknown as string[];
 
     await mutateAsync(
       {
@@ -73,20 +79,20 @@ export const ManageLocationsForm = ({
       },
       {
         onSuccess: () => {
-          toast.success(t("inventory.toast.updateLocations"))
-          handleSuccess()
+          toast.success(t("inventory.toast.updateLocations"));
+          handleSuccess();
         },
         onError: (e) => {
-          toast.error(e.message)
+          toast.error(e.message);
         },
-      }
-    )
-  }
+      },
+    );
+  };
 
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
       <RouteDrawer.Body className="flex flex-1 flex-col gap-y-4 overflow-auto">
-        <div className="text-ui-fg-subtle shadow-elevation-card-rest grid grid-rows-2 divide-y rounded-lg border">
+        <div className="grid grid-rows-2 divide-y rounded-lg border text-ui-fg-subtle shadow-elevation-card-rest">
           <div className="grid grid-cols-2 divide-x">
             <Text className="px-2 py-1.5" size="small" leading="compact">
               {t("fields.title")}
@@ -108,17 +114,17 @@ export const ManageLocationsForm = ({
           <Text size="small" weight="plus" leading="compact">
             {t("locations.domain")}
           </Text>
-          <div className="text-ui-fg-subtle flex w-full justify-between">
+          <div className="flex w-full justify-between text-ui-fg-subtle">
             <Text size="small" leading="compact">
               {t("locations.selectLocations")}
             </Text>
             <Text size="small" leading="compact">
-              {"("}
+              (
               {t("general.countOfTotalSelected", {
                 count: selectedLocationIds.size,
                 total: count,
               })}
-              {")"}
+              )
             </Text>
           </div>
         </div>
@@ -140,8 +146,9 @@ export const ManageLocationsForm = ({
                 limit: params.limit,
                 offset: params.offset,
                 ...(searchQuery && { q: searchQuery }),
-              })
-              return response
+              });
+
+              return response;
             }}
             responseKey="stock_locations"
             renderItem={(location) => (
@@ -179,5 +186,5 @@ export const ManageLocationsForm = ({
         </div>
       </RouteDrawer.Footer>
     </div>
-  )
-}
+  );
+};

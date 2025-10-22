@@ -1,25 +1,29 @@
-import { Heading } from "@medusajs/ui"
-import { useTranslation } from "react-i18next"
-import { useParams } from "react-router-dom"
-import { RouteDrawer } from "../../../../../components/modals"
-import { useInventoryItem } from "../../../../../hooks/api/inventory"
-import { EditInventoryItemAttributesForm } from "./components/edit-item-attributes-form"
+import { Heading } from "@medusajs/ui";
+
+import { useTranslation } from "react-i18next";
+import { useParams } from "react-router-dom";
+
+import { RouteDrawer } from "@components/modals";
+
+import { useInventoryItem } from "@hooks/api";
+
+import { EditInventoryItemAttributesForm } from "@routes/inventory/inventory-detail/components/edit-inventory-item-attributes/components/edit-item-attributes-form.tsx";
 
 export const InventoryItemAttributesEdit = () => {
-  const { id } = useParams()
-  const { t } = useTranslation()
+  const { id } = useParams();
+  const { t } = useTranslation();
 
   const {
     inventory_item: inventoryItem,
     isPending: isLoading,
     isError,
     error,
-  } = useInventoryItem(id!)
+  } = useInventoryItem(id!);
 
-  const ready = !isLoading && inventoryItem
+  const ready = !isLoading && inventoryItem;
 
   if (isError) {
-    throw error
+    throw error;
   }
 
   return (
@@ -27,7 +31,8 @@ export const InventoryItemAttributesEdit = () => {
       <RouteDrawer.Header>
         <Heading>{t("products.editAttributes")}</Heading>
       </RouteDrawer.Header>
+      {/*// @ts-expect-error @todo fix this*/}
       {ready && <EditInventoryItemAttributesForm item={inventoryItem} />}
     </RouteDrawer>
-  )
-}
+  );
+};

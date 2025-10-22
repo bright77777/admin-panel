@@ -1,13 +1,13 @@
-import { HttpTypes } from "@medusajs/types"
+import type { HttpTypes } from "@medusajs/types";
 
-import { useQueryParams } from "../../../../hooks/use-query-params"
+import { useQueryParams } from "@hooks/use-query-params";
 
 export const useInventoryTableQuery = ({
   pageSize = 20,
   prefix,
 }: {
-  pageSize?: number
-  prefix?: string
+  pageSize?: number;
+  prefix?: string;
 }) => {
   const raw = useQueryParams(
     [
@@ -28,8 +28,8 @@ export const useInventoryTableQuery = ({
       "length",
       "height",
     ],
-    prefix
-  )
+    prefix,
+  );
 
   const {
     offset,
@@ -39,7 +39,7 @@ export const useInventoryTableQuery = ({
     height,
     requires_shipping,
     ...params
-  } = raw
+  } = raw;
 
   const searchParams: HttpTypes.AdminInventoryItemParams = {
     limit: pageSize,
@@ -61,10 +61,10 @@ export const useInventoryTableQuery = ({
       location_id: params.location_id || [],
     },
     id: params.id ? params.id.split(",") : undefined,
-  }
+  };
 
   return {
     searchParams,
     raw,
-  }
-}
+  };
+};

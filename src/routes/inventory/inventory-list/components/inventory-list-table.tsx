@@ -1,29 +1,34 @@
-import { InventoryTypes } from "@medusajs/types"
-import { Button, Container, Heading, Text } from "@medusajs/ui"
+import { useState } from "react";
 
-import { RowSelectionState } from "@tanstack/react-table"
-import { useState } from "react"
-import { useTranslation } from "react-i18next"
-import { Link, useNavigate } from "react-router-dom"
-import { _DataTable } from "../../../../components/table/data-table"
-import { useInventoryItems } from "../../../../hooks/api/inventory"
-import { useDataTable } from "../../../../hooks/use-data-table"
-import { INVENTORY_ITEM_IDS_KEY } from "../../common/constants"
-import { useInventoryTableColumns } from "./use-inventory-table-columns"
-import { useInventoryTableFilters } from "./use-inventory-table-filters"
-import { useInventoryTableQuery } from "./use-inventory-table-query"
+import type { InventoryTypes } from "@medusajs/types";
+import { Button, Container, Heading, Text } from "@medusajs/ui";
 
-const PAGE_SIZE = 20
+import type { RowSelectionState } from "@tanstack/react-table";
+import { useTranslation } from "react-i18next";
+import { Link, useNavigate } from "react-router-dom";
+
+import { _DataTable } from "@components/table/data-table";
+
+import { useInventoryItems } from "@hooks/api";
+import { useDataTable } from "@hooks/use-data-table";
+
+import { INVENTORY_ITEM_IDS_KEY } from "@routes/inventory/common/constants";
+
+import { useInventoryTableColumns } from "./use-inventory-table-columns";
+import { useInventoryTableFilters } from "./use-inventory-table-filters";
+import { useInventoryTableQuery } from "./use-inventory-table-query";
+
+const PAGE_SIZE = 20;
 
 export const InventoryListTable = () => {
-  const { t } = useTranslation()
-  const navigate = useNavigate()
+  const { t } = useTranslation();
+  const navigate = useNavigate();
 
-  const [selection, setSelection] = useState<RowSelectionState>({})
+  const [selection, setSelection] = useState<RowSelectionState>({});
 
   const { searchParams, raw } = useInventoryTableQuery({
     pageSize: PAGE_SIZE,
-  })
+  });
 
   const {
     inventory_items,
@@ -33,10 +38,10 @@ export const InventoryListTable = () => {
     error,
   } = useInventoryItems({
     ...searchParams,
-  })
+  });
 
-  const filters = useInventoryTableFilters()
-  const columns = useInventoryTableColumns()
+  const filters = useInventoryTableFilters();
+  const columns = useInventoryTableColumns();
 
   const { table } = useDataTable({
     data: (inventory_items ?? []) as InventoryTypes.InventoryItemDTO[],
@@ -50,10 +55,10 @@ export const InventoryListTable = () => {
       state: selection,
       updater: setSelection,
     },
-  })
+  });
 
   if (isError) {
-    throw error
+    throw error;
   }
 
   return (
@@ -91,9 +96,9 @@ export const InventoryListTable = () => {
             action: async (selection) => {
               navigate(
                 `stock?${INVENTORY_ITEM_IDS_KEY}=${Object.keys(selection).join(
-                  ","
-                )}`
-              )
+                  ",",
+                )}`,
+              );
             },
             label: t("inventory.stock.action"),
             shortcut: "i",
@@ -101,5 +106,5 @@ export const InventoryListTable = () => {
         ]}
       />
     </Container>
-  )
-}
+  );
+};

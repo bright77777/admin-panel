@@ -1,24 +1,34 @@
-import { useLoaderData, useParams } from "react-router-dom"
+import { useLoaderData, useParams } from "react-router-dom";
 
-import { TwoColumnPageSkeleton } from "../../../components/common/skeleton"
-import { TwoColumnPage } from "../../../components/layout/pages"
-import { useInventoryItem } from "../../../hooks/api/inventory"
-import { InventoryItemAttributeSection } from "./components/inventory-item-attributes/attributes-section"
-import { InventoryItemGeneralSection } from "./components/inventory-item-general-section"
-import { InventoryItemLocationLevelsSection } from "./components/inventory-item-location-levels"
-import { InventoryItemReservationsSection } from "./components/inventory-item-reservations"
-import { InventoryItemVariantsSection } from "./components/inventory-item-variants/variants-section"
-import { inventoryItemLoader } from "./loader"
+import { TwoColumnPageSkeleton } from "@components/common/skeleton";
+import { TwoColumnPage } from "@components/layout/pages";
 
-import { useExtension } from "../../../providers/extension-provider"
-import { INVENTORY_DETAIL_FIELDS } from "./constants"
+import { useInventoryItem } from "@hooks/api";
+
+import { InventoryItemAttributeSection } from "@routes/inventory/inventory-detail/components/inventory-item-attributes/attributes-section.tsx";
+import { InventoryItemGeneralSection } from "@routes/inventory/inventory-detail/components/inventory-item-general-section.tsx";
+import { InventoryItemLocationLevelsSection } from "@routes/inventory/inventory-detail/components/inventory-item-location-levels.tsx";
+import { InventoryItemReservationsSection } from "@routes/inventory/inventory-detail/components/inventory-item-reservations.tsx";
+import { InventoryItemVariantsSection } from "@routes/inventory/inventory-detail/components/inventory-item-variants/variants-section.tsx";
+import type { inventoryItemLoader } from "@routes/inventory/inventory-detail/loader.ts";
+
+// import { InventoryItemAttributeSection } from "./components/inventory-item-attributes/attributes-section"
+// import { InventoryItemGeneralSection } from "./components/inventory-item-general-section"
+// import { InventoryItemLocationLevelsSection } from "./components/inventory-item-location-levels"
+// import { InventoryItemReservationsSection } from "./components/inventory-item-reservations"
+// import { InventoryItemVariantsSection } from "./components/inventory-item-variants/variants-section"
+// import { inventoryItemLoader } from "./loader"
+
+import { useExtension } from "@providers/extension-provider";
+
+import { INVENTORY_DETAIL_FIELDS } from "./constants";
 
 export const InventoryDetail = () => {
-  const { id } = useParams()
+  const { id } = useParams();
 
   const initialData = useLoaderData() as Awaited<
     ReturnType<typeof inventoryItemLoader>
-  >
+  >;
 
   const {
     inventory_item,
@@ -32,10 +42,10 @@ export const InventoryDetail = () => {
     },
     {
       initialData,
-    }
-  )
+    },
+  );
 
-  const { getWidgets } = useExtension()
+  const { getWidgets } = useExtension();
 
   if (isLoading || !inventory_item) {
     return (
@@ -45,11 +55,11 @@ export const InventoryDetail = () => {
         sidebarSections={2}
         showMetadata
       />
-    )
+    );
   }
 
   if (isError) {
-    throw error
+    throw error;
   }
 
   return (
@@ -71,10 +81,12 @@ export const InventoryDetail = () => {
       </TwoColumnPage.Main>
       <TwoColumnPage.Sidebar>
         <InventoryItemVariantsSection
+          // @todo fix any type
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           variants={(inventory_item as any).variants}
         />
         <InventoryItemAttributeSection inventoryItem={inventory_item as any} />
       </TwoColumnPage.Sidebar>
     </TwoColumnPage>
-  )
-}
+  );
+};

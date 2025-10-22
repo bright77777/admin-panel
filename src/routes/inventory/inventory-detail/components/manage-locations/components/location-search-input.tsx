@@ -1,26 +1,28 @@
-import { Input } from "@medusajs/ui"
-import { useTranslation } from "react-i18next"
-import { useState, useEffect } from "react"
+import { useEffect, useState } from "react";
+
+import { Input } from "@medusajs/ui";
+
+import { useTranslation } from "react-i18next";
 
 type LocationSearchInputProps = {
-  onSearchChange: (search: string) => void
-  placeholder?: string
-}
+  onSearchChange: (search: string) => void;
+  placeholder?: string;
+};
 
 export const LocationSearchInput = ({
   onSearchChange,
   placeholder,
 }: LocationSearchInputProps) => {
-  const { t } = useTranslation()
-  const [searchValue, setSearchValue] = useState("")
+  const { t } = useTranslation();
+  const [searchValue, setSearchValue] = useState("");
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      onSearchChange(searchValue)
-    }, 300)
+      onSearchChange(searchValue);
+    }, 300);
 
-    return () => clearTimeout(timer)
-  }, [searchValue, onSearchChange])
+    return () => clearTimeout(timer);
+  }, [searchValue, onSearchChange]);
 
   return (
     <Input
@@ -30,5 +32,5 @@ export const LocationSearchInput = ({
       onChange={(e) => setSearchValue(e.target.value)}
       className="w-full"
     />
-  )
-}
+  );
+};

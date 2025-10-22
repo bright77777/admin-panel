@@ -1,22 +1,23 @@
-import { TriangleRightMini } from "@medusajs/icons"
-import { Container, Heading } from "@medusajs/ui"
-import { useTranslation } from "react-i18next"
-import { Link } from "react-router-dom"
+import { TriangleRightMini } from "@medusajs/icons";
+import type { ProductVariantDTO } from "@medusajs/types";
+import { Container, Heading } from "@medusajs/ui";
 
-import { ProductVariantDTO } from "@medusajs/types"
-import { Thumbnail } from "../../../../../components/common/thumbnail"
+import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
+
+import { Thumbnail } from "@components/common/thumbnail";
 
 type InventoryItemVariantsSectionProps = {
-  variants: ProductVariantDTO[]
-}
+  variants: ProductVariantDTO[];
+};
 
 export const InventoryItemVariantsSection = ({
   variants,
 }: InventoryItemVariantsSectionProps) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   if (!variants?.length) {
-    return null
+    return null;
   }
 
   return (
@@ -29,44 +30,44 @@ export const InventoryItemVariantsSection = ({
         {variants.map((variant) => {
           const link = variant.product
             ? `/products/${variant.product.id}/variants/${variant.id}`
-            : null
+            : null;
 
           const Inner = (
-            <div className="shadow-elevation-card-rest bg-ui-bg-component rounded-md px-4 py-2 transition-colors">
+            <div className="rounded-md bg-ui-bg-component px-4 py-2 shadow-elevation-card-rest transition-colors">
               <div className="flex items-center gap-3">
-                <div className="shadow-elevation-card-rest rounded-md">
+                <div className="rounded-md shadow-elevation-card-rest">
                   <Thumbnail src={variant.product?.thumbnail} />
                 </div>
                 <div className="flex flex-1 flex-col">
-                  <span className="text-ui-fg-base font-medium">
+                  <span className="font-medium text-ui-fg-base">
                     {variant.title}
                   </span>
                   <span className="text-ui-fg-subtle">
                     {variant.options.map((o) => o.value).join(" ⋅ ")}
                   </span>
                 </div>
-                <div className="size-7 flex items-center justify-center">
+                <div className="flex size-7 items-center justify-center">
                   <TriangleRightMini className="text-ui-fg-muted rtl:rotate-180" />
                 </div>
               </div>
             </div>
-          )
+          );
 
           if (!link) {
-            return <div key={variant.id}>{Inner}</div>
+            return <div key={variant.id}>{Inner}</div>;
           }
 
           return (
             <Link
               to={link}
               key={variant.id}
-              className="outline-none focus-within:shadow-borders-interactive-with-focus rounded-md [&:hover>div]:bg-ui-bg-component-hover"
+              className="rounded-md outline-none focus-within:shadow-borders-interactive-with-focus [&:hover>div]:bg-ui-bg-component-hover"
             >
               {Inner}
             </Link>
-          )
+          );
         })}
       </div>
     </Container>
-  )
-}
+  );
+};
