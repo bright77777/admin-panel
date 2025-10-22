@@ -1,31 +1,32 @@
-import { AdminCampaign } from "@medusajs/types"
-import { isAfter, isBefore } from "date-fns"
+import type { AdminCampaign } from "@medusajs/types";
+
+import { isAfter, isBefore } from "date-fns";
 
 export function campaignStatus(campaign: AdminCampaign) {
   if (campaign.ends_at) {
     if (isBefore(new Date(campaign.ends_at), new Date())) {
-      return "expired"
+      return "expired";
     }
   }
 
   if (campaign.starts_at) {
     if (isAfter(new Date(campaign.starts_at), new Date())) {
-      return "scheduled"
+      return "scheduled";
     }
   }
 
-  return "active"
+  return "active";
 }
 
 export const statusColor = (status: string) => {
   switch (status) {
     case "expired":
-      return "red"
+      return "red";
     case "scheduled":
-      return "orange"
+      return "orange";
     case "active":
-      return "green"
+      return "green";
     default:
-      return "grey"
+      return "grey";
   }
-}
+};
