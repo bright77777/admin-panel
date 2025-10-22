@@ -1,19 +1,22 @@
-import {
-  Container,
-  Heading,
-  DataTable,
-  createDataTableColumnHelper,
-  DataTablePaginationState,
-  DropdownMenu,
-  Button,
-} from "@medusajs/ui";
 import { useState } from "react";
-import { useDataTable } from "@medusajs/ui";
-import { format } from "date-fns";
+
 import { EllipsisHorizontal } from "@medusajs/icons";
-import { useNavigate, useParams } from "react-router-dom";
+import type { DataTablePaginationState } from "@medusajs/ui";
+import {
+  Button,
+  Container,
+  DataTable,
+  DropdownMenu,
+  Heading,
+  createDataTableColumnHelper,
+} from "@medusajs/ui";
+import { useDataTable } from "@medusajs/ui";
 import { toast } from "@medusajs/ui";
-import { AttributeDTO } from "../../../../types";
+
+import { format } from "date-fns";
+import { useNavigate, useParams } from "react-router-dom";
+
+import type { AttributeDTO } from "@/types";
 
 type PossibleValue = {
   id: string;
@@ -62,6 +65,7 @@ export const PossibleValuesTable = ({
       id: "actions",
       cell: (info) => {
         const possibleValue = info.row.original;
+
         return (
           <div className="flex items-center justify-end">
             <DropdownMenu>
@@ -75,7 +79,7 @@ export const PossibleValuesTable = ({
                   onClick={() => {
                     if (attributeId) {
                       navigate(
-                        `edit-possible-value?possible_value_id=${possibleValue.id}`
+                        `edit-possible-value?possible_value_id=${possibleValue.id}`,
                       );
                     } else {
                       toast.error("Attribute ID not found.");
@@ -97,13 +101,15 @@ export const PossibleValuesTable = ({
     data:
       attribute?.possible_values
         ?.filter((value) =>
-          value.value.toLowerCase().includes(possibleValuesSearch.toLowerCase())
+          value.value
+            .toLowerCase()
+            .includes(possibleValuesSearch.toLowerCase()),
         )
         .slice(
           possibleValuesPagination.pageIndex *
             possibleValuesPagination.pageSize,
           (possibleValuesPagination.pageIndex + 1) *
-            possibleValuesPagination.pageSize
+            possibleValuesPagination.pageSize,
         ) || [],
     getRowId: (value) => value.id,
     rowCount: attribute?.possible_values?.length || 0,

@@ -1,33 +1,37 @@
+import { useEffect } from "react";
+
 import {
+  Button,
   Drawer,
   Heading,
-  Text,
-  Button,
   Input,
-  toast,
   Label,
+  Text,
+  toast,
 } from "@medusajs/ui";
-import { useParams, useSearchParams, useNavigate } from "react-router-dom";
-import { useEffect } from "react";
-import { useForm } from "react-hook-form";
+
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { z } from "zod";
-import { MetadataEditor } from "../../../components/common/metadata-editor";
-import { useAttribute } from "../../../hooks/api/attributes";
-import { useUpdateAttributePossibleValue } from "../../../hooks/api/attributes";
+
+import { MetadataEditor } from "@components/common/metadata-editor";
+
+import { useAttribute } from "@hooks/api/attributes";
+import { useUpdateAttributePossibleValue } from "@hooks/api/attributes";
 
 const formSchema = z.object({
   value: z.string().min(1, "Value is required"),
   rank: z.preprocess(
     (val) => (val === "" ? undefined : Number(val)),
-    z.number().min(0, "Rank must be non-negative").optional()
+    z.number().min(0, "Rank must be non-negative").optional(),
   ),
   metadata: z
     .array(
       z.object({
         key: z.string(),
         value: z.string(),
-      })
+      }),
     )
     .default([]),
 });
@@ -47,16 +51,16 @@ export const EditPossibleValue = () => {
     },
     {
       enabled: !!attributeId,
-    }
+    },
   );
 
   const { mutateAsync, isPending } = useUpdateAttributePossibleValue(
     attributeId!,
-    possibleValueId!
+    possibleValueId!,
   );
 
   const possibleValue = attribute?.possible_values?.find(
-    (pv: { id: string }) => pv.id === possibleValueId
+    (pv: { id: string }) => pv.id === possibleValueId,
   );
 
   const form = useForm<FormValues>({
@@ -71,7 +75,7 @@ export const EditPossibleValue = () => {
   useEffect(() => {
     if (possibleValue) {
       const metadataArray = Object.entries(possibleValue.metadata || {}).map(
-        ([key, value]) => ({ key, value: String(value) })
+        ([key, value]) => ({ key, value: String(value) }),
       );
       form.reset({
         value: possibleValue.value,
@@ -89,9 +93,10 @@ export const EditPossibleValue = () => {
         if (item.key.trim() !== "" && item.value.trim() !== "") {
           acc[item.key] = item.value;
         }
+
         return acc;
       },
-      {} as Record<string, unknown>
+      {} as Record<string, unknown>,
     );
 
     await mutateAsync(
@@ -113,7 +118,7 @@ export const EditPossibleValue = () => {
           toast.error("Failed to update possible value");
           console.error(error);
         },
-      }
+      },
     );
   });
 
@@ -160,7 +165,7 @@ export const EditPossibleValue = () => {
                     <Label htmlFor="value">Value</Label>
                     <Input id="value" {...form.register("value")} />
                     {form.formState.errors.value && (
-                      <Text className="text-red-500 text-sm mt-1">
+                      <Text className="mt-1 text-sm text-red-500">
                         {form.formState.errors.value.message}
                       </Text>
                     )}
@@ -173,7 +178,7 @@ export const EditPossibleValue = () => {
                       {...form.register("rank", { valueAsNumber: true })}
                     />
                     {form.formState.errors.rank && (
-                      <Text className="text-red-500 text-sm mt-1">
+                      <Text className="mt-1 text-sm text-red-500">
                         {form.formState.errors.rank.message}
                       </Text>
                     )}
@@ -187,14 +192,14 @@ export const EditPossibleValue = () => {
               <Button
                 variant="secondary"
                 onClick={handleClose}
-                disabled={!!isPending}
+                disabled={isPending}
               >
                 Cancel
               </Button>
               <Button
                 type="submit"
                 form="edit-possible-value-form"
-                disabled={!!isPending}
+                disabled={isPending}
               >
                 Save
               </Button>
