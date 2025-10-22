@@ -1,15 +1,17 @@
-import { zodResolver } from "@hookform/resolvers/zod"
+import type { ReactNode } from "react";
+import type React from "react";
+import { Fragment, useRef, useState } from "react";
+
 import {
   InformationCircleSolid,
   Plus,
   TriangleDownMini,
   XMark,
   XMarkMini,
-} from "@medusajs/icons"
+} from "@medusajs/icons";
 import {
   Badge,
   Button,
-  clx,
   CurrencyInput,
   Divider,
   Heading,
@@ -17,61 +19,67 @@ import {
   Label,
   Text,
   Tooltip,
-} from "@medusajs/ui"
-import { Accordion as RadixAccordion } from "radix-ui"
-import React, { Fragment, ReactNode, useRef, useState } from "react"
+  clx,
+} from "@medusajs/ui";
+
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Accordion as RadixAccordion } from "radix-ui";
+import { formatValue } from "react-currency-input-field";
+import type { Control, ControllerRenderProps } from "react-hook-form";
 import {
-  Control,
-  ControllerRenderProps,
   useFieldArray,
   useForm,
   useFormContext,
   useWatch,
-} from "react-hook-form"
-import { Trans, useTranslation } from "react-i18next"
+} from "react-hook-form";
+import { Trans, useTranslation } from "react-i18next";
 
-import { formatValue } from "react-currency-input-field"
-import { Form } from "../../../../../components/common/form"
-import { StackedFocusModal } from "../../../../../components/modals"
-import { KeyboundForm } from "../../../../../components/utilities/keybound-form"
-import { useCombinedRefs } from "../../../../../hooks/use-combined-refs"
-import { castNumber } from "../../../../../lib/cast-number"
-import { CurrencyInfo } from "../../../../../lib/data/currencies"
-import { getLocaleAmount } from "../../../../../lib/money-amount-helpers"
-import { CreateShippingOptionSchemaType } from "../../../location-service-zone-shipping-option-create/components/create-shipping-options-form/schema"
+import { Form } from "@components/common/form";
+import { StackedFocusModal } from "@components/modals";
+import { KeyboundForm } from "@components/utilities/keybound-form";
+
+import { useCombinedRefs } from "@hooks/use-combined-refs";
+
+import { castNumber } from "@lib/cast-number";
+import type { CurrencyInfo } from "@lib/data/currencies";
+import { getLocaleAmount } from "@lib/money-amount-helpers";
+
+import { useShippingOptionPrice } from "@routes/locations/common/components/shipping-option-price-provider";
+import type {
+  CondtionalPriceRuleSchemaType,
+  UpdateConditionalPriceRuleSchemaType,
+} from "@routes/locations/common/schema";
 import {
   CondtionalPriceRuleSchema,
-  CondtionalPriceRuleSchemaType,
   UpdateConditionalPriceRuleSchema,
-  UpdateConditionalPriceRuleSchemaType,
-} from "../../schema"
-import { ConditionalPriceInfo } from "../../types"
-import { getCustomShippingOptionPriceFieldName } from "../../utils/get-custom-shipping-option-price-field-info"
-import { useShippingOptionPrice } from "../shipping-option-price-provider"
+} from "@routes/locations/common/schema";
+import type { ConditionalPriceInfo } from "@routes/locations/common/types";
+import { getCustomShippingOptionPriceFieldName } from "@routes/locations/common/utils/get-custom-shipping-option-price-field-info.ts";
+import type { CreateShippingOptionSchemaType } from "@routes/locations/location-service-zone-shipping-option-create/components/create-shipping-options-form/schema";
 
-const RULE_ITEM_PREFIX = "rule-item"
+const RULE_ITEM_PREFIX = "rule-item";
 
-const getRuleValue = (index: number) => `${RULE_ITEM_PREFIX}-${index}`
+const getRuleValue = (index: number) => `${RULE_ITEM_PREFIX}-${index}`;
 
 interface ConditionalPriceFormProps {
-  info: ConditionalPriceInfo
-  variant: "create" | "update"
+  info: ConditionalPriceInfo;
+  variant: "create" | "update";
 }
 
 export const ConditionalPriceForm = ({
   info,
   variant,
 }: ConditionalPriceFormProps) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
   const { getValues, setValue: setFormValue } =
-    useFormContext<CreateShippingOptionSchemaType>()
-  const { onCloseConditionalPricesModal } = useShippingOptionPrice()
+    useFormContext<CreateShippingOptionSchemaType>();
+  const { onCloseConditionalPricesModal } = useShippingOptionPrice();
 
-  const [value, setValue] = useState<string[]>([getRuleValue(0)])
+  const [value, setValue] = useState<string[]>([getRuleValue(0)]);
 
-  const { field, type, currency, name: header } = info
+  const { field, type, currency, name: header } = info;
 
-  const name = getCustomShippingOptionPriceFieldName(field, type)
+  const name = getCustomShippingOptionPriceFieldName(field, type);
 
   const conditionalPriceForm = useForm<
     CondtionalPriceRuleSchemaType | UpdateConditionalPriceRuleSchemaType
@@ -88,28 +96,28 @@ export const ConditionalPriceForm = ({
     resolver: zodResolver(
       variant === "create"
         ? CondtionalPriceRuleSchema
-        : UpdateConditionalPriceRuleSchema
+        : UpdateConditionalPriceRuleSchema,
     ),
-  })
+  });
 
   const { fields, append, remove } = useFieldArray({
     control: conditionalPriceForm.control,
     name: "prices",
-  })
+  });
 
   const handleAdd = () => {
     append({
       amount: "",
       gte: "",
       lte: null,
-    })
+    });
 
-    setValue([...value, getRuleValue(fields.length)])
-  }
+    setValue([...value, getRuleValue(fields.length)]);
+  };
 
   const handleRemove = (index: number) => {
-    remove(index)
-  }
+    remove(index);
+  };
 
   const handleOnSubmit = conditionalPriceForm.handleSubmit(
     (values) => {
@@ -117,34 +125,34 @@ export const ConditionalPriceForm = ({
         shouldDirty: true,
         shouldValidate: true,
         shouldTouch: true,
-      })
-      onCloseConditionalPricesModal()
+      });
+      onCloseConditionalPricesModal();
     },
     (e) => {
-      const indexesWithErrors = Object.keys(e.prices || {})
+      const indexesWithErrors = Object.keys(e.prices || {});
       setValue((prev) => {
-        const values = new Set(prev)
+        const values = new Set(prev);
 
         indexesWithErrors.forEach((index) => {
-          values.add(getRuleValue(Number(index)))
-        })
+          values.add(getRuleValue(Number(index)));
+        });
 
-        return Array.from(values)
-      })
-    }
-  )
+        return Array.from(values);
+      });
+    },
+  );
 
   // Intercept the Cmd + Enter key to only save the inner form.
   const handleOnKeyDown = (event: React.KeyboardEvent<HTMLFormElement>) => {
     if (event.key === "Enter" && (event.metaKey || event.ctrlKey)) {
-      console.log("Fired")
+      console.log("Fired");
 
-      event.preventDefault()
-      event.stopPropagation()
+      event.preventDefault();
+      event.stopPropagation();
 
-      handleOnSubmit()
+      handleOnSubmit();
     }
-  }
+  };
 
   return (
     <Form {...conditionalPriceForm}>
@@ -166,14 +174,14 @@ export const ConditionalPriceForm = ({
                           "stockLocations.shippingOptions.conditionalPrices.header",
                           {
                             name: header,
-                          }
+                          },
                         )}
                       </Heading>
                     </StackedFocusModal.Title>
                     <StackedFocusModal.Description asChild>
                       <Text size="small" className="text-ui-fg-subtle">
                         {t(
-                          "stockLocations.shippingOptions.conditionalPrices.description"
+                          "stockLocations.shippingOptions.conditionalPrices.description",
                         )}
                       </Text>
                     </StackedFocusModal.Description>
@@ -197,7 +205,7 @@ export const ConditionalPriceForm = ({
                       onClick={handleAdd}
                     >
                       {t(
-                        "stockLocations.shippingOptions.conditionalPrices.actions.addPrice"
+                        "stockLocations.shippingOptions.conditionalPrices.actions.addPrice",
                       )}
                     </Button>
                   </div>
@@ -220,13 +228,13 @@ export const ConditionalPriceForm = ({
         </StackedFocusModal.Content>
       </KeyboundForm>
     </Form>
-  )
-}
+  );
+};
 
 interface ConditionalPriceListProps {
-  children?: ReactNode
-  value: string[]
-  onValueChange: (value: string[]) => void
+  children?: ReactNode;
+  value: string[];
+  onValueChange: (value: string[]) => void;
 }
 
 const ConditionalPriceList = ({
@@ -244,14 +252,14 @@ const ConditionalPriceList = ({
     >
       {children}
     </RadixAccordion.Root>
-  )
-}
+  );
+};
 
 interface ConditionalPriceItemProps {
-  index: number
-  currency: CurrencyInfo
-  onRemove: (index: number) => void
-  control: Control<CondtionalPriceRuleSchemaType>
+  index: number;
+  currency: CurrencyInfo;
+  onRemove: (index: number) => void;
+  control: Control<CondtionalPriceRuleSchemaType>;
 }
 
 const ConditionalPriceItem = ({
@@ -260,18 +268,18 @@ const ConditionalPriceItem = ({
   onRemove,
   control,
 }: ConditionalPriceItemProps) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   const handleRemove = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.stopPropagation()
-    onRemove(index)
-  }
+    e.stopPropagation();
+    onRemove(index);
+  };
 
   return (
     <RadixAccordion.Item
       value={getRuleValue(index)}
       className={clx(
-        "bg-ui-bg-component shadow-elevation-card-rest rounded-lg"
+        "rounded-lg bg-ui-bg-component shadow-elevation-card-rest",
       )}
     >
       <RadixAccordion.Trigger asChild>
@@ -316,76 +324,72 @@ const ConditionalPriceItem = ({
         <Form.Field
           control={control}
           name={`prices.${index}.amount`}
-          render={({ field: { value, onChange, ...props } }) => {
-            return (
-              <Form.Item>
-                <div className="grid grid-cols-2 items-start gap-x-2 p-3">
-                  <div className="flex h-8 items-center">
-                    <Form.Label>
-                      {t(
-                        "stockLocations.shippingOptions.conditionalPrices.rules.amount"
-                      )}
-                    </Form.Label>
-                  </div>
-                  <div className="flex flex-col gap-y-1">
-                    <Form.Control>
-                      <CurrencyInput
-                        className="bg-ui-bg-field-component hover:bg-ui-bg-field-component-hover focus-visible:bg-ui-bg-field-component-hover"
-                        placeholder={formatValue({
-                          value: "0",
-                          decimalScale: currency.decimal_digits,
-                        })}
-                        decimalScale={currency.decimal_digits}
-                        symbol={currency.symbol_native}
-                        code={currency.code}
-                        value={value}
-                        onValueChange={(_value, _name, values) =>
-                          onChange(values?.value ? values?.value : "")
-                        }
-                        autoFocus={false}
-                        {...props}
-                      />
-                    </Form.Control>
-                    <Form.ErrorMessage />
-                  </div>
+          render={({ field: { value, onChange, ...props } }) => (
+            <Form.Item>
+              <div className="grid grid-cols-2 items-start gap-x-2 p-3">
+                <div className="flex h-8 items-center">
+                  <Form.Label>
+                    {t(
+                      "stockLocations.shippingOptions.conditionalPrices.rules.amount",
+                    )}
+                  </Form.Label>
                 </div>
-              </Form.Item>
-            )
-          }}
+                <div className="flex flex-col gap-y-1">
+                  <Form.Control>
+                    <CurrencyInput
+                      className="bg-ui-bg-field-component hover:bg-ui-bg-field-component-hover focus-visible:bg-ui-bg-field-component-hover"
+                      placeholder={formatValue({
+                        value: "0",
+                        decimalScale: currency.decimal_digits,
+                      })}
+                      decimalScale={currency.decimal_digits}
+                      symbol={currency.symbol_native}
+                      code={currency.code}
+                      value={value}
+                      onValueChange={(_value, _name, values) =>
+                        onChange(values?.value ? values?.value : "")
+                      }
+                      //@todo fix a11y issue
+                      /* eslint-disable-next-line jsx-a11y/no-autofocus */
+                      autoFocus={false}
+                      {...props}
+                    />
+                  </Form.Control>
+                  <Form.ErrorMessage />
+                </div>
+              </div>
+            </Form.Item>
+          )}
         />
         <Divider variant="dashed" />
         <Form.Field
           control={control}
           name={`prices.${index}.gte`}
-          render={({ field }) => {
-            return (
-              <OperatorInput
-                field={field}
-                label={t(
-                  "stockLocations.shippingOptions.conditionalPrices.rules.gte"
-                )}
-                currency={currency}
-                placeholder="1000"
-              />
-            )
-          }}
+          render={({ field }) => (
+            <OperatorInput
+              field={field}
+              label={t(
+                "stockLocations.shippingOptions.conditionalPrices.rules.gte",
+              )}
+              currency={currency}
+              placeholder="1000"
+            />
+          )}
         />
         <Divider variant="dashed" />
         <Form.Field
           control={control}
           name={`prices.${index}.lte`}
-          render={({ field }) => {
-            return (
-              <OperatorInput
-                field={field}
-                label={t(
-                  "stockLocations.shippingOptions.conditionalPrices.rules.lte"
-                )}
-                currency={currency}
-                placeholder="1000"
-              />
-            )
-          }}
+          render={({ field }) => (
+            <OperatorInput
+              field={field}
+              label={t(
+                "stockLocations.shippingOptions.conditionalPrices.rules.lte",
+              )}
+              currency={currency}
+              placeholder="1000"
+            />
+          )}
         />
         <ReadOnlyConditions
           index={index}
@@ -394,17 +398,17 @@ const ConditionalPriceItem = ({
         />
       </RadixAccordion.Content>
     </RadixAccordion.Item>
-  )
-}
+  );
+};
 
 interface OperatorInputProps {
-  currency: CurrencyInfo
-  placeholder: string
-  label: string
+  currency: CurrencyInfo;
+  placeholder: string;
+  label: string;
   field: ControllerRenderProps<
     CondtionalPriceRuleSchemaType,
     `prices.${number}.lte` | `prices.${number}.gte`
-  >
+  >;
 }
 
 const OperatorInput = ({
@@ -413,27 +417,27 @@ const OperatorInput = ({
   currency,
   placeholder,
 }: OperatorInputProps) => {
-  const innerRef = useRef<HTMLInputElement>(null)
+  const innerRef = useRef<HTMLInputElement>(null);
 
-  const { value, onChange, ref, ...props } = field
+  const { value, onChange, ref, ...props } = field;
 
-  const refs = useCombinedRefs(innerRef, ref)
+  const refs = useCombinedRefs(innerRef, ref);
 
   const action = () => {
     if (value === null) {
-      onChange("")
+      onChange("");
 
       requestAnimationFrame(() => {
-        innerRef.current?.focus()
-      })
+        innerRef.current?.focus();
+      });
 
-      return
+      return;
     }
 
-    onChange(null)
-  }
+    onChange(null);
+  };
 
-  const isNull = value === null
+  const isNull = value === null;
 
   return (
     <Form.Item>
@@ -469,27 +473,27 @@ const OperatorInput = ({
         )}
       </div>
     </Form.Item>
-  )
-}
+  );
+};
 
 const ReadOnlyConditions = ({
   index,
   control,
   currency,
 }: {
-  index: number
-  control: Control<CondtionalPriceRuleSchemaType>
-  currency: CurrencyInfo
+  index: number;
+  control: Control<CondtionalPriceRuleSchemaType>;
+  currency: CurrencyInfo;
 }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   const item = useWatch({
     control,
     name: `prices.${index}`,
-  })
+  });
 
   if (item.eq == null && item.gt == null && item.lt == null) {
-    return null
+    return null;
   }
 
   return (
@@ -498,12 +502,12 @@ const ReadOnlyConditions = ({
       <div className="flex items-center gap-x-1 px-3 pt-3">
         <Text size="small" leading="compact" weight="plus">
           {t(
-            "stockLocations.shippingOptions.conditionalPrices.customRules.label"
+            "stockLocations.shippingOptions.conditionalPrices.customRules.label",
           )}
         </Text>
         <Tooltip
           content={t(
-            "stockLocations.shippingOptions.conditionalPrices.customRules.tooltip"
+            "stockLocations.shippingOptions.conditionalPrices.customRules.tooltip",
           )}
         >
           <InformationCircleSolid className="text-ui-fg-muted" />
@@ -515,7 +519,7 @@ const ReadOnlyConditions = ({
             <div className="flex h-8 items-center">
               <Label weight="plus" size="small">
                 {t(
-                  "stockLocations.shippingOptions.conditionalPrices.customRules.eq"
+                  "stockLocations.shippingOptions.conditionalPrices.customRules.eq",
                 )}
               </Label>
             </div>
@@ -535,7 +539,7 @@ const ReadOnlyConditions = ({
               <div className="flex h-8 items-center">
                 <Label weight="plus" size="small">
                   {t(
-                    "stockLocations.shippingOptions.conditionalPrices.customRules.gt"
+                    "stockLocations.shippingOptions.conditionalPrices.customRules.gt",
                   )}
                 </Label>
               </div>
@@ -556,7 +560,7 @@ const ReadOnlyConditions = ({
               <div className="flex h-8 items-center">
                 <Label weight="plus" size="small">
                   {t(
-                    "stockLocations.shippingOptions.conditionalPrices.customRules.lt"
+                    "stockLocations.shippingOptions.conditionalPrices.customRules.lt",
                   )}
                 </Label>
               </div>
@@ -572,73 +576,73 @@ const ReadOnlyConditions = ({
         )}
       </div>
     </div>
-  )
-}
+  );
+};
 
 const AmountDisplay = ({
   index,
   currency,
   control,
 }: {
-  index: number
-  currency: CurrencyInfo
-  control: Control<CondtionalPriceRuleSchemaType>
+  index: number;
+  currency: CurrencyInfo;
+  control: Control<CondtionalPriceRuleSchemaType>;
 }) => {
   const amount = useWatch({
     control,
     name: `prices.${index}.amount`,
-  })
+  });
 
   if (amount === "" || amount === undefined) {
     return (
       <Text size="small" weight="plus">
         -
       </Text>
-    )
+    );
   }
 
-  const castAmount = castNumber(amount)
+  const castAmount = castNumber(amount);
 
   return (
     <Text size="small" weight="plus">
       {getLocaleAmount(castAmount, currency.code)}
     </Text>
-  )
-}
+  );
+};
 
 const ConditionContainer = ({ children }: { children: ReactNode }) => (
-  <div className="text-ui-fg-subtle txt-small flex flex-wrap items-center gap-1.5">
+  <div className="txt-small flex flex-wrap items-center gap-1.5 text-ui-fg-subtle">
     {children}
   </div>
-)
+);
 
 const ConditionDisplay = ({
   index,
   currency,
   control,
 }: {
-  index: number
-  currency: CurrencyInfo
-  control: Control<CondtionalPriceRuleSchemaType>
+  index: number;
+  currency: CurrencyInfo;
+  control: Control<CondtionalPriceRuleSchemaType>;
 }) => {
-  const { t, i18n } = useTranslation()
+  const { t, i18n } = useTranslation();
 
   const gte = useWatch({
     control,
     name: `prices.${index}.gte`,
-  })
+  });
 
   const lte = useWatch({
     control,
     name: `prices.${index}.lte`,
-  })
+  });
 
   const renderCondition = () => {
-    const castGte = gte ? castNumber(gte) : undefined
-    const castLte = lte ? castNumber(lte) : undefined
+    const castGte = gte ? castNumber(gte) : undefined;
+    const castLte = lte ? castNumber(lte) : undefined;
 
     if (!castGte && !castLte) {
-      return null
+      return null;
     }
 
     if (castGte && !castLte) {
@@ -653,13 +657,13 @@ const ConditionDisplay = ({
             ]}
             values={{
               attribute: t(
-                "stockLocations.shippingOptions.conditionalPrices.attributes.cartItemTotal"
+                "stockLocations.shippingOptions.conditionalPrices.attributes.cartItemTotal",
               ),
               gte: getLocaleAmount(castGte, currency.code),
             }}
           />
         </ConditionContainer>
-      )
+      );
     }
 
     if (!castGte && castLte) {
@@ -674,13 +678,13 @@ const ConditionDisplay = ({
             ]}
             values={{
               attribute: t(
-                "stockLocations.shippingOptions.conditionalPrices.attributes.cartItemTotal"
+                "stockLocations.shippingOptions.conditionalPrices.attributes.cartItemTotal",
               ),
               lte: getLocaleAmount(castLte, currency.code),
             }}
           />
         </ConditionContainer>
-      )
+      );
     }
 
     if (castGte && castLte) {
@@ -696,18 +700,18 @@ const ConditionDisplay = ({
             ]}
             values={{
               attribute: t(
-                "stockLocations.shippingOptions.conditionalPrices.attributes.cartItemTotal"
+                "stockLocations.shippingOptions.conditionalPrices.attributes.cartItemTotal",
               ),
               gte: getLocaleAmount(castGte, currency.code),
               lte: getLocaleAmount(castLte, currency.code),
             }}
           />
         </ConditionContainer>
-      )
+      );
     }
 
-    return null
-  }
+    return null;
+  };
 
-  return renderCondition()
-}
+  return renderCondition();
+};

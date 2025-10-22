@@ -1,28 +1,42 @@
-import { Divider, Heading, Input, RadioGroup, Select, Text } from "@medusajs/ui"
-import { UseFormReturn } from "react-hook-form"
-import { useTranslation } from "react-i18next"
+import type { HttpTypes } from "@medusajs/types";
+import {
+  Divider,
+  Heading,
+  Input,
+  RadioGroup,
+  Select,
+  Text,
+} from "@medusajs/ui";
 
-import { HttpTypes } from "@medusajs/types"
+import type { UseFormReturn } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 
-import { Form } from "../../../../../components/common/form"
-import { SwitchBox } from "../../../../../components/common/switch-box"
-import { Combobox } from "../../../../../components/inputs/combobox"
-import { useComboboxData } from "../../../../../hooks/use-combobox-data"
-import { sdk } from "../../../../../lib/client"
-import { formatProvider } from "../../../../../lib/format-provider"
-import { FulfillmentSetType, ShippingOptionPriceType, } from "../../../common/constants"
-import { CreateShippingOptionSchema } from "./schema"
-import { useDocumentDirection } from "../../../../../hooks/use-document-direction"
+import { Form } from "@components/common/form";
+import { SwitchBox } from "@components/common/switch-box";
+import { Combobox } from "@components/inputs/combobox";
+
+import { useComboboxData } from "@hooks/use-combobox-data";
+import { useDocumentDirection } from "@hooks/use-document-direction";
+
+import { sdk } from "@lib/client";
+import { formatProvider } from "@lib/format-provider";
+
+import {
+  FulfillmentSetType,
+  ShippingOptionPriceType,
+} from "@routes/locations/common/constants";
+
+import type { CreateShippingOptionSchema } from "./schema";
 
 type CreateShippingOptionDetailsFormProps = {
-  form: UseFormReturn<CreateShippingOptionSchema>
-  isReturn?: boolean
-  zone: HttpTypes.AdminServiceZone
-  locationId: string
-  fulfillmentProviderOptions: HttpTypes.AdminFulfillmentProviderOption[]
-  selectedProviderId?: string
-  type: FulfillmentSetType
-}
+  form: UseFormReturn<CreateShippingOptionSchema>;
+  isReturn?: boolean;
+  zone: HttpTypes.AdminServiceZone;
+  locationId: string;
+  fulfillmentProviderOptions: HttpTypes.AdminFulfillmentProviderOption[];
+  selectedProviderId?: string;
+  type: FulfillmentSetType;
+};
 
 export const CreateShippingOptionDetailsForm = ({
   form,
@@ -33,9 +47,9 @@ export const CreateShippingOptionDetailsForm = ({
   selectedProviderId,
   type,
 }: CreateShippingOptionDetailsFormProps) => {
-  const { t } = useTranslation()
-  const direction = useDocumentDirection()
-  const isPickup = type === FulfillmentSetType.Pickup
+  const { t } = useTranslation();
+  const direction = useDocumentDirection();
+  const isPickup = type === FulfillmentSetType.Pickup;
 
   const shippingProfiles = useComboboxData({
     queryFn: (params) => sdk.admin.shippingProfile.list(params),
@@ -45,7 +59,7 @@ export const CreateShippingOptionDetailsForm = ({
         label: profile.name,
         value: profile.id,
       })),
-  })
+  });
 
   const shippingOptionTypes = useComboboxData({
     queryFn: (params) => sdk.admin.shippingOptionType.list(params),
@@ -55,7 +69,7 @@ export const CreateShippingOptionDetailsForm = ({
         label: type.label,
         value: type.id,
       })),
-  })
+  });
 
   const fulfillmentProviders = useComboboxData({
     queryFn: (params) =>
@@ -69,7 +83,7 @@ export const CreateShippingOptionDetailsForm = ({
         label: formatProvider(provider.id),
         value: provider.id,
       })),
-  })
+  });
 
   return (
     <div className="flex flex-1 flex-col items-center overflow-y-auto">
@@ -82,14 +96,14 @@ export const CreateShippingOptionDetailsForm = ({
               }.header`,
               {
                 zone: zone.name,
-              }
+              },
             )}
           </Heading>
           <Text size="small" className="text-ui-fg-subtle">
             {t(
               `stockLocations.shippingOptions.create.${
                 isReturn ? "returns" : isPickup ? "pickup" : "shipping"
-              }.hint`
+              }.hint`,
             )}
           </Text>
         </div>
@@ -115,27 +129,27 @@ export const CreateShippingOptionDetailsForm = ({
                         className="flex-1"
                         value={ShippingOptionPriceType.FlatRate}
                         label={t(
-                          "stockLocations.shippingOptions.fields.priceType.options.fixed.label"
+                          "stockLocations.shippingOptions.fields.priceType.options.fixed.label",
                         )}
                         description={t(
-                          "stockLocations.shippingOptions.fields.priceType.options.fixed.hint"
+                          "stockLocations.shippingOptions.fields.priceType.options.fixed.hint",
                         )}
                       />
                       <RadioGroup.ChoiceBox
                         className="flex-1"
                         value={ShippingOptionPriceType.Calculated}
                         label={t(
-                          "stockLocations.shippingOptions.fields.priceType.options.calculated.label"
+                          "stockLocations.shippingOptions.fields.priceType.options.calculated.label",
                         )}
                         description={t(
-                          "stockLocations.shippingOptions.fields.priceType.options.calculated.hint"
+                          "stockLocations.shippingOptions.fields.priceType.options.calculated.hint",
                         )}
                       />
                     </RadioGroup>
                   </Form.Control>
                   <Form.ErrorMessage />
                 </Form.Item>
-              )
+              );
             }}
           />
         )}
@@ -153,7 +167,7 @@ export const CreateShippingOptionDetailsForm = ({
                   </Form.Control>
                   <Form.ErrorMessage />
                 </Form.Item>
-              )
+              );
             }}
           />
           <Form.Field
@@ -176,7 +190,7 @@ export const CreateShippingOptionDetailsForm = ({
                   </Form.Control>
                   <Form.ErrorMessage />
                 </Form.Item>
-              )
+              );
             }}
           />
           <Form.Field
@@ -201,7 +215,7 @@ export const CreateShippingOptionDetailsForm = ({
                   </Form.Control>
                   <Form.ErrorMessage />
                 </Form.Item>
-              )
+              );
             }}
           />
         </div>
@@ -215,7 +229,7 @@ export const CreateShippingOptionDetailsForm = ({
                 <Form.Item>
                   <Form.Label
                     tooltip={t(
-                      "stockLocations.fulfillmentProviders.shippingOptionsTooltip"
+                      "stockLocations.fulfillmentProviders.shippingOptionsTooltip",
                     )}
                   >
                     {t("stockLocations.shippingOptions.fields.provider")}
@@ -224,8 +238,8 @@ export const CreateShippingOptionDetailsForm = ({
                     <Combobox
                       {...field}
                       onChange={(e) => {
-                        field.onChange(e)
-                        form.setValue("fulfillment_option_id", "")
+                        field.onChange(e);
+                        form.setValue("fulfillment_option_id", "");
                       }}
                       options={fulfillmentProviders.options}
                       searchValue={fulfillmentProviders.searchValue}
@@ -237,7 +251,7 @@ export const CreateShippingOptionDetailsForm = ({
                   </Form.Control>
                   <Form.ErrorMessage />
                 </Form.Item>
-              )
+              );
             }}
           />
 
@@ -249,7 +263,7 @@ export const CreateShippingOptionDetailsForm = ({
                 <Form.Item>
                   <Form.Label>
                     {t(
-                      "stockLocations.shippingOptions.fields.fulfillmentOption"
+                      "stockLocations.shippingOptions.fields.fulfillmentOption",
                     )}
                   </Form.Label>
                   <Form.Control>
@@ -277,7 +291,7 @@ export const CreateShippingOptionDetailsForm = ({
                   </Form.Control>
                   <Form.ErrorMessage />
                 </Form.Item>
-              )
+              );
             }}
           />
         </div>
@@ -288,10 +302,10 @@ export const CreateShippingOptionDetailsForm = ({
           name="enabled_in_store"
           label={t("stockLocations.shippingOptions.fields.enableInStore.label")}
           description={t(
-            "stockLocations.shippingOptions.fields.enableInStore.hint"
+            "stockLocations.shippingOptions.fields.enableInStore.hint",
           )}
         />
       </div>
     </div>
-  )
-}
+  );
+};

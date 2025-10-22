@@ -1,43 +1,46 @@
-import { json, useParams, useSearchParams } from "react-router-dom"
+import { json, useParams, useSearchParams } from "react-router-dom";
 
-import { RouteFocusModal } from "../../../components/modals"
-import { useStockLocation } from "../../../hooks/api/stock-locations"
-import { CreateShippingOptionsForm } from "./components/create-shipping-options-form"
-import { LOC_CREATE_SHIPPING_OPTION_FIELDS } from "./constants"
-import { FulfillmentSetType } from "../common/constants"
+import { RouteFocusModal } from "@components/modals";
+
+import { useStockLocation } from "@hooks/api";
+
+import type { FulfillmentSetType } from "@routes/locations/common/constants";
+import { CreateShippingOptionsForm } from "@routes/locations/location-service-zone-shipping-option-create/components/create-shipping-options-form";
+
+import { LOC_CREATE_SHIPPING_OPTION_FIELDS } from "./constants";
 
 export function LocationServiceZoneShippingOptionCreate() {
-  const { location_id, fset_id, zone_id } = useParams()
-  const [searchParams] = useSearchParams()
-  const isReturn = searchParams.has("is_return")
+  const { location_id, fset_id, zone_id } = useParams();
+  const [searchParams] = useSearchParams();
+  const isReturn = searchParams.has("is_return");
 
   const { stock_location, isPending, isFetching, isError, error } =
     useStockLocation(location_id!, {
       fields: LOC_CREATE_SHIPPING_OPTION_FIELDS,
-    })
+    });
 
   const fulfillmentSet = stock_location?.fulfillment_sets?.find(
-    (f) => f.id === fset_id
-  )
+    (f) => f.id === fset_id,
+  );
 
   if (!isPending && !isFetching && !fulfillmentSet) {
     throw json(
       { message: `Fulfillment set with ID ${fset_id} was not found` },
-      404
-    )
+      404,
+    );
   }
 
-  const zone = fulfillmentSet?.service_zones?.find((z) => z.id === zone_id)
+  const zone = fulfillmentSet?.service_zones?.find((z) => z.id === zone_id);
 
   if (!isPending && !isFetching && !zone) {
     throw json(
       { message: `Service zone with ID ${zone_id} was not found` },
-      404
-    )
+      404,
+    );
   }
 
   if (isError) {
-    throw error
+    throw error;
   }
 
   return (
@@ -51,5 +54,5 @@ export function LocationServiceZoneShippingOptionCreate() {
         />
       )}
     </RouteFocusModal>
-  )
+  );
 }

@@ -1,3 +1,5 @@
+import { useMemo, useState } from "react";
+
 import {
   ArchiveBox,
   CurrencyDollar,
@@ -6,8 +8,8 @@ import {
   Plus,
   Trash,
   TriangleDownMini,
-} from "@medusajs/icons"
-import { HttpTypes } from "@medusajs/types"
+} from "@medusajs/icons";
+import type { HttpTypes } from "@medusajs/types";
 import {
   Badge,
   Container,
@@ -18,43 +20,42 @@ import {
   Text,
   toast,
   usePrompt,
-} from "@medusajs/ui"
-import { useMemo, useState } from "react"
-import { useTranslation } from "react-i18next"
-import { useNavigate } from "react-router-dom"
+} from "@medusajs/ui";
 
-import { ActionMenu } from "../../../../../components/common/action-menu"
-import { NoRecords } from "../../../../../components/common/empty-table-content"
-import { IconAvatar } from "../../../../../components/common/icon-avatar"
-import { LinkButton } from "../../../../../components/common/link-button"
-import { ListSummary } from "../../../../../components/common/list-summary"
-import {
-  useDeleteFulfillmentServiceZone,
-  useDeleteFulfillmentSet,
-} from "../../../../../hooks/api/fulfillment-sets"
-import { useDeleteShippingOption } from "../../../../../hooks/api/shipping-options"
+import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
+
+import { ActionMenu } from "@components/common/action-menu";
+import { NoRecords } from "@components/common/empty-table-content";
+import { IconAvatar } from "@components/common/icon-avatar";
+import { LinkButton } from "@components/common/link-button";
+import { ListSummary } from "@components/common/list-summary";
+
 import {
   useCreateStockLocationFulfillmentSet,
+  useDeleteFulfillmentServiceZone,
+  useDeleteFulfillmentSet,
+  useDeleteShippingOption,
   useDeleteStockLocation,
-} from "../../../../../hooks/api/stock-locations"
-import { getFormattedAddress } from "../../../../../lib/addresses"
-import {
-  StaticCountry,
-  countries as staticCountries,
-} from "../../../../../lib/data/countries"
-import { formatProvider } from "../../../../../lib/format-provider"
+} from "@hooks/api";
+
+import { getFormattedAddress } from "@lib/addresses";
+import { countries as staticCountries } from "@lib/data/countries";
+import type { StaticCountry } from "@lib/data/countries.ts";
+import { formatProvider } from "@lib/format-provider";
 import {
   isOptionEnabledInStore,
   isReturnOption,
-} from "../../../../../lib/shipping-options"
+} from "@lib/shipping-options.ts";
+
 import {
   FulfillmentSetType,
   ShippingOptionPriceType,
-} from "../../../common/constants"
+} from "@routes/locations/common/constants";
 
 type LocationGeneralSectionProps = {
-  location: HttpTypes.AdminStockLocation
-}
+  location: HttpTypes.AdminStockLocation;
+};
 
 export const LocationGeneralSection = ({
   location,
@@ -65,7 +66,7 @@ export const LocationGeneralSection = ({
         <div className="flex items-center justify-between px-6 py-4">
           <div>
             <Heading>{location.name}</Heading>
-            <Text className="text-ui-fg-subtle txt-small">
+            <Text className="txt-small text-ui-fg-subtle">
               {getFormattedAddress({ address: location.address }).join(", ")}
             </Text>
           </div>
@@ -78,7 +79,7 @@ export const LocationGeneralSection = ({
         locationName={location.name}
         type={FulfillmentSetType.Pickup}
         fulfillmentSet={location.fulfillment_sets?.find(
-          (f) => f.type === FulfillmentSetType.Pickup
+          (f) => f.type === FulfillmentSetType.Pickup,
         )}
       />
 
@@ -87,30 +88,30 @@ export const LocationGeneralSection = ({
         locationName={location.name}
         type={FulfillmentSetType.Shipping}
         fulfillmentSet={location.fulfillment_sets?.find(
-          (f) => f.type === FulfillmentSetType.Shipping
+          (f) => f.type === FulfillmentSetType.Shipping,
         )}
       />
     </>
-  )
-}
+  );
+};
 
 type ShippingOptionProps = {
-  option: HttpTypes.AdminShippingOption
-  fulfillmentSetId: string
-  locationId: string
-}
+  option: HttpTypes.AdminShippingOption;
+  fulfillmentSetId: string;
+  locationId: string;
+};
 
 function ShippingOption({
   option,
   fulfillmentSetId,
   locationId,
 }: ShippingOptionProps) {
-  const prompt = usePrompt()
-  const { t } = useTranslation()
+  const prompt = usePrompt();
+  const { t } = useTranslation();
 
-  const isStoreOption = isOptionEnabledInStore(option)
+  const isStoreOption = isOptionEnabledInStore(option);
 
-  const { mutateAsync } = useDeleteShippingOption(option.id)
+  const { mutateAsync } = useDeleteShippingOption(option.id);
 
   const handleDelete = async () => {
     const res = await prompt({
@@ -122,10 +123,10 @@ function ShippingOption({
       verificationText: option.name,
       confirmText: t("actions.delete"),
       cancelText: t("actions.cancel"),
-    })
+    });
 
     if (!res) {
-      return
+      return;
     }
 
     await mutateAsync(undefined, {
@@ -133,14 +134,14 @@ function ShippingOption({
         toast.success(
           t("stockLocations.shippingOptions.delete.successToast", {
             name: option.name,
-          })
-        )
+          }),
+        );
       },
       onError: (e) => {
-        toast.error(e.message)
+        toast.error(e.message);
       },
-    })
-  }
+    });
+  };
 
   return (
     <div className="flex items-center justify-between px-3 py-2">
@@ -188,15 +189,15 @@ function ShippingOption({
         ]}
       />
     </div>
-  )
+  );
 }
 
 type ServiceZoneOptionsProps = {
-  zone: HttpTypes.AdminServiceZone
-  locationId: string
-  fulfillmentSetId: string
-  type: FulfillmentSetType
-}
+  zone: HttpTypes.AdminServiceZone;
+  locationId: string;
+  fulfillmentSetId: string;
+  type: FulfillmentSetType;
+};
 
 function ServiceZoneOptions({
   zone,
@@ -204,20 +205,20 @@ function ServiceZoneOptions({
   fulfillmentSetId,
   type,
 }: ServiceZoneOptionsProps) {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   const shippingOptions = zone.shipping_options.filter(
-    (o) => !isReturnOption(o)
-  )
+    (o) => !isReturnOption(o),
+  );
 
-  const returnOptions = zone.shipping_options.filter((o) => isReturnOption(o))
+  const returnOptions = zone.shipping_options.filter((o) => isReturnOption(o));
 
   return (
     <div>
       <Divider variant="dashed" />
       <div className="flex flex-col gap-y-4 px-6 py-4">
         <div className="item-center flex justify-between">
-          <span className="text-ui-fg-subtle txt-small self-center font-medium">
+          <span className="txt-small self-center font-medium text-ui-fg-subtle">
             {t(`stockLocations.shippingOptions.create.${type}.label`)}
           </span>
           <LinkButton
@@ -228,7 +229,7 @@ function ServiceZoneOptions({
         </div>
 
         {!!shippingOptions.length && (
-          <div className="shadow-elevation-card-rest bg-ui-bg-subtle grid divide-y rounded-md">
+          <div className="grid divide-y rounded-md bg-ui-bg-subtle shadow-elevation-card-rest">
             {shippingOptions.map((o) => (
               <ShippingOption
                 key={o.id}
@@ -245,7 +246,7 @@ function ServiceZoneOptions({
 
       <div className="flex flex-col gap-y-4 px-6 py-4">
         <div className="item-center flex justify-between">
-          <span className="text-ui-fg-subtle txt-small self-center font-medium">
+          <span className="txt-small self-center font-medium text-ui-fg-subtle">
             {t("stockLocations.shippingOptions.create.returns.label")}
           </span>
           <LinkButton
@@ -256,7 +257,7 @@ function ServiceZoneOptions({
         </div>
 
         {!!returnOptions.length && (
-          <div className="shadow-elevation-card-rest bg-ui-bg-subtle grid divide-y rounded-md">
+          <div className="grid divide-y rounded-md bg-ui-bg-subtle shadow-elevation-card-rest">
             {returnOptions.map((o) => (
               <ShippingOption
                 key={o.id}
@@ -269,15 +270,15 @@ function ServiceZoneOptions({
         )}
       </div>
     </div>
-  )
+  );
 }
 
 type ServiceZoneProps = {
-  zone: HttpTypes.AdminServiceZone
-  locationId: string
-  fulfillmentSetId: string
-  type: FulfillmentSetType
-}
+  zone: HttpTypes.AdminServiceZone;
+  locationId: string;
+  fulfillmentSetId: string;
+  type: FulfillmentSetType;
+};
 
 function ServiceZone({
   zone,
@@ -285,14 +286,14 @@ function ServiceZone({
   fulfillmentSetId,
   type,
 }: ServiceZoneProps) {
-  const { t } = useTranslation()
-  const prompt = usePrompt()
-  const [open, setOpen] = useState(true)
+  const { t } = useTranslation();
+  const prompt = usePrompt();
+  const [open, setOpen] = useState(true);
 
   const { mutateAsync: deleteZone } = useDeleteFulfillmentServiceZone(
     fulfillmentSetId,
-    zone.id
-  )
+    zone.id,
+  );
 
   const handleDelete = async () => {
     const res = await prompt({
@@ -302,34 +303,34 @@ function ServiceZone({
       }),
       confirmText: t("actions.delete"),
       cancelText: t("actions.cancel"),
-    })
+    });
 
     if (!res) {
-      return
+      return;
     }
 
     await deleteZone(undefined, {
       onError: (e) => {
-        toast.error(e.message)
+        toast.error(e.message);
       },
       onSuccess: () => {
         toast.success(
           t("stockLocations.serviceZones.delete.successToast", {
             name: zone.name,
-          })
-        )
+          }),
+        );
       },
-    })
-  }
+    });
+  };
 
   const countries = useMemo(() => {
-    const countryGeoZones = zone.geo_zones.filter((g) => g.type === "country")
+    const countryGeoZones = zone.geo_zones.filter((g) => g.type === "country");
 
     const countries = countryGeoZones
       .map(({ country_code }) =>
-        staticCountries.find((c) => c.iso_2 === country_code)
+        staticCountries.find((c) => c.iso_2 === country_code),
       )
-      .filter((c) => !!c) as StaticCountry[]
+      .filter((c) => !!c) as StaticCountry[];
 
     if (
       process.env.NODE_ENV === "development" &&
@@ -339,22 +340,22 @@ function ServiceZone({
         "Some countries are missing in the static countries list",
         countryGeoZones
           .filter((g) => !countries.find((c) => c.iso_2 === g.country_code))
-          .map((g) => g.country_code)
-      )
+          .map((g) => g.country_code),
+      );
     }
 
-    return countries.sort((c1, c2) => c1.name.localeCompare(c2.name))
-  }, [zone.geo_zones])
+    return countries.sort((c1, c2) => c1.name.localeCompare(c2.name));
+  }, [zone.geo_zones]);
 
   const [shippingOptionsCount, returnOptionsCount] = useMemo(() => {
-    const options = zone.shipping_options
+    const options = zone.shipping_options;
 
-    const optionsCount = options.filter((o) => !isReturnOption(o)).length
+    const optionsCount = options.filter((o) => !isReturnOption(o)).length;
 
-    const returnOptionsCount = options.filter(isReturnOption).length
+    const returnOptionsCount = options.filter(isReturnOption).length;
 
-    return [optionsCount, returnOptionsCount]
-  }, [zone.shipping_options])
+    return [optionsCount, returnOptionsCount];
+  }, [zone.shipping_options]);
 
   return (
     <div className="flex flex-col">
@@ -375,13 +376,13 @@ function ServiceZone({
               n={1}
             />
             <span>·</span>
-            <Text className="text-ui-fg-subtle txt-small">
+            <Text className="txt-small text-ui-fg-subtle">
               {t(`stockLocations.shippingOptions.fields.count.${type}`, {
                 count: shippingOptionsCount,
               })}
             </Text>
             <span>·</span>
-            <Text className="text-ui-fg-subtle txt-small">
+            <Text className="txt-small text-ui-fg-subtle">
               {t("stockLocations.shippingOptions.fields.count.returns", {
                 count: returnOptionsCount,
               })}
@@ -440,32 +441,32 @@ function ServiceZone({
         />
       )}
     </div>
-  )
+  );
 }
 
 type FulfillmentSetProps = {
-  fulfillmentSet?: HttpTypes.AdminFulfillmentSet
-  locationName: string
-  locationId: string
-  type: FulfillmentSetType
-}
+  fulfillmentSet?: HttpTypes.AdminFulfillmentSet;
+  locationName: string;
+  locationId: string;
+  type: FulfillmentSetType;
+};
 
 function FulfillmentSet(props: FulfillmentSetProps) {
-  const { t } = useTranslation()
-  const prompt = usePrompt()
+  const { t } = useTranslation();
+  const prompt = usePrompt();
 
-  const { fulfillmentSet, locationName, locationId, type } = props
+  const { fulfillmentSet, locationName, locationId, type } = props;
 
-  const fulfillmentSetExists = !!fulfillmentSet
+  const fulfillmentSetExists = !!fulfillmentSet;
 
-  const hasServiceZones = !!fulfillmentSet?.service_zones.length
+  const hasServiceZones = !!fulfillmentSet?.service_zones.length;
 
   const { mutateAsync: createFulfillmentSet } =
-    useCreateStockLocationFulfillmentSet(locationId)
+    useCreateStockLocationFulfillmentSet(locationId);
 
   const { mutateAsync: deleteFulfillmentSet } = useDeleteFulfillmentSet(
-    fulfillmentSet?.id!
-  )
+    fulfillmentSet?.id!,
+  );
 
   const handleCreate = async () => {
     await createFulfillmentSet(
@@ -477,14 +478,14 @@ function FulfillmentSet(props: FulfillmentSetProps) {
       },
       {
         onSuccess: () => {
-          toast.success(t(`stockLocations.fulfillmentSets.enable.${type}`))
+          toast.success(t(`stockLocations.fulfillmentSets.enable.${type}`));
         },
         onError: (e) => {
-          toast.error(e.message)
+          toast.error(e.message);
         },
-      }
-    )
-  }
+      },
+    );
+  };
 
   const handleDelete = async () => {
     const res = await prompt({
@@ -494,21 +495,21 @@ function FulfillmentSet(props: FulfillmentSetProps) {
       }),
       confirmText: t("actions.disable"),
       cancelText: t("actions.cancel"),
-    })
+    });
 
     if (!res) {
-      return
+      return;
     }
 
     await deleteFulfillmentSet(undefined, {
       onSuccess: () => {
-        toast.success(t(`stockLocations.fulfillmentSets.disable.${type}`))
+        toast.success(t(`stockLocations.fulfillmentSets.disable.${type}`));
       },
       onError: (e) => {
-        toast.error(e.message)
+        toast.error(e.message);
       },
-    })
-  }
+    });
+  };
 
   const groups = fulfillmentSet
     ? [
@@ -541,7 +542,7 @@ function FulfillmentSet(props: FulfillmentSetProps) {
             },
           ],
         },
-      ]
+      ];
 
   return (
     <Container className="p-0">
@@ -553,7 +554,7 @@ function FulfillmentSet(props: FulfillmentSetProps) {
           <div className="flex items-center gap-4">
             <StatusBadge color={fulfillmentSetExists ? "green" : "grey"}>
               {t(
-                fulfillmentSetExists ? "statuses.enabled" : "statuses.disabled"
+                fulfillmentSetExists ? "statuses.enabled" : "statuses.disabled",
               )}
             </StatusBadge>
 
@@ -589,14 +590,14 @@ function FulfillmentSet(props: FulfillmentSetProps) {
         )}
       </div>
     </Container>
-  )
+  );
 }
 
 const Actions = ({ location }: { location: HttpTypes.AdminStockLocation }) => {
-  const navigate = useNavigate()
-  const { t } = useTranslation()
-  const { mutateAsync } = useDeleteStockLocation(location.id)
-  const prompt = usePrompt()
+  const navigate = useNavigate();
+  const { t } = useTranslation();
+  const { mutateAsync } = useDeleteStockLocation(location.id);
+  const prompt = usePrompt();
 
   const handleDelete = async () => {
     const res = await prompt({
@@ -608,10 +609,10 @@ const Actions = ({ location }: { location: HttpTypes.AdminStockLocation }) => {
       verificationInstruction: t("general.typeToConfirm"),
       confirmText: t("actions.delete"),
       cancelText: t("actions.cancel"),
-    })
+    });
 
     if (!res) {
-      return
+      return;
     }
 
     await mutateAsync(undefined, {
@@ -619,15 +620,15 @@ const Actions = ({ location }: { location: HttpTypes.AdminStockLocation }) => {
         toast.success(
           t("stockLocations.create.successToast", {
             name: location.name,
-          })
-        )
-        navigate("/settings/locations", { replace: true })
+          }),
+        );
+        navigate("/settings/locations", { replace: true });
       },
       onError: (e) => {
-        toast.error(e.message)
+        toast.error(e.message);
       },
-    })
-  }
+    });
+  };
 
   return (
     <ActionMenu
@@ -657,5 +658,5 @@ const Actions = ({ location }: { location: HttpTypes.AdminStockLocation }) => {
         },
       ]}
     />
-  )
-}
+  );
+};

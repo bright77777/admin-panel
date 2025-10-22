@@ -1,40 +1,43 @@
-import { HttpTypes } from "@medusajs/types"
-import { Button, InlineTip, Input, toast } from "@medusajs/ui"
-import { useForm } from "react-hook-form"
-import { useTranslation } from "react-i18next"
-import * as zod from "zod"
+import type { HttpTypes } from "@medusajs/types";
+import { Button, InlineTip, Input, toast } from "@medusajs/ui";
 
-import { Form } from "../../../../../components/common/form"
-import { RouteDrawer, useRouteModal } from "../../../../../components/modals"
-import { KeyboundForm } from "../../../../../components/utilities/keybound-form"
-import { useUpdateFulfillmentSetServiceZone } from "../../../../../hooks/api/fulfillment-sets"
+import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
+import * as zod from "zod";
+
+import { Form } from "@components/common/form";
+import { RouteDrawer, useRouteModal } from "@components/modals";
+import { KeyboundForm } from "@components/utilities/keybound-form";
+
+import { useUpdateFulfillmentSetServiceZone } from "@hooks/api";
 
 type EditServiceZoneFormProps = {
-  zone: HttpTypes.AdminServiceZone
-  fulfillmentSetId: string
-  locationId: string
-}
+  zone: HttpTypes.AdminServiceZone;
+  fulfillmentSetId: string;
+  locationId: string;
+};
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const EditServiceZoneSchema = zod.object({
   name: zod.string().min(1),
-})
+});
 
 export const EditServiceZoneForm = ({
   zone,
   fulfillmentSetId,
   locationId,
 }: EditServiceZoneFormProps) => {
-  const { t } = useTranslation()
-  const { handleSuccess } = useRouteModal()
+  const { t } = useTranslation();
+  const { handleSuccess } = useRouteModal();
 
   const form = useForm<zod.infer<typeof EditServiceZoneSchema>>({
     defaultValues: {
       name: zone.name,
     },
-  })
+  });
 
   const { mutateAsync, isPending: isLoading } =
-    useUpdateFulfillmentSetServiceZone(fulfillmentSetId, zone.id)
+    useUpdateFulfillmentSetServiceZone(fulfillmentSetId, zone.id);
 
   const handleSubmit = form.handleSubmit(async (values) => {
     await mutateAsync(
@@ -46,16 +49,16 @@ export const EditServiceZoneForm = ({
           toast.success(
             t("stockLocations.serviceZones.edit.successToast", {
               name: values.name,
-            })
-          )
-          handleSuccess(`/settings/locations/${locationId}`)
+            }),
+          );
+          handleSuccess(`/settings/locations/${locationId}`);
         },
         onError: (e) => {
-          toast.error(e.message)
+          toast.error(e.message);
         },
-      }
-    )
-  })
+      },
+    );
+  });
 
   return (
     <RouteDrawer.Form form={form}>
@@ -78,7 +81,7 @@ export const EditServiceZoneForm = ({
                       </Form.Control>
                       <Form.ErrorMessage />
                     </Form.Item>
-                  )
+                  );
                 }}
               />
             </div>
@@ -101,5 +104,5 @@ export const EditServiceZoneForm = ({
         </RouteDrawer.Footer>
       </KeyboundForm>
     </RouteDrawer.Form>
-  )
-}
+  );
+};

@@ -1,46 +1,49 @@
-import { Heading } from "@medusajs/ui"
-import { useTranslation } from "react-i18next"
-import { json, useParams } from "react-router-dom"
+import { Heading } from "@medusajs/ui";
 
-import { RouteDrawer } from "../../../components/modals"
-import { useShippingOptions } from "../../../hooks/api/shipping-options"
-import { EditShippingOptionForm } from "./components/edit-region-form"
-import { FulfillmentSetType } from "../common/constants"
+import { useTranslation } from "react-i18next";
+import { json, useParams } from "react-router-dom";
+
+import { RouteDrawer } from "@components/modals";
+
+import { useShippingOptions } from "@hooks/api";
+
+import { FulfillmentSetType } from "@routes/locations/common/constants";
+import { EditShippingOptionForm } from "@routes/locations/location-service-zone-shipping-option-edit/components/edit-region-form";
 
 export const LocationServiceZoneShippingOptionEdit = () => {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
-  const { location_id, so_id } = useParams()
+  const { location_id, so_id } = useParams();
 
   const { shipping_options, isPending, isFetching, isError, error } =
     useShippingOptions({
       id: so_id,
       fields: "+service_zone.fulfillment_set.type",
-    })
+    });
 
-  const shippingOption = shipping_options?.find((so) => so.id === so_id)
+  const shippingOption = shipping_options?.find((so) => so.id === so_id);
 
   if (!isPending && !isFetching && !shippingOption) {
     throw json(
       { message: `Shipping option with ID ${so_id} was not found` },
-      404
-    )
+      404,
+    );
   }
 
   if (isError) {
-    throw error
+    throw error;
   }
 
   const isPickup =
     shippingOption?.service_zone.fulfillment_set.type ===
-    FulfillmentSetType.Pickup
+    FulfillmentSetType.Pickup;
 
   return (
     <RouteDrawer>
       <RouteDrawer.Header>
         <Heading>
           {t(
-            `stockLocations.${isPickup ? "pickupOptions" : "shippingOptions"}.edit.header`
+            `stockLocations.${isPickup ? "pickupOptions" : "shippingOptions"}.edit.header`,
           )}
         </Heading>
       </RouteDrawer.Header>
@@ -55,5 +58,5 @@ export const LocationServiceZoneShippingOptionEdit = () => {
         />
       )}
     </RouteDrawer>
-  )
-}
+  );
+};

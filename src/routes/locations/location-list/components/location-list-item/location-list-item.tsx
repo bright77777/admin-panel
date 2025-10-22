@@ -1,22 +1,26 @@
-import { Buildings, PencilSquare, Trash } from "@medusajs/icons"
-import { HttpTypes } from "@medusajs/types"
-import { Container, StatusBadge, Text, toast, usePrompt } from "@medusajs/ui"
-import { useTranslation } from "react-i18next"
+import { Buildings, PencilSquare, Trash } from "@medusajs/icons";
+import type { HttpTypes } from "@medusajs/types";
+import { Container, StatusBadge, Text, toast, usePrompt } from "@medusajs/ui";
 
-import { ActionMenu } from "../../../../../components/common/action-menu"
-import { BadgeListSummary } from "../../../../../components/common/badge-list-summary"
-import { LinkButton } from "../../../../../components/common/link-button"
-import { useDeleteStockLocation } from "../../../../../hooks/api/stock-locations"
-import { getFormattedAddress } from "../../../../../lib/addresses"
-import { FulfillmentSetType } from "../../../common/constants"
+import { useTranslation } from "react-i18next";
+
+import { ActionMenu } from "@components/common/action-menu";
+import { BadgeListSummary } from "@components/common/badge-list-summary";
+import { LinkButton } from "@components/common/link-button";
+
+import { useDeleteStockLocation } from "@hooks/api";
+
+import { getFormattedAddress } from "@lib/addresses";
+
+import { FulfillmentSetType } from "@routes/locations/common/constants";
 
 type SalesChannelsProps = {
-  salesChannels?: HttpTypes.AdminSalesChannel[] | null
-}
+  salesChannels?: HttpTypes.AdminSalesChannel[] | null;
+};
 
 function SalesChannels(props: SalesChannelsProps) {
-  const { t } = useTranslation()
-  const { salesChannels } = props
+  const { t } = useTranslation();
+  const { salesChannels } = props;
 
   return (
     <div className="flex flex-col px-6 py-4">
@@ -24,7 +28,7 @@ function SalesChannels(props: SalesChannelsProps) {
         <Text
           size="small"
           weight="plus"
-          className="text-ui-fg-subtle flex-1"
+          className="flex-1 text-ui-fg-subtle"
           as="div"
         >
           {t(`stockLocations.salesChannels.label`)}
@@ -43,19 +47,19 @@ function SalesChannels(props: SalesChannelsProps) {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 type FulfillmentSetProps = {
-  fulfillmentSet?: HttpTypes.AdminFulfillmentSet
-  type: FulfillmentSetType
-}
+  fulfillmentSet?: HttpTypes.AdminFulfillmentSet;
+  type: FulfillmentSetType;
+};
 
 function FulfillmentSet(props: FulfillmentSetProps) {
-  const { t } = useTranslation()
-  const { fulfillmentSet, type } = props
+  const { t } = useTranslation();
+  const { fulfillmentSet, type } = props;
 
-  const fulfillmentSetExists = !!fulfillmentSet
+  const fulfillmentSetExists = !!fulfillmentSet;
 
   return (
     <div className="flex flex-col px-6 py-4">
@@ -63,7 +67,7 @@ function FulfillmentSet(props: FulfillmentSetProps) {
         <Text
           size="small"
           weight="plus"
-          className="text-ui-fg-subtle flex-1"
+          className="flex-1 text-ui-fg-subtle"
           as="div"
         >
           {t(`stockLocations.fulfillmentSets.${type}.header`)}
@@ -75,19 +79,19 @@ function FulfillmentSet(props: FulfillmentSetProps) {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 type LocationProps = {
-  location: HttpTypes.AdminStockLocation
-}
+  location: HttpTypes.AdminStockLocation;
+};
 
 function LocationListItem(props: LocationProps) {
-  const { location } = props
-  const { t } = useTranslation()
-  const prompt = usePrompt()
+  const { location } = props;
+  const { t } = useTranslation();
+  const prompt = usePrompt();
 
-  const { mutateAsync: deleteLocation } = useDeleteStockLocation(location.id)
+  const { mutateAsync: deleteLocation } = useDeleteStockLocation(location.id);
 
   const handleDelete = async () => {
     const result = await prompt({
@@ -97,10 +101,10 @@ function LocationListItem(props: LocationProps) {
       }),
       confirmText: t("actions.remove"),
       cancelText: t("actions.cancel"),
-    })
+    });
 
     if (!result) {
-      return
+      return;
     }
 
     await deleteLocation(undefined, {
@@ -108,28 +112,28 @@ function LocationListItem(props: LocationProps) {
         toast.success(
           t("shippingProfile.delete.successToast", {
             name: location.name,
-          })
-        )
+          }),
+        );
       },
       onError: (e) => {
-        toast.error(e.message)
+        toast.error(e.message);
       },
-    })
-  }
+    });
+  };
 
   return (
     <Container className="flex flex-col divide-y p-0">
       <div className="px-6 py-4">
         <div className="flex flex-row items-center justify-between gap-x-4">
-          <div className="shadow-borders-base flex size-7 items-center justify-center rounded-md">
-            <div className="bg-ui-bg-field flex size-6 items-center justify-center rounded-[4px]">
+          <div className="flex size-7 items-center justify-center rounded-md shadow-borders-base">
+            <div className="flex size-6 items-center justify-center rounded-[4px] bg-ui-bg-field">
               <Buildings className="text-ui-fg-subtle" />
             </div>
           </div>
 
           <div className="grow-1 flex flex-1 flex-col">
             <Text weight="plus">{location.name}</Text>
-            <Text className="text-ui-fg-subtle txt-small">
+            <Text className="txt-small text-ui-fg-subtle">
               {getFormattedAddress({ address: location.address }).join(", ")}
             </Text>
           </div>
@@ -157,7 +161,7 @@ function LocationListItem(props: LocationProps) {
                 },
               ]}
             />
-            <div className="bg-ui-border-strong h-[12px] w-[1px]" />
+            <div className="h-[12px] w-[1px] bg-ui-border-strong" />
             <LinkButton to={`/settings/locations/${location.id}`}>
               {t("actions.viewDetails")}
             </LinkButton>
@@ -170,17 +174,17 @@ function LocationListItem(props: LocationProps) {
       <FulfillmentSet
         type={FulfillmentSetType.Pickup}
         fulfillmentSet={location.fulfillment_sets?.find(
-          (f) => f.type === FulfillmentSetType.Pickup
+          (f) => f.type === FulfillmentSetType.Pickup,
         )}
       />
       <FulfillmentSet
         type={FulfillmentSetType.Shipping}
         fulfillmentSet={location.fulfillment_sets?.find(
-          (f) => f.type === FulfillmentSetType.Shipping
+          (f) => f.type === FulfillmentSetType.Shipping,
         )}
       />
     </Container>
-  )
+  );
 }
 
-export default LocationListItem
+export default LocationListItem;

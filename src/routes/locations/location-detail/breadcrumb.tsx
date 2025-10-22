@@ -1,16 +1,18 @@
-import { HttpTypes } from "@medusajs/types"
-import { UIMatch } from "react-router-dom"
+import type { HttpTypes } from "@medusajs/types";
 
-import { useStockLocation } from "../../../hooks/api/stock-locations"
-import { LOCATION_DETAILS_FIELD } from "./constants"
+import type { UIMatch } from "react-router-dom";
+
+import { useStockLocation } from "@hooks/api";
+
+import { LOCATION_DETAILS_FIELD } from "./constants";
 
 type LocationDetailBreadcrumbProps =
-  UIMatch<HttpTypes.AdminStockLocationResponse>
+  UIMatch<HttpTypes.AdminStockLocationResponse>;
 
 export const LocationDetailBreadcrumb = (
-  props: LocationDetailBreadcrumbProps
+  props: LocationDetailBreadcrumbProps,
 ) => {
-  const { location_id } = props.params || {}
+  const { location_id } = props.params || {};
 
   const { stock_location } = useStockLocation(
     location_id!,
@@ -20,12 +22,12 @@ export const LocationDetailBreadcrumb = (
     {
       initialData: props.data,
       enabled: Boolean(location_id),
-    }
-  )
+    },
+  );
 
   if (!stock_location) {
-    return null
+    return null;
   }
 
-  return <span>{stock_location.name}</span>
-}
+  return <span>{stock_location.name}</span>;
+};

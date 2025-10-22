@@ -1,44 +1,47 @@
-import { zodResolver } from "@hookform/resolvers/zod"
-import { HttpTypes } from "@medusajs/types"
-import { Button, Heading, InlineTip, Input, toast } from "@medusajs/ui"
-import { useForm } from "react-hook-form"
-import { useTranslation } from "react-i18next"
-import { z } from "zod"
+import type { HttpTypes } from "@medusajs/types";
+import { Button, Heading, InlineTip, Input, toast } from "@medusajs/ui";
 
-import { Form } from "../../../../../components/common/form"
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
+import { z } from "zod";
+
+import { Form } from "@components/common/form";
 import {
   RouteFocusModal,
   StackedFocusModal,
   useRouteModal,
-} from "../../../../../components/modals"
-import { KeyboundForm } from "../../../../../components/utilities/keybound-form"
-import { useCreateFulfillmentSetServiceZone } from "../../../../../hooks/api/fulfillment-sets"
-import { GeoZoneForm } from "../../../common/components/geo-zone-form"
+} from "@components/modals";
+import { KeyboundForm } from "@components/utilities/keybound-form";
+
+import { useCreateFulfillmentSetServiceZone } from "@hooks/api";
+
+import { GeoZoneForm } from "@routes/locations/common/components/geo-zone-form";
 import {
   FulfillmentSetType,
   GEO_ZONE_STACKED_MODAL_ID,
-} from "../../../common/constants"
+} from "@routes/locations/common/constants";
 
 const CreateServiceZoneSchema = z.object({
   name: z.string().min(1),
   countries: z
     .array(z.object({ iso_2: z.string().min(2), display_name: z.string() }))
     .min(1),
-})
+});
 
 type CreateServiceZoneFormProps = {
-  fulfillmentSet: HttpTypes.AdminFulfillmentSet
-  type: FulfillmentSetType
-  location: HttpTypes.AdminStockLocation
-}
+  fulfillmentSet: HttpTypes.AdminFulfillmentSet;
+  type: FulfillmentSetType;
+  location: HttpTypes.AdminStockLocation;
+};
 
 export function CreateServiceZoneForm({
   fulfillmentSet,
   type,
   location,
 }: CreateServiceZoneFormProps) {
-  const { t } = useTranslation()
-  const { handleSuccess } = useRouteModal()
+  const { t } = useTranslation();
+  const { handleSuccess } = useRouteModal();
 
   const form = useForm<z.infer<typeof CreateServiceZoneSchema>>({
     defaultValues: {
@@ -46,11 +49,11 @@ export function CreateServiceZoneForm({
       countries: [],
     },
     resolver: zodResolver(CreateServiceZoneSchema),
-  })
+  });
 
   const { mutateAsync, isPending } = useCreateFulfillmentSetServiceZone(
-    fulfillmentSet.id
-  )
+    fulfillmentSet.id,
+  );
 
   const handleSubmit = form.handleSubmit(async (data) => {
     await mutateAsync(
@@ -66,17 +69,17 @@ export function CreateServiceZoneForm({
           toast.success(
             t("stockLocations.serviceZones.create.successToast", {
               name: data.name,
-            })
-          )
+            }),
+          );
 
-          handleSuccess(`/settings/locations/${location.id}`)
+          handleSuccess(`/settings/locations/${location.id}`);
         },
         onError: (e) => {
-          toast.error(e.message)
+          toast.error(e.message);
         },
-      }
-    )
-  })
+      },
+    );
+  });
 
   return (
     <RouteFocusModal.Form form={form}>
@@ -112,7 +115,7 @@ export function CreateServiceZoneForm({
                           </Form.Control>
                           <Form.ErrorMessage />
                         </Form.Item>
-                      )
+                      );
                     }}
                   />
                 </div>
@@ -142,5 +145,5 @@ export function CreateServiceZoneForm({
         </RouteFocusModal.Footer>
       </KeyboundForm>
     </RouteFocusModal.Form>
-  )
+  );
 }

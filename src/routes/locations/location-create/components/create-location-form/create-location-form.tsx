@@ -1,16 +1,16 @@
-import { zodResolver } from "@hookform/resolvers/zod"
-import { Button, Heading, Input, Text, toast } from "@medusajs/ui"
-import { useForm } from "react-hook-form"
-import { useTranslation } from "react-i18next"
-import * as zod from "zod"
-import { Form } from "../../../../../components/common/form"
-import { CountrySelect } from "../../../../../components/inputs/country-select"
-import {
-  RouteFocusModal,
-  useRouteModal,
-} from "../../../../../components/modals"
-import { KeyboundForm } from "../../../../../components/utilities/keybound-form"
-import { useCreateStockLocation } from "../../../../../hooks/api/stock-locations"
+import { Button, Heading, Input, Text, toast } from "@medusajs/ui";
+
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
+import * as zod from "zod";
+
+import { Form } from "@components/common/form";
+import { CountrySelect } from "@components/inputs/country-select";
+import { RouteFocusModal, useRouteModal } from "@components/modals";
+import { KeyboundForm } from "@components/utilities/keybound-form";
+
+import { useCreateStockLocation } from "@hooks/api";
 
 const CreateLocationSchema = zod.object({
   name: zod.string().min(1),
@@ -24,11 +24,11 @@ const CreateLocationSchema = zod.object({
     company: zod.string().optional(),
     phone: zod.string().optional(),
   }),
-})
+});
 
 export const CreateLocationForm = () => {
-  const { t } = useTranslation()
-  const { handleSuccess } = useRouteModal()
+  const { t } = useTranslation();
+  const { handleSuccess } = useRouteModal();
 
   const form = useForm<zod.infer<typeof CreateLocationSchema>>({
     defaultValues: {
@@ -45,9 +45,9 @@ export const CreateLocationForm = () => {
       },
     },
     resolver: zodResolver(CreateLocationSchema),
-  })
+  });
 
-  const { mutateAsync, isPending } = useCreateStockLocation()
+  const { mutateAsync, isPending } = useCreateStockLocation();
 
   const handleSubmit = form.handleSubmit(async (values) => {
     await mutateAsync(
@@ -57,16 +57,16 @@ export const CreateLocationForm = () => {
       },
       {
         onSuccess: ({ stock_location }) => {
-          toast.success(t("locations.toast.create"))
+          toast.success(t("locations.toast.create"));
 
-          handleSuccess(`/settings/locations/${stock_location.id}`)
+          handleSuccess(`/settings/locations/${stock_location.id}`);
         },
         onError: (e) => {
-          toast.error(e.message)
+          toast.error(e.message);
         },
-      }
-    )
-  })
+      },
+    );
+  });
 
   return (
     <RouteFocusModal.Form form={form}>
@@ -90,141 +90,121 @@ export const CreateLocationForm = () => {
                 <Form.Field
                   control={form.control}
                   name="name"
-                  render={({ field }) => {
-                    return (
-                      <Form.Item>
-                        <Form.Label>{t("fields.name")}</Form.Label>
-                        <Form.Control>
-                          <Input size="small" {...field} />
-                        </Form.Control>
-                        <Form.ErrorMessage />
-                      </Form.Item>
-                    )
-                  }}
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Label>{t("fields.name")}</Form.Label>
+                      <Form.Control>
+                        <Input size="small" {...field} />
+                      </Form.Control>
+                      <Form.ErrorMessage />
+                    </Form.Item>
+                  )}
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <Form.Field
                   control={form.control}
                   name="address.address_1"
-                  render={({ field }) => {
-                    return (
-                      <Form.Item>
-                        <Form.Label>{t("fields.address")}</Form.Label>
-                        <Form.Control>
-                          <Input size="small" {...field} />
-                        </Form.Control>
-                        <Form.ErrorMessage />
-                      </Form.Item>
-                    )
-                  }}
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Label>{t("fields.address")}</Form.Label>
+                      <Form.Control>
+                        <Input size="small" {...field} />
+                      </Form.Control>
+                      <Form.ErrorMessage />
+                    </Form.Item>
+                  )}
                 />
                 <Form.Field
                   control={form.control}
                   name="address.address_2"
-                  render={({ field }) => {
-                    return (
-                      <Form.Item>
-                        <Form.Label optional>{t("fields.address2")}</Form.Label>
-                        <Form.Control>
-                          <Input size="small" {...field} />
-                        </Form.Control>
-                        <Form.ErrorMessage />
-                      </Form.Item>
-                    )
-                  }}
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Label optional>{t("fields.address2")}</Form.Label>
+                      <Form.Control>
+                        <Input size="small" {...field} />
+                      </Form.Control>
+                      <Form.ErrorMessage />
+                    </Form.Item>
+                  )}
                 />
                 <Form.Field
                   control={form.control}
                   name="address.postal_code"
-                  render={({ field }) => {
-                    return (
-                      <Form.Item>
-                        <Form.Label optional>
-                          {t("fields.postalCode")}
-                        </Form.Label>
-                        <Form.Control>
-                          <Input size="small" {...field} />
-                        </Form.Control>
-                        <Form.ErrorMessage />
-                      </Form.Item>
-                    )
-                  }}
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Label optional>{t("fields.postalCode")}</Form.Label>
+                      <Form.Control>
+                        <Input size="small" {...field} />
+                      </Form.Control>
+                      <Form.ErrorMessage />
+                    </Form.Item>
+                  )}
                 />
                 <Form.Field
                   control={form.control}
                   name="address.city"
-                  render={({ field }) => {
-                    return (
-                      <Form.Item>
-                        <Form.Label optional>{t("fields.city")}</Form.Label>
-                        <Form.Control>
-                          <Input size="small" {...field} />
-                        </Form.Control>
-                        <Form.ErrorMessage />
-                      </Form.Item>
-                    )
-                  }}
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Label optional>{t("fields.city")}</Form.Label>
+                      <Form.Control>
+                        <Input size="small" {...field} />
+                      </Form.Control>
+                      <Form.ErrorMessage />
+                    </Form.Item>
+                  )}
                 />
                 <Form.Field
                   control={form.control}
                   name="address.country_code"
-                  render={({ field }) => {
-                    return (
-                      <Form.Item>
-                        <Form.Label>{t("fields.country")}</Form.Label>
-                        <Form.Control>
-                          <CountrySelect {...field} />
-                        </Form.Control>
-                        <Form.ErrorMessage />
-                      </Form.Item>
-                    )
-                  }}
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Label>{t("fields.country")}</Form.Label>
+                      <Form.Control>
+                        <CountrySelect {...field} />
+                      </Form.Control>
+                      <Form.ErrorMessage />
+                    </Form.Item>
+                  )}
                 />
                 <Form.Field
                   control={form.control}
                   name="address.province"
-                  render={({ field }) => {
-                    return (
-                      <Form.Item>
-                        <Form.Label optional>{t("fields.state")}</Form.Label>
-                        <Form.Control>
-                          <Input size="small" {...field} />
-                        </Form.Control>
-                        <Form.ErrorMessage />
-                      </Form.Item>
-                    )
-                  }}
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Label optional>{t("fields.state")}</Form.Label>
+                      <Form.Control>
+                        <Input size="small" {...field} />
+                      </Form.Control>
+                      <Form.ErrorMessage />
+                    </Form.Item>
+                  )}
                 />
                 <Form.Field
                   control={form.control}
                   name="address.company"
-                  render={({ field }) => {
-                    return (
-                      <Form.Item>
-                        <Form.Label optional>{t("fields.company")}</Form.Label>
-                        <Form.Control>
-                          <Input size="small" {...field} />
-                        </Form.Control>
-                        <Form.ErrorMessage />
-                      </Form.Item>
-                    )
-                  }}
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Label optional>{t("fields.company")}</Form.Label>
+                      <Form.Control>
+                        <Input size="small" {...field} />
+                      </Form.Control>
+                      <Form.ErrorMessage />
+                    </Form.Item>
+                  )}
                 />
                 <Form.Field
                   control={form.control}
                   name="address.phone"
-                  render={({ field }) => {
-                    return (
-                      <Form.Item>
-                        <Form.Label optional>{t("fields.phone")}</Form.Label>
-                        <Form.Control>
-                          <Input size="small" {...field} />
-                        </Form.Control>
-                        <Form.ErrorMessage />
-                      </Form.Item>
-                    )
-                  }}
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Label optional>{t("fields.phone")}</Form.Label>
+                      <Form.Control>
+                        <Input size="small" {...field} />
+                      </Form.Control>
+                      <Form.ErrorMessage />
+                    </Form.Item>
+                  )}
                 />
               </div>
             </div>
@@ -244,5 +224,5 @@ export const CreateLocationForm = () => {
         </RouteFocusModal.Footer>
       </KeyboundForm>
     </RouteFocusModal.Form>
-  )
-}
+  );
+};
