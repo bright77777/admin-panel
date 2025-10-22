@@ -1,10 +1,11 @@
-import { HttpTypes } from "@medusajs/types"
-import { useQueryParams } from "../../use-query-params"
+import type { HttpTypes } from "@medusajs/types";
+
+import { useQueryParams } from "@hooks/use-query-params";
 
 type UseRefundReasonTableQueryProps = {
-  prefix?: string
-  pageSize?: number
-}
+  prefix?: string;
+  pageSize?: number;
+};
 
 export const useRefundReasonTableQuery = ({
   prefix,
@@ -12,10 +13,10 @@ export const useRefundReasonTableQuery = ({
 }: UseRefundReasonTableQueryProps) => {
   const queryObject = useQueryParams(
     ["offset", "q", "order", "created_at", "updated_at"],
-    prefix
-  )
+    prefix,
+  );
 
-  const { offset, q, order, created_at, updated_at } = queryObject
+  const { offset, q, order, created_at, updated_at } = queryObject;
   const searchParams: HttpTypes.AdminRefundReasonListParams = {
     limit: pageSize,
     offset: offset ? Number(offset) : 0,
@@ -23,10 +24,10 @@ export const useRefundReasonTableQuery = ({
     created_at: created_at ? JSON.parse(created_at) : undefined,
     updated_at: updated_at ? JSON.parse(updated_at) : undefined,
     q,
-  }
+  };
 
   return {
     searchParams,
     raw: queryObject,
-  }
-}
+  };
+};

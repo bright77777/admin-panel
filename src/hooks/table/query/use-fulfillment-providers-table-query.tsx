@@ -1,10 +1,11 @@
-import { HttpTypes } from "@medusajs/types"
-import { useQueryParams } from "../../use-query-params"
+import type { HttpTypes } from "@medusajs/types";
+
+import { useQueryParams } from "@hooks/use-query-params";
 
 type UseFulfillmentProviderTableQueryProps = {
-  prefix?: string
-  pageSize?: number
-}
+  prefix?: string;
+  pageSize?: number;
+};
 
 export const useFulfillmentProvidersTableQuery = ({
   prefix,
@@ -12,20 +13,20 @@ export const useFulfillmentProvidersTableQuery = ({
 }: UseFulfillmentProviderTableQueryProps) => {
   const queryObject = useQueryParams(
     ["offset", "q", "stock_location_id"],
-    prefix
-  )
+    prefix,
+  );
 
-  const { offset, q, stock_location_id } = queryObject
+  const { offset, q, stock_location_id } = queryObject;
 
   const searchParams: HttpTypes.AdminFulfillmentProviderListParams = {
     limit: pageSize,
     offset: offset ? Number(offset) : 0,
     stock_location_id,
     q,
-  }
+  };
 
   return {
     searchParams,
     raw: queryObject,
-  }
-}
+  };
+};

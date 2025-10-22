@@ -1,9 +1,11 @@
-import { useQueryParams } from "../../../hooks/use-query-params";
+import { useQueryParams } from "@hooks/use-query-params";
 
+// @todo fix any type
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const useSellersTableQuery = ({ prefix, pageSize = 20 }: any) => {
   const queryObject = useQueryParams(
     ["offset", "q", "created_at", "status", "id", "order"],
-    prefix
+    prefix,
   );
 
   const { offset, created_at, status, q, order } = queryObject;

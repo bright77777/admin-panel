@@ -1,13 +1,14 @@
-import { HttpTypes } from "@medusajs/types"
-import { useQueryParams } from "../../use-query-params"
+import type { HttpTypes } from "@medusajs/types";
+
+import { useQueryParams } from "@hooks/use-query-params";
 
 type UseProductTableQueryProps = {
-  prefix?: string
-  pageSize?: number
-}
+  prefix?: string;
+  pageSize?: number;
+};
 
 const DEFAULT_FIELDS =
-  "id,title,handle,status,*collection,*sales_channels,variants.id,thumbnail"
+  "id,title,handle,status,*collection,*sales_channels,variants.id,thumbnail";
 
 export const useProductTableQuery = ({
   prefix,
@@ -29,8 +30,8 @@ export const useProductTableQuery = ({
       "status",
       "id",
     ],
-    prefix
-  )
+    prefix,
+  );
 
   const {
     offset,
@@ -45,7 +46,7 @@ export const useProductTableQuery = ({
     status,
     order,
     q,
-  } = queryObject
+  } = queryObject;
 
   const searchParams: HttpTypes.AdminProductListParams = {
     limit: pageSize,
@@ -62,10 +63,10 @@ export const useProductTableQuery = ({
     status: status?.split(",") as HttpTypes.AdminProductStatus[],
     q,
     fields: DEFAULT_FIELDS,
-  }
+  };
 
   return {
     searchParams,
     raw: queryObject,
-  }
-}
+  };
+};

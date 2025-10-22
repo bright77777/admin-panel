@@ -1,4 +1,4 @@
-import { useQueryParams } from "../../use-query-params";
+import { useQueryParams } from "@hooks/use-query-params";
 
 export const useSellerOrdersTableQuery = ({
   prefix = "so",
@@ -18,7 +18,7 @@ export const useSellerOrdersTableQuery = ({
       "type_id",
       "tag_id",
     ],
-    prefix
+    prefix,
   );
 
   const {

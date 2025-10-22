@@ -1,9 +1,9 @@
-import { useQueryParams } from "../../use-query-params"
+import { useQueryParams } from "@hooks/use-query-params";
 
 type UseCampaignTableQueryProps = {
-  prefix?: string
-  pageSize?: number
-}
+  prefix?: string;
+  pageSize?: number;
+};
 
 export const useCampaignTableQuery = ({
   prefix,
@@ -11,10 +11,10 @@ export const useCampaignTableQuery = ({
 }: UseCampaignTableQueryProps) => {
   const queryObject = useQueryParams(
     ["offset", "q", "order", "created_at", "updated_at"],
-    prefix
-  )
+    prefix,
+  );
 
-  const { offset, q, order, created_at, updated_at } = queryObject
+  const { offset, q, order, created_at, updated_at } = queryObject;
   const searchParams = {
     limit: pageSize,
     offset: offset ? Number(offset) : 0,
@@ -22,10 +22,10 @@ export const useCampaignTableQuery = ({
     created_at: created_at ? JSON.parse(created_at) : undefined,
     updated_at: updated_at ? JSON.parse(updated_at) : undefined,
     q,
-  }
+  };
 
   return {
     searchParams,
     raw: queryObject,
-  }
-}
+  };
+};
