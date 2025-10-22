@@ -1,22 +1,23 @@
+import { DotsSix, XMark } from "@medusajs/icons";
+import { Button, IconButton, Input, Label } from "@medusajs/ui";
+
+import type { DragEndEvent } from "@dnd-kit/core";
 import {
   DndContext,
-  closestCenter,
   KeyboardSensor,
   PointerSensor,
+  closestCenter,
   useSensor,
   useSensors,
-  DragEndEvent,
 } from "@dnd-kit/core";
 import {
-  arrayMove,
   SortableContext,
+  arrayMove,
   sortableKeyboardCoordinates,
   useSortable,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { Button, Input, IconButton, Label } from "@medusajs/ui";
-import { XMark, DotsSix } from "@medusajs/icons";
 import { useFieldArray, useFormContext } from "react-hook-form";
 
 type AttributeValueType = {
@@ -24,7 +25,8 @@ type AttributeValueType = {
   rank: number;
   metadata: Record<string, unknown>;
 };
-
+// @todo fix any type
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type FormValues = any;
 
 interface SortableItemProps {
@@ -52,7 +54,7 @@ const SortableItem = ({ id, index, onRemove }: SortableItemProps) => {
     <div
       ref={setNodeRef}
       style={style}
-      className="flex items-center gap-2 p-2 bg-ui-bg-component border border-ui-border-base rounded-xl mb-2"
+      className="mb-2 flex items-center gap-2 rounded-xl border border-ui-border-base bg-ui-bg-component p-2"
     >
       <button
         className="cursor-grab active:cursor-grabbing"
@@ -87,7 +89,7 @@ const PossibleValuesList = () => {
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    })
+    }),
   );
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -99,7 +101,7 @@ const PossibleValuesList = () => {
 
       // Get current form values
       const currentValues = getValues(
-        "possible_values"
+        "possible_values",
       ) as AttributeValueType[];
 
       // Create new array with reordered items

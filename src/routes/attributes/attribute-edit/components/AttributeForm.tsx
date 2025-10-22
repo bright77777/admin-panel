@@ -1,21 +1,24 @@
+import { useEffect, useState } from "react";
+
+import type { AdminProductCategory } from "@medusajs/types";
 import {
-  Text,
+  InlineTip,
   Input,
   Label,
   Select,
-  Textarea,
   Switch,
-  InlineTip,
+  Text,
+  Textarea,
 } from "@medusajs/ui";
-import { useForm, FormProvider } from "react-hook-form";
+
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { useEffect, useState } from "react";
-import { AttributeDTO } from "../../../../types";
+import { FormProvider, useForm } from "react-hook-form";
+import type { z } from "zod";
+
+import type { AttributeDTO } from "../../../../types";
+import MultiSelectCategory from "../../attribute-create/components/multi-select-category.tsx";
+import PossibleValuesList from "../../attribute-create/components/possible-values-list.tsx";
 import { AdminUpdateAttribute, CreateAttributeFormSchema } from "../schema";
-import { AdminProductCategory } from "@medusajs/types";
-import PossibleValuesList from "../../attribute-create/components/PossibleValuesList";
-import MultiSelectCategory from "../../attribute-create/components/MultiSelectCategory";
 
 enum AttributeUIComponent {
   SELECT = "select",
@@ -51,12 +54,12 @@ export const AttributeForm = ({
   onFormStateChange,
 }: AttributeFormProps) => {
   const [showCategorySection, setShowCategorySection] = useState(
-    (initialData?.product_categories?.length || 0) > 0
+    (initialData?.product_categories?.length || 0) > 0,
   );
 
   const form = useForm<CreateFormValues | UpdateFormValues>({
     resolver: zodResolver(
-      mode === "create" ? CreateAttributeFormSchema : UdpateAttributeFormSchema
+      mode === "create" ? CreateAttributeFormSchema : UdpateAttributeFormSchema,
     ),
     defaultValues: {
       name: initialData?.name || "",
@@ -121,7 +124,7 @@ export const AttributeForm = ({
 
   const renderDetailsTab = () => (
     <div className="grid gap-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <div>
           <Label size="small" htmlFor="name">
             Name
@@ -133,27 +136,27 @@ export const AttributeForm = ({
             {...form.register("name")}
           />
           {form.formState.errors.name && (
-            <Text className="text-red-500 text-sm mt-1">
+            <Text className="mt-1 text-sm text-red-500">
               {form.formState.errors.name.message}
             </Text>
           )}
         </div>
         <div>
           <Label size="small" htmlFor="handle">
-            Handle <span className="text-ui-fg-subtle text-xs">(Optional)</span>
+            Handle <span className="text-xs text-ui-fg-subtle">(Optional)</span>
           </Label>
           <div className="relative">
             <Input
               size="small"
               id="handle"
-              className="pl-9 mt-1"
+              className="mt-1 pl-9"
               {...form.register("handle")}
             />
-            <div className="absolute z-100 left-0 top-1 bottom-0 flex items-center justify-center px-2 w-7 border-r border-ui-border-base text-ui-fg-muted">
+            <div className="z-100 absolute bottom-0 left-0 top-1 flex w-7 items-center justify-center border-r border-ui-border-base px-2 text-ui-fg-muted">
               /
             </div>
             {form.formState.errors.handle && (
-              <Text className="text-red-500 text-sm mt-1">
+              <Text className="mt-1 text-sm text-red-500">
                 {form.formState.errors.handle.message}
               </Text>
             )}
@@ -164,7 +167,7 @@ export const AttributeForm = ({
         <div>
           <Label size="small" htmlFor="description">
             Description{" "}
-            <span className="text-ui-fg-subtle text-xs">(Optional)</span>
+            <span className="text-xs text-ui-fg-subtle">(Optional)</span>
           </Label>
           <Textarea
             className="mt-1"
@@ -172,13 +175,13 @@ export const AttributeForm = ({
             {...form.register("description")}
           />
           {form.formState.errors.description && (
-            <Text className="text-red-500 text-sm mt-1">
+            <Text className="mt-1 text-sm text-red-500">
               {form.formState.errors.description.message}
             </Text>
           )}
         </div>
 
-        <div className="bg-ui-bg-component p-4 rounded-lg shadow-elevation-card-rest">
+        <div className="rounded-lg bg-ui-bg-component p-4 shadow-elevation-card-rest">
           <div className="flex gap-3">
             <Switch
               id="is_filterable"
@@ -192,7 +195,7 @@ export const AttributeForm = ({
               <Label size="small" htmlFor="is_filterable">
                 Yes, this is a filterable attribute
               </Label>
-              <Text className="text-ui-fg-subtle text-xs mt-1">
+              <Text className="mt-1 text-xs text-ui-fg-subtle">
                 If checked, buyers will be able to filter products using this
                 attribute.
               </Text>
@@ -200,7 +203,7 @@ export const AttributeForm = ({
           </div>
         </div>
 
-        <div className="bg-ui-bg-component p-4 rounded-lg shadow-elevation-card-rest">
+        <div className="rounded-lg bg-ui-bg-component p-4 shadow-elevation-card-rest">
           <div className="flex gap-3">
             <Switch
               id="is_required"
@@ -214,14 +217,14 @@ export const AttributeForm = ({
               <Label size="small" htmlFor="is_required">
                 Yes, this is a required attribute
               </Label>
-              <Text className="text-ui-fg-subtle text-xs mt-1">
+              <Text className="mt-1 text-xs text-ui-fg-subtle">
                 If checked, vendors must set a value to this attribute.
               </Text>
             </div>
           </div>
         </div>
 
-        <div className="bg-ui-bg-component p-4 rounded-lg shadow-elevation-card-rest">
+        <div className="rounded-lg bg-ui-bg-component p-4 shadow-elevation-card-rest">
           <div className="flex gap-3">
             <Switch
               id="is_global"
@@ -243,7 +246,7 @@ export const AttributeForm = ({
               <Label size="small" htmlFor="is_global">
                 Yes, this is a global attribute
               </Label>
-              <Text className="text-ui-fg-subtle text-xs mt-1">
+              <Text className="mt-1 text-xs text-ui-fg-subtle">
                 If checked, this attribute will be available for all products
                 regardless of category.
               </Text>
@@ -266,7 +269,7 @@ export const AttributeForm = ({
                 }
               />
               {form.formState.errors.product_category_ids && (
-                <Text className="text-red-500 text-sm mt-1">
+                <Text className="mt-1 text-sm text-red-500">
                   {form.formState.errors.product_category_ids.message}
                 </Text>
               )}
@@ -286,7 +289,7 @@ export const AttributeForm = ({
   );
 
   const renderTypeTab = () => (
-    <div className="grid gap-6 w-[720px]">
+    <div className="grid w-[720px] gap-6">
       <div>
         <Label size="small" htmlFor="ui_component">
           Type
@@ -319,7 +322,7 @@ export const AttributeForm = ({
           </Select.Content>
         </Select>
         {form.formState.errors.ui_component && (
-          <Text className="text-red-500 text-sm mt-1">
+          <Text className="mt-1 text-sm text-red-500">
             {form.formState.errors.ui_component.message}
           </Text>
         )}

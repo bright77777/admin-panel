@@ -1,13 +1,18 @@
-import { useQueryClient } from "@tanstack/react-query";
-import { FocusModal, Button, toast, ProgressTabs } from "@medusajs/ui";
-import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { AdminProductCategory } from "@medusajs/types";
-import { AttributeForm } from "../attribute-edit/components/AttributeForm";
-import { z } from "zod";
-import { sdk } from "../../../lib/client";
-import { attributeQueryKeys } from "../../../hooks/api/attributes";
-import { CreateAttributeFormSchema } from "../attribute-edit/schema";
+
+import type { AdminProductCategory } from "@medusajs/types";
+import { Button, FocusModal, ProgressTabs, toast } from "@medusajs/ui";
+
+import { useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
+import type { z } from "zod";
+
+import { attributeQueryKeys } from "@hooks/api/attributes.tsx";
+
+import { sdk } from "@lib/client";
+
+import { AttributeForm } from "@routes/attributes/attribute-edit/components/AttributeForm.tsx";
+import type { CreateAttributeFormSchema } from "@routes/attributes/attribute-edit/schema.ts";
 
 export const AttributeCreate = () => {
   const navigate = useNavigate();
@@ -40,7 +45,7 @@ export const AttributeCreate = () => {
   }, []);
 
   const handleSave = async (
-    data: z.infer<typeof CreateAttributeFormSchema>
+    data: z.infer<typeof CreateAttributeFormSchema>,
   ) => {
     try {
       const { ...payload } = data;
@@ -74,11 +79,11 @@ export const AttributeCreate = () => {
         <ProgressTabs
           value={activeTab}
           onValueChange={(value) => setActiveTab(value as "details" | "type")}
-          className="w-full h-full overflow-y-auto"
+          className="h-full w-full overflow-y-auto"
         >
-          <FocusModal.Header className="flex items-center justify-between bg-ui-bg-base w-full py-0 h-fit sticky top-0 z-10">
-            <div className="w-full border-l h-full">
-              <ProgressTabs.List className="justify-start flex w-full items-center">
+          <FocusModal.Header className="sticky top-0 z-10 flex h-fit w-full items-center justify-between bg-ui-bg-base py-0">
+            <div className="h-full w-full border-l">
+              <ProgressTabs.List className="flex w-full items-center justify-start">
                 <ProgressTabs.Trigger
                   value="details"
                   status={tabStatuses.detailsStatus}

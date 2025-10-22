@@ -1,8 +1,11 @@
-import React, { useState, useEffect } from "react";
+import type React from "react";
+import { useEffect, useState } from "react";
+
+import type { AdminProductCategory } from "@medusajs/types";
 import { Prompt } from "@medusajs/ui";
-import { AdminProductCategory } from "@medusajs/types";
-import MultiSelectCategory from "../../attribute-create/components/MultiSelectCategory";
+
 import { sdk } from "../../../../lib/client";
+import MultiSelectCategory from "../../attribute-create/components/multi-select-category.tsx";
 
 interface CategorySelectionModalProps {
   open: boolean;
@@ -56,7 +59,7 @@ export const CategorySelectionModal: React.FC<CategorySelectionModalProps> = ({
     <Prompt open={open} variant="confirmation" onOpenChange={onOpenChange}>
       <Prompt.Content>
         <Prompt.Header>
-          <Prompt.Title className="border-ui-border-base border-b -mx-6 pl-6 pb-4 -mt-2">
+          <Prompt.Title className="-mx-6 -mt-2 border-b border-ui-border-base pb-4 pl-6">
             Select category
           </Prompt.Title>
           <Prompt.Description className="flex flex-col gap-4 py-4">
@@ -69,7 +72,7 @@ export const CategorySelectionModal: React.FC<CategorySelectionModalProps> = ({
           </Prompt.Description>
         </Prompt.Header>
 
-        <Prompt.Footer className="border-ui-border-base border-t py-4">
+        <Prompt.Footer className="border-t border-ui-border-base py-4">
           <Prompt.Cancel onClick={handleCancel}>Cancel</Prompt.Cancel>
           <Prompt.Action
             onClick={handleConfirm}
