@@ -1,35 +1,36 @@
 import {
-  de,
+  ar,
   bg,
+  bs,
+  cs,
+  de,
+  el,
   enUS,
   es,
+  faIR,
   fr,
   he,
+  hu,
+  id,
   it,
   ja,
+  ko,
+  lt,
+  mk,
+  mn,
+  nl,
   pl,
   ptBR,
+  ro,
+  ru,
   th,
   tr,
   uk,
-  ro,
-  mk,
-  mn,
-  ar,
-  zhCN,
-  faIR,
-  cs,
-  ru,
-  el,
-  lt,
   vi,
-  ko,
-  nl,
-  hu,
-  bs,
-  id,
-} from "date-fns/locale"
-import { Language } from "./types"
+  zhCN,
+} from "date-fns/locale";
+
+import type { Language } from "./types";
 
 export const languages: Language[] = [
   {
@@ -206,4 +207,4 @@ export const languages: Language[] = [
     ltr: true,
     date_locale: nl,
   },
-]
+];
