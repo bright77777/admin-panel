@@ -1,18 +1,22 @@
-import { zodResolver } from "@hookform/resolvers/zod"
-import { Alert, Button, Heading, Hint, Input, Text, toast } from "@medusajs/ui"
-import i18n from "i18next"
-import { AnimatePresence, motion } from "motion/react"
-import { useState } from "react"
-import { useForm } from "react-hook-form"
-import { useTranslation } from "react-i18next"
-import { decodeToken } from "react-jwt"
-import { Link, useSearchParams } from "react-router-dom"
-import * as z from "zod"
-import { Form } from "../../components/common/form"
-import AvatarBox from "../../components/common/logo-box/avatar-box"
-import { useSignUpWithEmailPass } from "../../hooks/api/auth"
-import { useAcceptInvite } from "../../hooks/api/invites"
-import { isFetchError } from "../../lib/is-fetch-error"
+import { useState } from "react";
+
+import { Alert, Button, Heading, Hint, Input, Text, toast } from "@medusajs/ui";
+
+import { zodResolver } from "@hookform/resolvers/zod";
+import i18n from "i18next";
+import { AnimatePresence, motion } from "motion/react";
+import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
+import { decodeToken } from "react-jwt";
+import { Link, useSearchParams } from "react-router-dom";
+import * as z from "zod";
+
+import { Form } from "@components/common/form";
+import AvatarBox from "@components/common/logo-box/avatar-box.tsx";
+
+import { useAcceptInvite, useSignUpWithEmailPass } from "@hooks/api";
+
+import { isFetchError } from "@lib/is-fetch-error";
 
 const CreateAccountSchema = z
   .object({
@@ -28,29 +32,31 @@ const CreateAccountSchema = z
         code: z.ZodIssueCode.custom,
         message: i18n.t("invite.passwordMismatch"),
         path: ["repeat_password"],
-      })
+      });
     }
-  })
+  });
 
-// TODO: Update to V2 format
+// @TODO: Update to V2 format
 type DecodedInvite = {
-  id: string
-  jti: any
-  exp: string
-  iat: number
-  email: string
-}
+  id: string;
+  // @todo fix any type
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  jti: any;
+  exp: string;
+  iat: number;
+  email: string;
+};
 
 export const Invite = () => {
-  const [searchParams] = useSearchParams()
-  const [success, setSuccess] = useState(false)
+  const [searchParams] = useSearchParams();
+  const [success, setSuccess] = useState(false);
 
-  const token = searchParams.get("token")
-  const invite: DecodedInvite | null = token ? decodeToken(token) : null
-  const isValidInvite = invite && validateDecodedInvite(invite)
+  const token = searchParams.get("token");
+  const invite: DecodedInvite | null = token ? decodeToken(token) : null;
+  const isValidInvite = invite && validateDecodedInvite(invite);
 
   return (
-    <div className="bg-ui-bg-subtle relative flex min-h-dvh w-dvw items-center justify-center p-4">
+    <div className="relative flex min-h-dvh w-dvw items-center justify-center bg-ui-bg-subtle p-4">
       <div className="flex w-full max-w-[360px] flex-col items-center">
         <AvatarBox checked={success} />
         <div className="max-h-[557px] w-full will-change-contents">
@@ -127,11 +133,11 @@ export const Invite = () => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
 const LoginLink = () => {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   return (
     <div className="flex w-full flex-col items-center">
@@ -139,44 +145,44 @@ const LoginLink = () => {
       <Link
         key="login-link"
         to="/login"
-        className="txt-small text-ui-fg-base transition-fg hover:text-ui-fg-base-hover focus-visible:text-ui-fg-base-hover font-medium outline-none"
+        className="hover:text-ui-fg-base-hover focus-visible:text-ui-fg-base-hover txt-small font-medium text-ui-fg-base outline-none transition-fg"
       >
         {t("invite.backToLogin")}
       </Link>
     </div>
-  )
-}
+  );
+};
 
 const InvalidView = () => {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   return (
     <div className="flex flex-col items-center">
       <div className="flex flex-col items-center gap-y-1">
         <Heading>{t("invite.invalidTokenTitle")}</Heading>
-        <Text size="small" className="text-ui-fg-subtle text-center">
+        <Text size="small" className="text-center text-ui-fg-subtle">
           {t("invite.invalidTokenHint")}
         </Text>
       </div>
       <LoginLink />
     </div>
-  )
-}
+  );
+};
 
 const CreateView = ({
   onSuccess,
   token,
   invite,
 }: {
-  onSuccess: () => void
-  token: string
-  invite: DecodedInvite
+  onSuccess: () => void;
+  token: string;
+  invite: DecodedInvite;
 }) => {
-  const { t } = useTranslation()
-  const [invalid, setInvalid] = useState(false)
+  const { t } = useTranslation();
+  const [invalid, setInvalid] = useState(false);
 
-  const [params] = useSearchParams()
-  const isFirstRun = params.get("first_run") === "true" // true when the invite page is open during a "create medusa app" run
+  const [params] = useSearchParams();
+  const isFirstRun = params.get("first_run") === "true"; // true when the invite page is open during a "create medusa app" run
 
   const form = useForm<z.infer<typeof CreateAccountSchema>>({
     resolver: zodResolver(CreateAccountSchema),
@@ -187,65 +193,66 @@ const CreateView = ({
       password: "",
       repeat_password: "",
     },
-  })
+  });
 
   const { mutateAsync: signUpEmailPass, isPending: isCreatingAuthUser } =
-    useSignUpWithEmailPass()
+    useSignUpWithEmailPass();
 
   const { mutateAsync: acceptInvite, isPending: isAcceptingInvite } =
-    useAcceptInvite(token)
+    useAcceptInvite(token);
 
   const handleSubmit = form.handleSubmit(async (data) => {
     try {
       const authToken = await signUpEmailPass({
         email: data.email,
         password: data.password,
-      })
+      });
 
       const invitePayload = {
         email: data.email,
         first_name: data.first_name,
         last_name: data.last_name,
-      }
+      };
 
       await acceptInvite({
         ...invitePayload,
         auth_token: authToken,
-      })
+      });
 
-      toast.success(t("invite.toast.accepted"))
+      toast.success(t("invite.toast.accepted"));
 
-      onSuccess()
+      onSuccess();
     } catch (error) {
       if (isFetchError(error) && error.status === 400) {
         form.setError("root", {
           type: "manual",
           message: t("invite.invalidInvite"),
-        })
-        setInvalid(true)
-        return
+        });
+        setInvalid(true);
+
+        return;
       }
 
       form.setError("root", {
         type: "manual",
         message: t("errors.serverError"),
-      })
+      });
     }
-  })
+  });
 
-  const serverError = form.formState.errors.root?.message
+  const serverError = form.formState.errors.root?.message;
   const validationError =
     form.formState.errors.email?.message ||
     form.formState.errors.password?.message ||
     form.formState.errors.repeat_password?.message ||
     form.formState.errors.first_name?.message ||
-    form.formState.errors.last_name?.message
+    form.formState.errors.last_name?.message;
 
   return (
     <div className="flex w-full flex-col items-center">
       <div className="mb-4 flex flex-col items-center">
         <Heading>{t("invite.title")}</Heading>
-        <Text size="small" className="text-ui-fg-subtle text-center">
+        <Text size="small" className="text-center text-ui-fg-subtle">
           {t("invite.hint")}
         </Text>
       </div>
@@ -255,105 +262,95 @@ const CreateView = ({
             <Form.Field
               control={form.control}
               name="email"
-              render={({ field }) => {
-                return (
-                  <Form.Item>
-                    <Form.Control>
-                      <Input
-                        autoComplete="off"
-                        {...field}
-                        className="bg-ui-bg-field-component"
-                        placeholder={t("fields.email")}
-                      />
-                    </Form.Control>
-                  </Form.Item>
-                )
-              }}
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Control>
+                    <Input
+                      autoComplete="off"
+                      {...field}
+                      className="bg-ui-bg-field-component"
+                      placeholder={t("fields.email")}
+                    />
+                  </Form.Control>
+                </Form.Item>
+              )}
             />
             <Form.Field
               control={form.control}
               name="first_name"
-              render={({ field }) => {
-                return (
-                  <Form.Item>
-                    <Form.Control>
-                      <Input
-                        autoComplete="given-name"
-                        {...field}
-                        className="bg-ui-bg-field-component"
-                        placeholder={t("fields.firstName")}
-                      />
-                    </Form.Control>
-                  </Form.Item>
-                )
-              }}
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Control>
+                    <Input
+                      autoComplete="given-name"
+                      {...field}
+                      className="bg-ui-bg-field-component"
+                      placeholder={t("fields.firstName")}
+                    />
+                  </Form.Control>
+                </Form.Item>
+              )}
             />
             <Form.Field
               control={form.control}
               name="last_name"
-              render={({ field }) => {
-                return (
-                  <Form.Item>
-                    <Form.Control>
-                      <Input
-                        autoComplete="family-name"
-                        {...field}
-                        className="bg-ui-bg-field-component"
-                        placeholder={t("fields.lastName")}
-                      />
-                    </Form.Control>
-                  </Form.Item>
-                )
-              }}
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Control>
+                    <Input
+                      autoComplete="family-name"
+                      {...field}
+                      className="bg-ui-bg-field-component"
+                      placeholder={t("fields.lastName")}
+                    />
+                  </Form.Control>
+                </Form.Item>
+              )}
             />
             <Form.Field
               control={form.control}
               name="password"
-              render={({ field }) => {
-                return (
-                  <Form.Item>
-                    <Form.Control>
-                      <Input
-                        autoComplete="new-password"
-                        type="password"
-                        {...field}
-                        className="bg-ui-bg-field-component"
-                        placeholder={t("fields.password")}
-                      />
-                    </Form.Control>
-                  </Form.Item>
-                )
-              }}
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Control>
+                    <Input
+                      autoComplete="new-password"
+                      type="password"
+                      {...field}
+                      className="bg-ui-bg-field-component"
+                      placeholder={t("fields.password")}
+                    />
+                  </Form.Control>
+                </Form.Item>
+              )}
             />
             <Form.Field
               control={form.control}
               name="repeat_password"
-              render={({ field }) => {
-                return (
-                  <Form.Item>
-                    <Form.Control>
-                      <Input
-                        autoComplete="off"
-                        type="password"
-                        {...field}
-                        className="bg-ui-bg-field-component"
-                        placeholder={t("fields.repeatPassword")}
-                      />
-                    </Form.Control>
-                  </Form.Item>
-                )
-              }}
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Control>
+                    <Input
+                      autoComplete="off"
+                      type="password"
+                      {...field}
+                      className="bg-ui-bg-field-component"
+                      placeholder={t("fields.repeatPassword")}
+                    />
+                  </Form.Control>
+                </Form.Item>
+              )}
             />
             {validationError && (
               <div className="mt-6 text-center">
-                <Hint className="inline-flex" variant={"error"}>
+                <Hint className="inline-flex" variant="error">
                   {validationError}
                 </Hint>
               </div>
             )}
             {serverError && (
               <Alert
-                className="bg-ui-bg-base items-center p-2"
+                className="items-center bg-ui-bg-base p-2"
                 dismissible
                 variant="error"
               >
@@ -373,17 +370,17 @@ const CreateView = ({
       </Form>
       <LoginLink />
     </div>
-  )
-}
+  );
+};
 
 const SuccessView = () => {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   return (
     <div className="flex w-full flex-col items-center gap-y-6">
       <div className="flex flex-col items-center gap-y-1">
         <Heading className="text-center">{t("invite.successTitle")}</Heading>
-        <Text size="small" className="text-ui-fg-subtle text-center">
+        <Text size="small" className="text-center text-ui-fg-subtle">
           {t("invite.successHint")}
         </Text>
       </div>
@@ -396,21 +393,23 @@ const SuccessView = () => {
       <Link
         key="login-link"
         to="/login"
-        className="txt-small text-ui-fg-base transition-fg hover:text-ui-fg-base-hover focus-visible:text-ui-fg-base-hover font-medium outline-none"
+        className="hover:text-ui-fg-base-hover focus-visible:text-ui-fg-base-hover txt-small font-medium text-ui-fg-base outline-none transition-fg"
       >
         {t("invite.backToLogin")}
       </Link>
     </div>
-  )
-}
+  );
+};
 
 const InviteSchema = z.object({
   id: z.string(),
   jti: z.string(),
   exp: z.number(),
   iat: z.number(),
-})
+});
 
+// @todo fix any type
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const validateDecodedInvite = (decoded: any): decoded is DecodedInvite => {
-  return InviteSchema.safeParse(decoded).success
-}
+  return InviteSchema.safeParse(decoded).success;
+};
