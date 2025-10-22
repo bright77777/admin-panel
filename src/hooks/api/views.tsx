@@ -1,60 +1,72 @@
-import { FetchError } from "@medusajs/js-sdk"
-import { HttpTypes } from "@medusajs/types"
-import {
+import type { FetchError } from "@medusajs/js-sdk";
+import type { HttpTypes } from "@medusajs/types";
+
+import type {
   QueryKey,
-  useMutation,
   UseMutationOptions,
-  useQuery,
-  UseQueryOptions
-} from "@tanstack/react-query"
+  UseQueryOptions,
+} from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
-import { sdk } from "../../lib/client"
-import { queryClient } from "../../lib/query-client"
-import { queryKeysFactory, TQueryKey } from "../../lib/query-key-factory"
+import { sdk } from "@lib/client";
+import { queryClient } from "@lib/query-client";
+import type { TQueryKey } from "@lib/query-key-factory";
+import { queryKeysFactory } from "@lib/query-key-factory";
 
-const VIEWS_QUERY_KEY = "views" as const
+const VIEWS_QUERY_KEY = "views" as const;
 const _viewsKeys = queryKeysFactory(VIEWS_QUERY_KEY) as TQueryKey<"views"> & {
-  columns: (entity: string) => any
-  active: (entity: string) => any
-  configurations: (entity: string, query?: any) => any
-}
+  // @todo fix any type
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  columns: (entity: string) => any;
+  // @todo fix any type
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  active: (entity: string) => any;
+  // @todo fix any type
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  configurations: (entity: string, query?: any) => any;
+};
 
-_viewsKeys.columns = function(entity: string) {
-  return [this.all, "columns", entity]
-}
+_viewsKeys.columns = function (entity: string) {
+  return [this.all, "columns", entity];
+};
 
-_viewsKeys.active = function(entity: string) {
-  return [this.detail(entity), "active"]
-}
-
-_viewsKeys.configurations = function(entity: string, query?: any) {
-  const key = [this.all, "configurations", entity]
+_viewsKeys.active = function (entity: string) {
+  return [this.detail(entity), "active"];
+};
+// @todo fix any type
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+_viewsKeys.configurations = function (entity: string, query?: any) {
+  const key = [this.all, "configurations", entity];
   if (query !== undefined) {
-    key.push(query)
+    key.push(query);
   }
-  return key
-}
 
-export const viewsQueryKeys = _viewsKeys
+  return key;
+};
+
+export const viewsQueryKeys = _viewsKeys;
 
 // Generic hook to get columns for any entity
-export const useEntityColumns = (entity: string, options?: Omit<
-  UseQueryOptions<
-    HttpTypes.AdminViewsEntityColumnsResponse,
-    FetchError,
-    HttpTypes.AdminViewsEntityColumnsResponse,
-    QueryKey
+export const useEntityColumns = (
+  entity: string,
+  options?: Omit<
+    UseQueryOptions<
+      HttpTypes.AdminViewsEntityColumnsResponse,
+      FetchError,
+      HttpTypes.AdminViewsEntityColumnsResponse,
+      QueryKey
+    >,
+    "queryFn" | "queryKey"
   >,
-  "queryFn" | "queryKey"
->) => {
+) => {
   const { data, ...rest } = useQuery({
     queryFn: () => sdk.admin.views.columns(entity),
     queryKey: viewsQueryKeys.columns(entity),
     ...options,
-  })
+  });
 
-  return { ...data, ...rest }
-}
+  return { ...data, ...rest };
+};
 
 // View Configuration hooks
 
@@ -70,16 +82,16 @@ export const useViewConfigurations = (
       QueryKey
     >,
     "queryFn" | "queryKey"
-  >
+  >,
 ) => {
   const { data, ...rest } = useQuery({
     queryFn: () => sdk.admin.views.listConfigurations(entity, query),
     queryKey: viewsQueryKeys.configurations(entity, query),
     ...options,
-  })
+  });
 
-  return { ...data, ...rest }
-}
+  return { ...data, ...rest };
+};
 
 // Get active view configuration for an entity
 export const useActiveViewConfiguration = (
@@ -87,36 +99,38 @@ export const useActiveViewConfiguration = (
   options?: Omit<
     UseQueryOptions<
       HttpTypes.AdminViewConfigurationResponse & {
-        active_view_configuration_id?: string | null
-        is_default_active?: boolean
-        default_type?: "system" | "code"
+        active_view_configuration_id?: string | null;
+        is_default_active?: boolean;
+        default_type?: "system" | "code";
       },
       FetchError,
       HttpTypes.AdminViewConfigurationResponse & {
-        active_view_configuration_id?: string | null
-        is_default_active?: boolean
-        default_type?: "system" | "code"
+        active_view_configuration_id?: string | null;
+        is_default_active?: boolean;
+        default_type?: "system" | "code";
       },
       QueryKey
     >,
     "queryFn" | "queryKey"
-  >
+  >,
 ) => {
   const query = useQuery({
     queryFn: () => sdk.admin.views.retrieveActiveConfiguration(entity),
     queryKey: viewsQueryKeys.active(entity),
     ...options,
-  })
+  });
 
-  const { data, ...rest } = query
+  const { data, ...rest } = query;
 
-  return { ...data, ...rest }
-}
+  return { ...data, ...rest };
+};
 
 // Get a specific view configuration
 export const useViewConfiguration = (
   entity: string,
   id: string,
+  // @todo fix any type
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   query?: Record<string, any>,
   options?: Omit<
     UseQueryOptions<
@@ -126,16 +140,16 @@ export const useViewConfiguration = (
       QueryKey
     >,
     "queryFn" | "queryKey"
-  >
+  >,
 ) => {
   const { data, ...rest } = useQuery({
     queryFn: () => sdk.admin.views.retrieveConfiguration(entity, id, query),
     queryKey: viewsQueryKeys.detail(id, query),
     ...options,
-  })
+  });
 
-  return { ...data, ...rest }
-}
+  return { ...data, ...rest };
+};
 
 // Create view configuration with toast notifications
 export const useCreateViewConfiguration = (
@@ -144,24 +158,28 @@ export const useCreateViewConfiguration = (
     HttpTypes.AdminViewConfigurationResponse,
     FetchError,
     HttpTypes.AdminCreateViewConfiguration
-  >
-) => {
-  return useMutation({
-    mutationFn: (payload: Omit<HttpTypes.AdminCreateViewConfiguration, "entity">) =>
-      sdk.admin.views.createConfiguration(entity, payload),
+  >,
+) =>
+  useMutation({
+    mutationFn: (
+      payload: Omit<HttpTypes.AdminCreateViewConfiguration, "entity">,
+    ) => sdk.admin.views.createConfiguration(entity, payload),
     ...options,
     onSuccess: (data, variables, context) => {
-      queryClient.invalidateQueries({ queryKey: viewsQueryKeys.configurations(entity) })
+      queryClient.invalidateQueries({
+        queryKey: viewsQueryKeys.configurations(entity),
+      });
       // If set_active was true, also invalidate the active configuration
+      // @todo fix any type
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       if ((variables as any).set_active) {
         queryClient.invalidateQueries({
-          queryKey: viewsQueryKeys.active(entity)
-        })
+          queryKey: viewsQueryKeys.active(entity),
+        });
       }
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
-  })
-}
+  });
 
 // Update view configuration
 export const useUpdateViewConfiguration = (
@@ -171,21 +189,24 @@ export const useUpdateViewConfiguration = (
     HttpTypes.AdminViewConfigurationResponse,
     FetchError,
     HttpTypes.AdminUpdateViewConfiguration
-  >
-) => {
-  return useMutation({
+  >,
+) =>
+  useMutation({
     mutationFn: (payload: HttpTypes.AdminUpdateViewConfiguration) =>
       sdk.admin.views.updateConfiguration(entity, id, payload),
     ...options,
     onSuccess: (data, variables, context) => {
-      queryClient.invalidateQueries({ queryKey: viewsQueryKeys.configurations(entity) })
-      queryClient.invalidateQueries({ queryKey: viewsQueryKeys.detail(id) })
+      queryClient.invalidateQueries({
+        queryKey: viewsQueryKeys.configurations(entity),
+      });
+      queryClient.invalidateQueries({ queryKey: viewsQueryKeys.detail(id) });
       // Also invalidate active configuration if this view is currently active
-      queryClient.invalidateQueries({ queryKey: viewsQueryKeys.active(entity) })
-      options?.onSuccess?.(data, variables, context)
+      queryClient.invalidateQueries({
+        queryKey: viewsQueryKeys.active(entity),
+      });
+      options?.onSuccess?.(data, variables, context);
     },
-  })
-}
+  });
 
 // Delete view configuration
 export const useDeleteViewConfiguration = (
@@ -195,50 +216,49 @@ export const useDeleteViewConfiguration = (
     HttpTypes.AdminViewConfigurationDeleteResponse,
     FetchError,
     void
-  >
+  >,
 ) => {
   return useMutation({
     mutationFn: () => sdk.admin.views.deleteConfiguration(entity, id),
     ...options,
     onSuccess: (data, variables, context) => {
-      queryClient.invalidateQueries({ queryKey: viewsQueryKeys.configurations(entity) })
-      queryClient.invalidateQueries({ queryKey: viewsQueryKeys.detail(id) })
+      queryClient.invalidateQueries({
+        queryKey: viewsQueryKeys.configurations(entity),
+      });
+      queryClient.invalidateQueries({ queryKey: viewsQueryKeys.detail(id) });
       // Also invalidate active configuration as it might have changed
       queryClient.invalidateQueries({
-        queryKey: viewsQueryKeys.active(entity)
-      })
-      options?.onSuccess?.(data, variables, context)
+        queryKey: viewsQueryKeys.active(entity),
+      });
+      options?.onSuccess?.(data, variables, context);
     },
-  })
-}
+  });
+};
 
 // Set active view configuration
 export const useSetActiveViewConfiguration = (
   entity: string,
-  options?: UseMutationOptions<
-    { success: boolean },
-    FetchError,
-    string | null
-  >
-) => {
-  return useMutation({
+  options?: UseMutationOptions<{ success: boolean }, FetchError, string | null>,
+) =>
+  useMutation({
     mutationFn: (viewConfigurationId: string | null) => {
       return sdk.admin.views.setActiveConfiguration(entity, {
-        view_configuration_id: viewConfigurationId
-      })
+        view_configuration_id: viewConfigurationId,
+      });
     },
     ...options,
     onSuccess: async (data, variables, context) => {
       // Invalidate active configuration
       await queryClient.invalidateQueries({
-        queryKey: viewsQueryKeys.active(entity)
-      })
+        queryKey: viewsQueryKeys.active(entity),
+      });
       // Also invalidate the list as the active status might be shown there
-      await queryClient.invalidateQueries({ queryKey: viewsQueryKeys.configurations(entity) })
-      options?.onSuccess?.(data, variables, context)
+      await queryClient.invalidateQueries({
+        queryKey: viewsQueryKeys.configurations(entity),
+      });
+      options?.onSuccess?.(data, variables, context);
     },
     onError: (error, variables, context) => {
-      options?.onError?.(error, variables, context)
+      options?.onError?.(error, variables, context);
     },
-  })
-}
+  });

@@ -1,21 +1,22 @@
-import { FetchError } from "@medusajs/js-sdk"
-import { HttpTypes } from "@medusajs/types"
-import {
+import type { FetchError } from "@medusajs/js-sdk";
+import type { HttpTypes } from "@medusajs/types";
+
+import type {
   QueryKey,
   UseMutationOptions,
   UseQueryOptions,
-  useMutation,
-  useQuery,
-} from "@tanstack/react-query"
-import { sdk } from "../../lib/client"
-import { queryClient } from "../../lib/query-client"
-import { queryKeysFactory } from "../../lib/query-key-factory"
+} from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
-const USERS_QUERY_KEY = "users" as const
+import { sdk } from "@lib/client";
+import { queryClient } from "@lib/query-client";
+import { queryKeysFactory } from "@lib/query-key-factory";
+
+const USERS_QUERY_KEY = "users" as const;
 const usersQueryKeys = {
   ...queryKeysFactory(USERS_QUERY_KEY),
   me: () => [USERS_QUERY_KEY, "me"],
-}
+};
 
 export const useMe = (
   query?: HttpTypes.AdminUserParams,
@@ -24,19 +25,19 @@ export const useMe = (
     FetchError,
     HttpTypes.AdminUserResponse,
     QueryKey
-  >
+  >,
 ) => {
   const { data, ...rest } = useQuery({
     queryFn: () => sdk.admin.user.me(query),
     queryKey: usersQueryKeys.me(),
     ...options,
-  })
+  });
 
   return {
     ...data,
     ...rest,
-  }
-}
+  };
+};
 
 export const useUser = (
   id: string,
@@ -49,16 +50,16 @@ export const useUser = (
       QueryKey
     >,
     "queryFn" | "queryKey"
-  >
+  >,
 ) => {
   const { data, ...rest } = useQuery({
     queryFn: () => sdk.admin.user.retrieve(id, query),
     queryKey: usersQueryKeys.detail(id),
     ...options,
-  })
+  });
 
-  return { ...data, ...rest }
-}
+  return { ...data, ...rest };
+};
 
 export const useUsers = (
   query?: HttpTypes.AdminUserListParams,
@@ -70,16 +71,16 @@ export const useUsers = (
       QueryKey
     >,
     "queryFn" | "queryKey"
-  >
+  >,
 ) => {
   const { data, ...rest } = useQuery({
     queryFn: () => sdk.admin.user.list(query),
     queryKey: usersQueryKeys.list(query),
     ...options,
-  })
+  });
 
-  return { ...data, ...rest }
-}
+  return { ...data, ...rest };
+};
 
 export const useCreateUser = (
   query?: HttpTypes.AdminUserParams,
@@ -88,18 +89,17 @@ export const useCreateUser = (
     FetchError,
     HttpTypes.AdminCreateUser,
     QueryKey
-  >
-) => {
-  return useMutation({
+  >,
+) =>
+  useMutation({
     mutationFn: (payload) => sdk.admin.user.create(payload, query),
     onSuccess: (data, variables, context) => {
-      queryClient.invalidateQueries({ queryKey: usersQueryKeys.lists() })
+      queryClient.invalidateQueries({ queryKey: usersQueryKeys.lists() });
 
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
 
 export const useUpdateUser = (
   id: string,
@@ -109,22 +109,21 @@ export const useUpdateUser = (
     FetchError,
     HttpTypes.AdminUpdateUser,
     QueryKey
-  >
-) => {
-  return useMutation({
+  >,
+) =>
+  useMutation({
     mutationFn: (payload) => sdk.admin.user.update(id, payload, query),
     onSuccess: (data, variables, context) => {
-      queryClient.invalidateQueries({ queryKey: usersQueryKeys.detail(id) })
-      queryClient.invalidateQueries({ queryKey: usersQueryKeys.lists() })
+      queryClient.invalidateQueries({ queryKey: usersQueryKeys.detail(id) });
+      queryClient.invalidateQueries({ queryKey: usersQueryKeys.lists() });
 
       // We invalidate the me query in case the user updates their own profile
-      queryClient.invalidateQueries({ queryKey: usersQueryKeys.me() })
+      queryClient.invalidateQueries({ queryKey: usersQueryKeys.me() });
 
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
 
 export const useDeleteUser = (
   id: string,
@@ -132,19 +131,18 @@ export const useDeleteUser = (
     HttpTypes.AdminUserDeleteResponse,
     FetchError,
     void
-  >
-) => {
-  return useMutation({
+  >,
+) =>
+  useMutation({
     mutationFn: () => sdk.admin.user.delete(id),
     onSuccess: (data, variables, context) => {
-      queryClient.invalidateQueries({ queryKey: usersQueryKeys.detail(id) })
-      queryClient.invalidateQueries({ queryKey: usersQueryKeys.lists() })
+      queryClient.invalidateQueries({ queryKey: usersQueryKeys.detail(id) });
+      queryClient.invalidateQueries({ queryKey: usersQueryKeys.lists() });
 
       // We invalidate the me query in case the user updates their own profile
-      queryClient.invalidateQueries({ queryKey: usersQueryKeys.me() })
+      queryClient.invalidateQueries({ queryKey: usersQueryKeys.me() });
 
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });

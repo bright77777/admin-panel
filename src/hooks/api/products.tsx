@@ -1,21 +1,24 @@
-import { FetchError } from "@medusajs/js-sdk";
-import { HttpTypes } from "@medusajs/types";
-import {
+import type { FetchError } from "@medusajs/js-sdk";
+import type { HttpTypes } from "@medusajs/types";
+
+import type {
   QueryKey,
-  useMutation,
   UseMutationOptions,
-  useQuery,
   UseQueryOptions,
 } from "@tanstack/react-query";
-import { sdk } from "../../lib/client";
-import { queryClient } from "../../lib/query-client";
-import { queryKeysFactory } from "../../lib/query-key-factory";
-import { inventoryItemsQueryKeys } from "./inventory.tsx";
-import { AttributeDTO } from "../../types/index.ts";
-import {
+import { useMutation, useQuery } from "@tanstack/react-query";
+
+import { sdk } from "@lib/client";
+import { queryClient } from "@lib/query-client";
+import { queryKeysFactory } from "@lib/query-key-factory";
+
+import type {
   AdminProductResponse,
   AdminProductUpdate,
-} from "../../types/product/common.ts";
+  AttributeDTO,
+} from "@/types";
+
+import { inventoryItemsQueryKeys } from "./inventory.tsx";
 
 const PRODUCTS_QUERY_KEY = "products" as const;
 export const productsQueryKeys = queryKeysFactory(PRODUCTS_QUERY_KEY);
@@ -28,11 +31,15 @@ export const optionsQueryKeys = queryKeysFactory(OPTIONS_QUERY_KEY);
 
 export const useCreateProductOption = (
   productId: string,
-  options?: UseMutationOptions<any, FetchError, any>
+  // @todo fix any type
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  options?: UseMutationOptions<any, FetchError, any>,
 ) => {
   return useMutation({
     mutationFn: (payload: HttpTypes.AdminCreateProductOption) =>
       sdk.admin.product.createOption(productId, payload),
+    // @todo fix any type
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onSuccess: (data: any, variables: any, context: any) => {
       queryClient.invalidateQueries({ queryKey: optionsQueryKeys.lists() });
       queryClient.invalidateQueries({
@@ -47,11 +54,15 @@ export const useCreateProductOption = (
 export const useUpdateProductOption = (
   productId: string,
   optionId: string,
-  options?: UseMutationOptions<any, FetchError, any>
+  // @todo fix any type
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  options?: UseMutationOptions<any, FetchError, any>,
 ) => {
   return useMutation({
     mutationFn: (payload: HttpTypes.AdminUpdateProductOption) =>
       sdk.admin.product.updateOption(productId, optionId, payload),
+    // @todo fix any type
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onSuccess: (data: any, variables: any, context: any) => {
       queryClient.invalidateQueries({ queryKey: optionsQueryKeys.lists() });
       queryClient.invalidateQueries({
@@ -70,10 +81,14 @@ export const useUpdateProductOption = (
 export const useDeleteProductOption = (
   productId: string,
   optionId: string,
-  options?: UseMutationOptions<any, FetchError, void>
+  // @todo fix any type
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  options?: UseMutationOptions<any, FetchError, void>,
 ) => {
   return useMutation({
     mutationFn: () => sdk.admin.product.deleteOption(productId, optionId),
+    // @todo fix any type
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onSuccess: (data: any, variables: any, context: any) => {
       queryClient.invalidateQueries({ queryKey: optionsQueryKeys.lists() });
       queryClient.invalidateQueries({
@@ -101,7 +116,7 @@ export const useProductVariant = (
       QueryKey
     >,
     "queryFn" | "queryKey"
-  >
+  >,
 ) => {
   const { data, ...rest } = useQuery({
     queryFn: () =>
@@ -124,7 +139,7 @@ export const useProductVariants = (
       QueryKey
     >,
     "queryFn" | "queryKey"
-  >
+  >,
 ) => {
   const { data, ...rest } = useQuery({
     queryFn: () => sdk.admin.product.listVariants(productId, query),
@@ -137,11 +152,15 @@ export const useProductVariants = (
 
 export const useCreateProductVariant = (
   productId: string,
-  options?: UseMutationOptions<any, FetchError, any>
+  // @todo fix any type
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  options?: UseMutationOptions<any, FetchError, any>,
 ) => {
   return useMutation({
     mutationFn: (payload: HttpTypes.AdminCreateProductVariant) =>
       sdk.admin.product.createVariant(productId, payload),
+    // @todo fix any type
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onSuccess: (data: any, variables: any, context: any) => {
       queryClient.invalidateQueries({ queryKey: variantsQueryKeys.lists() });
       queryClient.invalidateQueries({
@@ -156,11 +175,15 @@ export const useCreateProductVariant = (
 export const useUpdateProductVariant = (
   productId: string,
   variantId: string,
-  options?: UseMutationOptions<any, FetchError, any>
+  // @todo fix any type
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  options?: UseMutationOptions<any, FetchError, any>,
 ) => {
   return useMutation({
     mutationFn: (payload: HttpTypes.AdminUpdateProductVariant) =>
       sdk.admin.product.updateVariant(productId, variantId, payload),
+    // @todo fix any type
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onSuccess: (data: any, variables: any, context: any) => {
       queryClient.invalidateQueries({ queryKey: variantsQueryKeys.lists() });
       queryClient.invalidateQueries({
@@ -178,15 +201,19 @@ export const useUpdateProductVariant = (
 
 export const useUpdateProductVariantsBatch = (
   productId: string,
-  options?: UseMutationOptions<any, FetchError, any>
+  // @todo fix any type
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  options?: UseMutationOptions<any, FetchError, any>,
 ) => {
   return useMutation({
     mutationFn: (
-      payload: HttpTypes.AdminBatchProductVariantRequest["update"]
+      payload: HttpTypes.AdminBatchProductVariantRequest["update"],
     ) =>
       sdk.admin.product.batchVariants(productId, {
         update: payload,
       }),
+    // @todo fix any type
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onSuccess: (data: any, variables: any, context: any) => {
       queryClient.invalidateQueries({ queryKey: variantsQueryKeys.lists() });
       queryClient.invalidateQueries({ queryKey: variantsQueryKeys.details() });
@@ -206,11 +233,13 @@ export const useProductVariantsInventoryItemsBatch = (
     HttpTypes.AdminBatchProductVariantInventoryItemResponse,
     FetchError,
     HttpTypes.AdminBatchProductVariantInventoryItemRequest
-  >
+  >,
 ) => {
   return useMutation({
     mutationFn: (payload) =>
       sdk.admin.product.batchVariantInventoryItems(productId, payload),
+    // @todo fix any type
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onSuccess: (data: any, variables: any, context: any) => {
       queryClient.invalidateQueries({ queryKey: variantsQueryKeys.lists() });
       queryClient.invalidateQueries({ queryKey: variantsQueryKeys.details() });
@@ -227,10 +256,14 @@ export const useProductVariantsInventoryItemsBatch = (
 export const useDeleteVariant = (
   productId: string,
   variantId: string,
-  options?: UseMutationOptions<any, FetchError, void>
+  // @todo fix any type
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  options?: UseMutationOptions<any, FetchError, void>,
 ) => {
   return useMutation({
     mutationFn: () => sdk.admin.product.deleteVariant(productId, variantId),
+    // @todo fix any type
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onSuccess: (data: any, variables: any, context: any) => {
       queryClient.invalidateQueries({ queryKey: variantsQueryKeys.lists() });
       queryClient.invalidateQueries({
@@ -252,7 +285,7 @@ export const useDeleteVariantLazy = (
     HttpTypes.AdminProductVariantDeleteResponse,
     FetchError,
     { variantId: string }
-  >
+  >,
 ) => {
   return useMutation({
     mutationFn: ({ variantId }) =>
@@ -274,6 +307,8 @@ export const useDeleteVariantLazy = (
 
 export const useProduct = (
   id: string,
+  // @todo fix any type
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   query?: Record<string, any>,
   options?: Omit<
     UseQueryOptions<
@@ -283,7 +318,7 @@ export const useProduct = (
       QueryKey
     >,
     "queryFn" | "queryKey"
-  >
+  >,
 ) => {
   const { data, ...rest } = useQuery({
     queryFn: () => sdk.admin.product.retrieve(id, query),
@@ -304,7 +339,7 @@ export const useProducts = (
       QueryKey
     >,
     "queryFn" | "queryKey"
-  >
+  >,
 ) => {
   const { data, ...rest } = useQuery({
     queryFn: () => sdk.admin.product.list(query),
@@ -320,7 +355,7 @@ export const useCreateProduct = (
     HttpTypes.AdminProductResponse,
     FetchError,
     HttpTypes.AdminCreateProduct
-  >
+  >,
 ) => {
   return useMutation({
     mutationFn: (payload) => sdk.admin.product.create(payload),
@@ -342,7 +377,7 @@ export const useUpdateProduct = (
     AdminProductResponse,
     FetchError,
     AdminProductUpdate
-  >
+  >,
 ) => {
   return useMutation({
     mutationFn: (payload) => sdk.admin.product.update(id, payload),
@@ -366,10 +401,12 @@ export const useDeleteProduct = (
     HttpTypes.AdminProductDeleteResponse,
     FetchError,
     void
-  >
+  >,
 ) => {
   return useMutation({
     mutationFn: () => sdk.admin.product.delete(id),
+    // @todo fix any type
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onSuccess: (data: any, variables: any, context: any) => {
       queryClient.invalidateQueries({ queryKey: productsQueryKeys.lists() });
       queryClient.invalidateQueries({ queryKey: productsQueryKeys.detail(id) });
@@ -386,7 +423,7 @@ export const useExportProducts = (
     HttpTypes.AdminExportProductResponse,
     FetchError,
     HttpTypes.AdminExportProductRequest
-  >
+  >,
 ) => {
   return useMutation({
     mutationFn: (payload) => sdk.admin.product.export(payload, query),
@@ -402,7 +439,7 @@ export const useImportProducts = (
     HttpTypes.AdminImportProductResponse,
     FetchError,
     HttpTypes.AdminImportProductRequest
-  >
+  >,
 ) => {
   return useMutation({
     mutationFn: (payload) => sdk.admin.product.createImport(payload),
@@ -414,7 +451,7 @@ export const useImportProducts = (
 };
 
 export const useConfirmImportProducts = (
-  options?: UseMutationOptions<{}, FetchError, string>
+  options?: UseMutationOptions<object, FetchError, string>,
 ) => {
   return useMutation({
     mutationFn: (payload) => sdk.admin.product.confirmImport(payload),

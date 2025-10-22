@@ -1,18 +1,17 @@
-import {
+import type {
   QueryKey,
   UseMutationOptions,
   UseQueryOptions,
-  useMutation,
-  useQuery,
 } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
-import { sdk } from "../../lib/client";
+import { sdk } from "@lib/client";
+import { queryKeysFactory } from "@lib/query-key-factory";
 
-import {
+import type {
   AdminOrderReturnRequest,
   AdminUpdateOrderReturnRequest,
-} from "../../types";
-import { queryKeysFactory } from "../../lib/query-key-factory";
+} from "@/types";
 
 export const returnRequestsQueryKeys = queryKeysFactory("return-request");
 
@@ -26,7 +25,7 @@ export const useReturnRequests = (
       QueryKey
     >,
     "queryFn" | "queryKey"
-  >
+  >,
 ) => {
   const { data, ...other } = useQuery({
     queryKey: returnRequestsQueryKeys.list(query),
@@ -46,7 +45,7 @@ export const useReviewReturnRequest = (
     { orderReturnRequest?: AdminOrderReturnRequest },
     Error,
     { id: string; payload: AdminUpdateOrderReturnRequest }
-  >
+  >,
 ) => {
   return useMutation({
     mutationFn: ({ id, payload }) =>

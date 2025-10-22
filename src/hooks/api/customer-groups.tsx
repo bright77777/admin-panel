@@ -1,21 +1,23 @@
-import { FetchError } from "@medusajs/js-sdk"
-import { HttpTypes } from "@medusajs/types"
-import {
+import type { FetchError } from "@medusajs/js-sdk";
+import type { HttpTypes } from "@medusajs/types";
+
+import type {
   QueryKey,
   UseMutationOptions,
   UseQueryOptions,
-  useMutation,
-  useQuery,
-} from "@tanstack/react-query"
-import { sdk } from "../../lib/client"
-import { queryClient } from "../../lib/query-client"
-import { queryKeysFactory } from "../../lib/query-key-factory"
-import { customersQueryKeys } from "./customers"
+} from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
-const CUSTOMER_GROUPS_QUERY_KEY = "customer_groups" as const
+import { sdk } from "@lib/client";
+import { queryClient } from "@lib/query-client";
+import { queryKeysFactory } from "@lib/query-key-factory";
+
+import { customersQueryKeys } from "./customers";
+
+const CUSTOMER_GROUPS_QUERY_KEY = "customer_groups" as const;
 export const customerGroupsQueryKeys = queryKeysFactory(
-  CUSTOMER_GROUPS_QUERY_KEY
-)
+  CUSTOMER_GROUPS_QUERY_KEY,
+);
 
 export const useCustomerGroup = (
   id: string,
@@ -28,16 +30,16 @@ export const useCustomerGroup = (
       QueryKey
     >,
     "queryFn" | "queryKey"
-  >
+  >,
 ) => {
   const { data, ...rest } = useQuery({
     queryKey: customerGroupsQueryKeys.detail(id, query),
     queryFn: async () => sdk.admin.customerGroup.retrieve(id, query),
     ...options,
-  })
+  });
 
-  return { ...data, ...rest }
-}
+  return { ...data, ...rest };
+};
 
 export const useCustomerGroups = (
   query?: HttpTypes.AdminGetCustomerGroupsParams,
@@ -49,35 +51,35 @@ export const useCustomerGroups = (
       QueryKey
     >,
     "queryFn" | "queryKey"
-  >
+  >,
 ) => {
   const { data, ...rest } = useQuery({
     queryFn: () => sdk.admin.customerGroup.list(query),
     queryKey: customerGroupsQueryKeys.list(query),
     ...options,
-  })
+  });
 
-  return { ...data, ...rest }
-}
+  return { ...data, ...rest };
+};
 
 export const useCreateCustomerGroup = (
   options?: UseMutationOptions<
     HttpTypes.AdminCustomerGroupResponse,
     FetchError,
     HttpTypes.AdminCreateCustomerGroup
-  >
+  >,
 ) => {
   return useMutation({
     mutationFn: (payload) => sdk.admin.customerGroup.create(payload),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: customerGroupsQueryKeys.lists(),
-      })
-      options?.onSuccess?.(data, variables, context)
+      });
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};
 
 export const useUpdateCustomerGroup = (
   id: string,
@@ -85,23 +87,23 @@ export const useUpdateCustomerGroup = (
     HttpTypes.AdminCustomerGroupResponse,
     FetchError,
     HttpTypes.AdminUpdateCustomerGroup
-  >
+  >,
 ) => {
   return useMutation({
     mutationFn: (payload) => sdk.admin.customerGroup.update(id, payload),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: customerGroupsQueryKeys.lists(),
-      })
+      });
       queryClient.invalidateQueries({
         queryKey: customerGroupsQueryKeys.detail(id),
-      })
+      });
 
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};
 
 export const useDeleteCustomerGroup = (
   id: string,
@@ -109,46 +111,46 @@ export const useDeleteCustomerGroup = (
     HttpTypes.AdminCustomerGroupDeleteResponse,
     FetchError,
     void
-  >
+  >,
 ) => {
   return useMutation({
     mutationFn: () => sdk.admin.customerGroup.delete(id),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: customerGroupsQueryKeys.lists(),
-      })
+      });
       queryClient.invalidateQueries({
         queryKey: customerGroupsQueryKeys.detail(id),
-      })
+      });
 
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};
 
 export const useDeleteCustomerGroupLazy = (
   options?: UseMutationOptions<
     HttpTypes.AdminCustomerGroupDeleteResponse,
     FetchError,
     { id: string }
-  >
+  >,
 ) => {
   return useMutation({
     mutationFn: ({ id }) => sdk.admin.customerGroup.delete(id),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: customerGroupsQueryKeys.lists(),
-      })
+      });
       queryClient.invalidateQueries({
         queryKey: customerGroupsQueryKeys.detail(variables.id),
-      })
+      });
 
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};
 
 export const useAddCustomersToGroup = (
   id: string,
@@ -156,7 +158,7 @@ export const useAddCustomersToGroup = (
     HttpTypes.AdminCustomerGroupResponse,
     FetchError,
     HttpTypes.AdminBatchLink["add"]
-  >
+  >,
 ) => {
   return useMutation({
     mutationFn: (payload) =>
@@ -164,19 +166,19 @@ export const useAddCustomersToGroup = (
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: customerGroupsQueryKeys.lists(),
-      })
+      });
       queryClient.invalidateQueries({
         queryKey: customerGroupsQueryKeys.detail(id),
-      })
+      });
       queryClient.invalidateQueries({
         queryKey: customersQueryKeys.lists(),
-      })
+      });
 
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};
 
 export const useRemoveCustomersFromGroup = (
   id: string,
@@ -184,7 +186,7 @@ export const useRemoveCustomersFromGroup = (
     HttpTypes.AdminCustomerGroupResponse,
     FetchError,
     HttpTypes.AdminBatchLink["remove"]
-  >
+  >,
 ) => {
   return useMutation({
     mutationFn: (payload) =>
@@ -192,16 +194,16 @@ export const useRemoveCustomersFromGroup = (
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: customerGroupsQueryKeys.lists(),
-      })
+      });
       queryClient.invalidateQueries({
         queryKey: customerGroupsQueryKeys.detail(id),
-      })
+      });
       queryClient.invalidateQueries({
         queryKey: customersQueryKeys.lists(),
-      })
+      });
 
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};

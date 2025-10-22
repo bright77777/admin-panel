@@ -1,21 +1,22 @@
-import { FetchError } from "@medusajs/js-sdk"
-import { HttpTypes } from "@medusajs/types"
-import {
+import type { FetchError } from "@medusajs/js-sdk";
+import type { HttpTypes } from "@medusajs/types";
+
+import type {
   QueryKey,
-  useMutation,
   UseMutationOptions,
-  useQuery,
   UseQueryOptions,
-} from "@tanstack/react-query"
+} from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
-import { sdk } from "../../lib/client"
-import { queryClient } from "../../lib/query-client"
-import { queryKeysFactory } from "../../lib/query-key-factory"
-import { ordersQueryKeys } from "./orders"
-import { returnsQueryKeys } from "./returns"
+import { sdk } from "@lib/client";
+import { queryClient } from "@lib/query-client";
+import { queryKeysFactory } from "@lib/query-key-factory";
 
-const CLAIMS_QUERY_KEY = "claims" as const
-export const claimsQueryKeys = queryKeysFactory(CLAIMS_QUERY_KEY)
+import { ordersQueryKeys } from "./orders";
+import { returnsQueryKeys } from "./returns";
+
+const CLAIMS_QUERY_KEY = "claims" as const;
+export const claimsQueryKeys = queryKeysFactory(CLAIMS_QUERY_KEY);
 
 export const useClaim = (
   id: string,
@@ -28,16 +29,16 @@ export const useClaim = (
       QueryKey
     >,
     "queryFn" | "queryKey"
-  >
+  >,
 ) => {
   const { data, ...rest } = useQuery({
     queryFn: async () => sdk.admin.claim.retrieve(id, query),
     queryKey: claimsQueryKeys.detail(id, query),
     ...options,
-  })
+  });
 
-  return { ...data, ...rest }
-}
+  return { ...data, ...rest };
+};
 
 export const useClaims = (
   query?: HttpTypes.AdminClaimListParams,
@@ -49,16 +50,16 @@ export const useClaims = (
       QueryKey
     >,
     "queryFn" | "queryKey"
-  >
+  >,
 ) => {
   const { data, ...rest } = useQuery({
     queryFn: async () => sdk.admin.claim.list(query),
     queryKey: claimsQueryKeys.list(query),
     ...options,
-  })
+  });
 
-  return { ...data, ...rest }
-}
+  return { ...data, ...rest };
+};
 
 export const useCreateClaim = (
   orderId: string,
@@ -66,58 +67,62 @@ export const useCreateClaim = (
     HttpTypes.AdminClaimResponse,
     FetchError,
     HttpTypes.AdminCreateClaim
-  >
+  >,
 ) => {
   return useMutation({
     mutationFn: (payload: HttpTypes.AdminCreateClaim) =>
       sdk.admin.claim.create(payload),
+    // @todo fix any type
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onSuccess: (data: any, variables: any, context: any) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.details(),
-      })
+      });
 
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.preview(orderId),
-      })
+      });
 
       queryClient.invalidateQueries({
         queryKey: claimsQueryKeys.lists(),
-      })
+      });
 
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};
 
 export const useCancelClaim = (
   id: string,
   orderId: string,
-  options?: UseMutationOptions<HttpTypes.AdminClaimResponse, FetchError>
+  options?: UseMutationOptions<HttpTypes.AdminClaimResponse, FetchError>,
 ) => {
   return useMutation({
     mutationFn: () => sdk.admin.claim.cancel(id),
+    // @todo fix any type
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onSuccess: (data: any, variables: any, context: any) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.details(),
-      })
+      });
 
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.preview(orderId),
-      })
+      });
 
       queryClient.invalidateQueries({
         queryKey: claimsQueryKeys.details(),
-      })
+      });
 
       queryClient.invalidateQueries({
         queryKey: claimsQueryKeys.lists(),
-      })
-      options?.onSuccess?.(data, variables, context)
+      });
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};
 
 export const useAddClaimItems = (
   id: string,
@@ -126,25 +131,27 @@ export const useAddClaimItems = (
     HttpTypes.AdminClaimResponse,
     FetchError,
     HttpTypes.AdminAddClaimItems
-  >
+  >,
 ) => {
   return useMutation({
     mutationFn: (payload: HttpTypes.AdminAddClaimItems) =>
       sdk.admin.claim.addItems(id, payload),
+    // @todo fix any type
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onSuccess: (data: any, variables: any, context: any) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.details(),
-      })
+      });
 
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.preview(orderId),
-      })
+      });
 
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};
 
 export const useUpdateClaimItems = (
   id: string,
@@ -153,29 +160,31 @@ export const useUpdateClaimItems = (
     HttpTypes.AdminClaimResponse,
     FetchError,
     HttpTypes.AdminUpdateClaimItem & { actionId: string }
-  >
+  >,
 ) => {
   return useMutation({
     mutationFn: ({
       actionId,
       ...payload
     }: HttpTypes.AdminUpdateClaimItem & { actionId: string }) => {
-      return sdk.admin.claim.updateItem(id, actionId, payload)
+      return sdk.admin.claim.updateItem(id, actionId, payload);
     },
+    // @todo fix any type
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onSuccess: (data: any, variables: any, context: any) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.details(),
-      })
+      });
 
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.preview(orderId),
-      })
+      });
 
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};
 
 export const useRemoveClaimItem = (
   id: string,
@@ -184,25 +193,27 @@ export const useRemoveClaimItem = (
     HttpTypes.AdminReturnResponse,
     FetchError,
     string
-  >
+  >,
 ) => {
   return useMutation({
     mutationFn: (actionId: string) =>
       sdk.admin.return.removeReturnItem(id, actionId),
+    // @todo fix any type
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onSuccess: (data: any, variables: any, context: any) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.details(),
-      })
+      });
 
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.preview(orderId),
-      })
+      });
 
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};
 
 export const useAddClaimInboundItems = (
   id: string,
@@ -211,24 +222,26 @@ export const useAddClaimInboundItems = (
     HttpTypes.AdminClaimReturnPreviewResponse,
     FetchError,
     HttpTypes.AdminAddClaimInboundItems
-  >
+  >,
 ) => {
   return useMutation({
     mutationFn: (payload) => sdk.admin.claim.addInboundItems(id, payload),
+    // @todo fix any type
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onSuccess: (data: any, variables: any, context: any) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.details(),
-      })
+      });
 
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.preview(orderId),
-      })
+      });
 
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};
 
 export const useUpdateClaimInboundItem = (
   id: string,
@@ -237,56 +250,64 @@ export const useUpdateClaimInboundItem = (
     HttpTypes.AdminClaimResponse,
     FetchError,
     HttpTypes.AdminUpdateClaimInboundItem & { actionId: string }
-  >
+  >,
 ) => {
   return useMutation({
     mutationFn: ({
       actionId,
       ...payload
     }: HttpTypes.AdminUpdateClaimInboundItem & { actionId: string }) => {
-      return sdk.admin.claim.updateInboundItem(id, actionId, payload)
+      return sdk.admin.claim.updateInboundItem(id, actionId, payload);
     },
+    // @todo fix any type
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onSuccess: (data: any, variables: any, context: any) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.details(),
-      })
+      });
 
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.preview(orderId),
-      })
+      });
 
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};
 
 export const useRemoveClaimInboundItem = (
   id: string,
   orderId: string,
-  options?: UseMutationOptions<HttpTypes.AdminClaimResponse, FetchError, string>
+  options?: UseMutationOptions<
+    HttpTypes.AdminClaimResponse,
+    FetchError,
+    string
+  >,
 ) => {
   return useMutation({
     mutationFn: (actionId: string) =>
       sdk.admin.claim.removeInboundItem(id, actionId),
+    // @todo fix any type
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onSuccess: (data: any, variables: any, context: any) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.details(),
-      })
+      });
 
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.preview(orderId),
-      })
+      });
 
       queryClient.invalidateQueries({
         queryKey: returnsQueryKeys.details(),
-      })
+      });
 
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};
 
 export const useAddClaimInboundShipping = (
   id: string,
@@ -295,25 +316,27 @@ export const useAddClaimInboundShipping = (
     HttpTypes.AdminClaimResponse,
     FetchError,
     HttpTypes.AdminClaimAddInboundShipping
-  >
+  >,
 ) => {
   return useMutation({
     mutationFn: (payload: HttpTypes.AdminClaimAddInboundShipping) =>
       sdk.admin.claim.addInboundShipping(id, payload),
+    // @todo fix any type
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onSuccess: (data: any, variables: any, context: any) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.details(),
-      })
+      });
 
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.preview(orderId),
-      })
+      });
 
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};
 
 export const useUpdateClaimInboundShipping = (
   id: string,
@@ -322,7 +345,7 @@ export const useUpdateClaimInboundShipping = (
     HttpTypes.AdminClaimResponse,
     FetchError,
     HttpTypes.AdminClaimUpdateInboundShipping
-  >
+  >,
 ) => {
   return useMutation({
     mutationFn: ({
@@ -330,43 +353,51 @@ export const useUpdateClaimInboundShipping = (
       ...payload
     }: HttpTypes.AdminClaimUpdateInboundShipping & { actionId: string }) =>
       sdk.admin.claim.updateInboundShipping(id, actionId, payload),
+    // @todo fix any type
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onSuccess: (data: any, variables: any, context: any) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.details(),
-      })
+      });
 
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.preview(orderId),
-      })
+      });
 
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};
 
 export const useDeleteClaimInboundShipping = (
   id: string,
   orderId: string,
-  options?: UseMutationOptions<HttpTypes.AdminClaimResponse, FetchError, string>
+  options?: UseMutationOptions<
+    HttpTypes.AdminClaimResponse,
+    FetchError,
+    string
+  >,
 ) => {
   return useMutation({
     mutationFn: (actionId: string) =>
       sdk.admin.claim.deleteInboundShipping(id, actionId),
+    // @todo fix any type
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onSuccess: (data: any, variables: any, context: any) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.details(),
-      })
+      });
 
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.preview(orderId),
-      })
+      });
 
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};
 
 export const useAddClaimOutboundItems = (
   id: string,
@@ -375,7 +406,7 @@ export const useAddClaimOutboundItems = (
     HttpTypes.AdminClaimResponse,
     FetchError,
     HttpTypes.AdminAddClaimOutboundItems
-  >
+  >,
 ) => {
   return useMutation({
     mutationFn: (payload: HttpTypes.AdminAddClaimOutboundItems) =>
@@ -383,17 +414,17 @@ export const useAddClaimOutboundItems = (
     onSuccess: (data: any, variables: any, context: any) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.details(),
-      })
+      });
 
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.preview(orderId),
-      })
+      });
 
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};
 
 export const useUpdateClaimOutboundItems = (
   id: string,
@@ -402,52 +433,60 @@ export const useUpdateClaimOutboundItems = (
     HttpTypes.AdminClaimResponse,
     FetchError,
     HttpTypes.AdminUpdateClaimOutboundItem & { actionId: string }
-  >
+  >,
 ) => {
   return useMutation({
     mutationFn: ({
       actionId,
       ...payload
     }: HttpTypes.AdminUpdateClaimOutboundItem & { actionId: string }) => {
-      return sdk.admin.claim.updateOutboundItem(id, actionId, payload)
+      return sdk.admin.claim.updateOutboundItem(id, actionId, payload);
     },
+    // @todo fix any type
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onSuccess: (data: any, variables: any, context: any) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.details(),
-      })
+      });
 
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.preview(orderId),
-      })
+      });
 
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};
 
 export const useRemoveClaimOutboundItem = (
   id: string,
   orderId: string,
-  options?: UseMutationOptions<HttpTypes.AdminClaimResponse, FetchError, string>
+  options?: UseMutationOptions<
+    HttpTypes.AdminClaimResponse,
+    FetchError,
+    string
+  >,
 ) => {
   return useMutation({
     mutationFn: (actionId: string) =>
       sdk.admin.claim.removeOutboundItem(id, actionId),
+    // @todo fix any type
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onSuccess: (data: any, variables: any, context: any) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.details(),
-      })
+      });
 
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.preview(orderId),
-      })
+      });
 
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};
 
 export const useAddClaimOutboundShipping = (
   id: string,
@@ -456,25 +495,27 @@ export const useAddClaimOutboundShipping = (
     HttpTypes.AdminClaimResponse,
     FetchError,
     HttpTypes.AdminClaimAddOutboundShipping
-  >
+  >,
 ) => {
   return useMutation({
     mutationFn: (payload: HttpTypes.AdminClaimAddOutboundShipping) =>
       sdk.admin.claim.addOutboundShipping(id, payload),
+    // @todo fix any type
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onSuccess: (data: any, variables: any, context: any) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.details(),
-      })
+      });
 
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.preview(orderId),
-      })
+      });
 
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};
 
 export const useUpdateClaimOutboundShipping = (
   id: string,
@@ -483,7 +524,7 @@ export const useUpdateClaimOutboundShipping = (
     HttpTypes.AdminClaimResponse,
     FetchError,
     HttpTypes.AdminClaimUpdateOutboundShipping
-  >
+  >,
 ) => {
   return useMutation({
     mutationFn: ({
@@ -491,43 +532,51 @@ export const useUpdateClaimOutboundShipping = (
       ...payload
     }: HttpTypes.AdminClaimUpdateOutboundShipping & { actionId: string }) =>
       sdk.admin.claim.updateOutboundShipping(id, actionId, payload),
+    // @todo fix any type
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onSuccess: (data: any, variables: any, context: any) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.details(),
-      })
+      });
 
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.preview(orderId),
-      })
+      });
 
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};
 
 export const useDeleteClaimOutboundShipping = (
   id: string,
   orderId: string,
-  options?: UseMutationOptions<HttpTypes.AdminClaimResponse, FetchError, string>
+  options?: UseMutationOptions<
+    HttpTypes.AdminClaimResponse,
+    FetchError,
+    string
+  >,
 ) => {
   return useMutation({
     mutationFn: (actionId: string) =>
       sdk.admin.claim.deleteOutboundShipping(id, actionId),
+    // @todo fix any type
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onSuccess: (data: any, variables: any, context: any) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.details(),
-      })
+      });
 
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.preview(orderId),
-      })
+      });
 
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};
 
 export const useClaimConfirmRequest = (
   id: string,
@@ -536,58 +585,62 @@ export const useClaimConfirmRequest = (
     HttpTypes.AdminClaimResponse,
     FetchError,
     HttpTypes.AdminRequestClaim
-  >
+  >,
 ) => {
   return useMutation({
     mutationFn: (payload: HttpTypes.AdminRequestClaim) =>
       sdk.admin.claim.request(id, payload),
+    // @todo fix any type
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onSuccess: (data: any, variables: any, context: any) => {
       queryClient.invalidateQueries({
         queryKey: returnsQueryKeys.all,
-      })
+      });
 
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.details(),
-      })
+      });
 
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.preview(orderId),
-      })
+      });
 
       queryClient.invalidateQueries({
         queryKey: claimsQueryKeys.lists(),
-      })
+      });
 
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};
 
 export const useCancelClaimRequest = (
   id: string,
   orderId: string,
-  options?: UseMutationOptions<HttpTypes.AdminClaimResponse, FetchError>
+  options?: UseMutationOptions<HttpTypes.AdminClaimResponse, FetchError>,
 ) => {
   return useMutation({
     mutationFn: () => sdk.admin.claim.cancelRequest(id),
+    // @todo fix any type
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onSuccess: (data: any, variables: any, context: any) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.details(),
-      })
+      });
 
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.preview(orderId),
-      })
+      });
 
       queryClient.invalidateQueries({
         queryKey: claimsQueryKeys.details(),
-      })
+      });
       queryClient.invalidateQueries({
         queryKey: claimsQueryKeys.lists(),
-      })
-      options?.onSuccess?.(data, variables, context)
+      });
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};

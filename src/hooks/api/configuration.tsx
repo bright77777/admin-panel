@@ -1,5 +1,3 @@
-import { sdk } from "@lib/client";
-import { queryKeysFactory } from "@lib/query-key-factory";
 import {
   type QueryKey,
   type UseMutationOptions,
@@ -12,6 +10,9 @@ import type {
   AdminCreateRule,
   ConfigurationRule,
 } from "@custom-types/configuration";
+
+import { sdk } from "@lib/client";
+import { queryKeysFactory } from "@lib/query-key-factory";
 
 export const configurationQueryKeys = queryKeysFactory("configuration_rules");
 

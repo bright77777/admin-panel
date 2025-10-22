@@ -1,5 +1,3 @@
-import { sdk } from "@lib/client";
-import { queryKeysFactory } from "@lib/query-key-factory";
 import {
   type QueryKey,
   type UseMutationOptions,
@@ -9,6 +7,9 @@ import {
 } from "@tanstack/react-query";
 
 import type { AdminRequest, AdminReviewRequest } from "@custom-types/requests";
+
+import { sdk } from "@lib/client";
+import { queryKeysFactory } from "@lib/query-key-factory";
 
 export const requestsQueryKeys = queryKeysFactory("requests");
 

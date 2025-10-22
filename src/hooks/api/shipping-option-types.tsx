@@ -1,20 +1,21 @@
-import { FetchError } from "@medusajs/js-sdk"
-import { HttpTypes } from "@medusajs/types"
-import {
-  QueryKey,
-  useMutation,
-  UseMutationOptions,
-  useQuery,
-  UseQueryOptions,
-} from "@tanstack/react-query"
-import { sdk } from "../../lib/client"
-import { queryClient } from "../../lib/query-client"
-import { queryKeysFactory } from "../../lib/query-key-factory"
+import type { FetchError } from "@medusajs/js-sdk";
+import type { HttpTypes } from "@medusajs/types";
 
-const SHIPPING_OPTION_TYPES_QUERY_KEY = "shipping_option_types" as const
+import type {
+  QueryKey,
+  UseMutationOptions,
+  UseQueryOptions,
+} from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
+
+import { sdk } from "@lib/client";
+import { queryClient } from "@lib/query-client";
+import { queryKeysFactory } from "@lib/query-key-factory";
+
+const SHIPPING_OPTION_TYPES_QUERY_KEY = "shipping_option_types" as const;
 export const shippingOptionTypesQueryKeys = queryKeysFactory(
-  SHIPPING_OPTION_TYPES_QUERY_KEY
-)
+  SHIPPING_OPTION_TYPES_QUERY_KEY,
+);
 
 export const useShippingOptionType = (
   id: string,
@@ -27,16 +28,16 @@ export const useShippingOptionType = (
       QueryKey
     >,
     "queryKey" | "queryFn"
-  >
+  >,
 ) => {
   const { data, ...rest } = useQuery({
     queryFn: () => sdk.admin.shippingOptionType.retrieve(id, query),
     queryKey: shippingOptionTypesQueryKeys.detail(id),
     ...options,
-  })
+  });
 
-  return { ...data, ...rest }
-}
+  return { ...data, ...rest };
+};
 
 export const useShippingOptionTypes = (
   query?: HttpTypes.AdminShippingOptionTypeListParams,
@@ -48,36 +49,36 @@ export const useShippingOptionTypes = (
       QueryKey
     >,
     "queryKey" | "queryFn"
-  >
+  >,
 ) => {
   const { data, ...rest } = useQuery({
     queryFn: () => sdk.admin.shippingOptionType.list(query),
     queryKey: shippingOptionTypesQueryKeys.list(query),
     ...options,
-  })
+  });
 
-  return { ...data, ...rest }
-}
+  return { ...data, ...rest };
+};
 
 export const useCreateShippingOptionType = (
   options?: UseMutationOptions<
     HttpTypes.AdminShippingOptionTypeResponse,
     FetchError,
     HttpTypes.AdminCreateShippingOptionType
-  >
+  >,
 ) => {
   return useMutation({
     mutationFn: (payload) => sdk.admin.shippingOptionType.create(payload),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: shippingOptionTypesQueryKeys.lists(),
-      })
+      });
 
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};
 
 export const useUpdateShippingOptionType = (
   id: string,
@@ -85,23 +86,23 @@ export const useUpdateShippingOptionType = (
     HttpTypes.AdminShippingOptionTypeResponse,
     FetchError,
     HttpTypes.AdminUpdateShippingOptionType
-  >
+  >,
 ) => {
   return useMutation({
     mutationFn: (payload) => sdk.admin.shippingOptionType.update(id, payload),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: shippingOptionTypesQueryKeys.detail(id),
-      })
+      });
       queryClient.invalidateQueries({
         queryKey: shippingOptionTypesQueryKeys.lists(),
-      })
+      });
 
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};
 
 export const useDeleteShippingOptionType = (
   id: string,
@@ -109,20 +110,20 @@ export const useDeleteShippingOptionType = (
     HttpTypes.AdminShippingOptionTypeDeleteResponse,
     FetchError,
     void
-  >
+  >,
 ) => {
   return useMutation({
     mutationFn: () => sdk.admin.shippingOptionType.delete(id),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: shippingOptionTypesQueryKeys.detail(id),
-      })
+      });
       queryClient.invalidateQueries({
         queryKey: shippingOptionTypesQueryKeys.lists(),
-      })
+      });
 
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
+};

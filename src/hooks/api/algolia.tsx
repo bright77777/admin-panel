@@ -1,8 +1,9 @@
-import { sdk } from "@lib/client";
-import { queryKeysFactory } from "@lib/query-key-factory";
 import { useMutation, useQuery } from "@tanstack/react-query";
 
 import type { AlgoliaStatus } from "@custom-types/algolia";
+
+import { sdk } from "@lib/client";
+import { queryKeysFactory } from "@lib/query-key-factory";
 
 export const algoliaQueryKeys = queryKeysFactory("algolia");
 

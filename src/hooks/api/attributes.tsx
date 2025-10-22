@@ -1,7 +1,5 @@
 import type { FetchError } from "@medusajs/js-sdk";
 
-import { sdk } from "@lib/client";
-import { queryKeysFactory } from "@lib/query-key-factory";
 import {
   type QueryKey,
   type UseMutationOptions,
@@ -16,6 +14,9 @@ import type {
   AttributePossibleValueDTO,
   AttributesResponse,
 } from "@custom-types/attribute";
+
+import { sdk } from "@lib/client";
+import { queryKeysFactory } from "@lib/query-key-factory";
 
 const ATTRIBUTE_QUERY_KEY = "attribute" as const;
 export const attributeQueryKeys = queryKeysFactory(ATTRIBUTE_QUERY_KEY);

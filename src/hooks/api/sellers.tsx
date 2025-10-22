@@ -1,16 +1,17 @@
-import {
-  QueryKey,
-  UseQueryOptions,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
+import type {
+  AdminCustomerGroup,
+  AdminOrder,
+  AdminProduct,
+} from "@medusajs/types";
 
-import { sdk } from "../../lib/client";
-import { queryKeysFactory } from "../../lib/query-key-factory";
-import { VendorSeller } from "../../types";
-import { AdminCustomerGroup, AdminOrder, AdminProduct } from "@medusajs/types";
-import { OrderSet } from "../../types/order/common";
+import type { QueryKey, UseQueryOptions } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+
+import { sdk } from "@lib/client";
+import { queryKeysFactory } from "@lib/query-key-factory";
+
+import type { VendorSeller } from "@/types";
+import type { OrderSet } from "@/types/order";
 
 export const sellerQueryKeys = queryKeysFactory("seller");
 
@@ -26,8 +27,8 @@ const sortSellers = (sellers: VendorSeller[], order: string) => {
   const isDesc = order.startsWith("-");
 
   return [...sellers].sort((a, b) => {
-    let aValue: string | number | null | undefined = a[field];
-    let bValue: string | number | null | undefined = b[field];
+    const aValue: string | number | null | undefined = a[field];
+    const bValue: string | number | null | undefined = b[field];
 
     // Handle null/undefined values
     if (!aValue && aValue !== "") return isDesc ? -1 : 1;
@@ -37,6 +38,7 @@ const sortSellers = (sellers: VendorSeller[], order: string) => {
     if (field === "created_at") {
       const aDate = new Date(String(aValue)).getTime();
       const bDate = new Date(String(bValue)).getTime();
+
       return isDesc ? bDate - aDate : aDate - bDate;
     }
 
@@ -46,10 +48,12 @@ const sortSellers = (sellers: VendorSeller[], order: string) => {
 
     if (aString < bString) return isDesc ? 1 : -1;
     if (aString > bString) return isDesc ? -1 : 1;
+
     return 0;
   });
 };
-
+// @todo fix any type
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const sortOrders = (orders: any[], order: string) => {
   const field = order.startsWith("-")
     ? (order.slice(1) as SortableOrderFields)
@@ -57,8 +61,8 @@ const sortOrders = (orders: any[], order: string) => {
   const isDesc = order.startsWith("-");
 
   return [...orders].sort((a, b) => {
-    let aValue: string | number | null | undefined = a[field];
-    let bValue: string | number | null | undefined = b[field];
+    const aValue: string | number | null | undefined = a[field];
+    const bValue: string | number | null | undefined = b[field];
 
     // Handle null/undefined values
     if (!aValue && aValue !== "") return isDesc ? -1 : 1;
@@ -68,6 +72,7 @@ const sortOrders = (orders: any[], order: string) => {
     if (field === "created_at" || field === "updated_at") {
       const aDate = new Date(String(aValue)).getTime();
       const bDate = new Date(String(bValue)).getTime();
+
       return isDesc ? bDate - aDate : aDate - bDate;
     }
 
@@ -75,6 +80,7 @@ const sortOrders = (orders: any[], order: string) => {
     if (field === "display_id") {
       const aNum = Number(aValue);
       const bNum = Number(bValue);
+
       return isDesc ? bNum - aNum : aNum - bNum;
     }
 
@@ -84,10 +90,12 @@ const sortOrders = (orders: any[], order: string) => {
 
     if (aString < bString) return isDesc ? 1 : -1;
     if (aString > bString) return isDesc ? -1 : 1;
+
     return 0;
   });
 };
-
+// @todo fix any type
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const sortProducts = (products: any[], order: string) => {
   const field = order.startsWith("-")
     ? (order.slice(1) as SortableProductFields)
@@ -95,8 +103,8 @@ const sortProducts = (products: any[], order: string) => {
   const isDesc = order.startsWith("-");
 
   return [...products].sort((a, b) => {
-    let aValue: string | number | null | undefined = a[field];
-    let bValue: string | number | null | undefined = b[field];
+    const aValue: string | number | null | undefined = a[field];
+    const bValue: string | number | null | undefined = b[field];
 
     // Handle null/undefined values
     if (!aValue && aValue !== "") return isDesc ? -1 : 1;
@@ -106,6 +114,7 @@ const sortProducts = (products: any[], order: string) => {
     if (field === "created_at" || field === "updated_at") {
       const aDate = new Date(String(aValue)).getTime();
       const bDate = new Date(String(bValue)).getTime();
+
       return isDesc ? bDate - aDate : aDate - bDate;
     }
 
@@ -115,10 +124,12 @@ const sortProducts = (products: any[], order: string) => {
 
     if (aString < bString) return isDesc ? 1 : -1;
     if (aString > bString) return isDesc ? -1 : 1;
+
     return 0;
   });
 };
-
+// @todo fix any type
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const sortCustomerGroups = (customerGroups: any[], order: string) => {
   const field = order.startsWith("-")
     ? (order.slice(1) as SortableCustomerGroupFields)
@@ -126,8 +137,8 @@ const sortCustomerGroups = (customerGroups: any[], order: string) => {
   const isDesc = order.startsWith("-");
 
   return [...customerGroups].sort((a, b) => {
-    let aValue: string | number | null | undefined = a[field];
-    let bValue: string | number | null | undefined = b[field];
+    const aValue: string | number | null | undefined = a[field];
+    const bValue: string | number | null | undefined = b[field];
 
     // Handle null/undefined values
     if (!aValue && aValue !== "") return isDesc ? -1 : 1;
@@ -137,6 +148,7 @@ const sortCustomerGroups = (customerGroups: any[], order: string) => {
     if (field === "created_at" || field === "updated_at") {
       const aDate = new Date(String(aValue)).getTime();
       const bDate = new Date(String(bValue)).getTime();
+
       return isDesc ? bDate - aDate : aDate - bDate;
     }
 
@@ -146,6 +158,7 @@ const sortCustomerGroups = (customerGroups: any[], order: string) => {
 
     if (aString < bString) return isDesc ? 1 : -1;
     if (aString > bString) return isDesc ? -1 : 1;
+
     return 0;
   });
 };
@@ -161,7 +174,7 @@ export const useSellers = (
     >,
     "queryFn" | "queryKey"
   >,
-  filters?: Record<string, string | number>
+  filters?: Record<string, string | number>,
 ) => {
   const { data, ...other } = useQuery<
     Record<string, string | number>,
@@ -189,7 +202,7 @@ export const useSellers = (
     processedSellers = processedSellers.filter(
       (seller) =>
         seller.name?.toLowerCase().includes(searchTerm) ||
-        seller.email?.toLowerCase().includes(searchTerm)
+        seller.email?.toLowerCase().includes(searchTerm),
     );
   }
 
@@ -234,7 +247,9 @@ export const useSeller = (id: string) => {
 export const useSellerOrders = (
   id: string,
   query?: Record<string, string | number>,
-  filters?: any
+  // @todo fix any type
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  filters?: any,
 ) => {
   const { data, isLoading } = useQuery({
     queryKey: ["seller-orders", id, query],
@@ -244,7 +259,7 @@ export const useSellerOrders = (
         {
           method: "GET",
           query,
-        }
+        },
       ),
   });
 
@@ -261,14 +276,14 @@ export const useSellerOrders = (
       (order) =>
         order.customer?.first_name?.toLowerCase().includes(searchTerm) ||
         order.customer?.last_name?.toLowerCase().includes(searchTerm) ||
-        order.customer?.email?.toLowerCase().includes(searchTerm)
+        order.customer?.email?.toLowerCase().includes(searchTerm),
     );
   }
 
   // Filter by region_id
   if (filters?.region_id && Array.isArray(filters.region_id)) {
     processedOrders = processedOrders.filter(
-      (order) => order.region_id && filters.region_id.includes(order.region_id)
+      (order) => order.region_id && filters.region_id.includes(order.region_id),
     );
   }
 
@@ -277,17 +292,20 @@ export const useSellerOrders = (
     processedOrders = processedOrders.filter(
       (order) =>
         order.sales_channel_id &&
-        filters.sales_channel_id.includes(order.sales_channel_id)
+        filters.sales_channel_id.includes(order.sales_channel_id),
     );
   }
 
   // Filter by created_at date ranges
   if (filters?.created_at) {
+    // @todo fix any type
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const dateFilter = filters.created_at as any;
     if (dateFilter.$gte) {
       const filterDate = new Date(dateFilter.$gte);
       processedOrders = processedOrders.filter((order) => {
         const orderCreatedAt = new Date(order.created_at || "");
+
         return orderCreatedAt >= filterDate;
       });
     }
@@ -295,6 +313,7 @@ export const useSellerOrders = (
       const filterDate = new Date(dateFilter.$lte);
       processedOrders = processedOrders.filter((order) => {
         const orderCreatedAt = new Date(order.created_at || "");
+
         return orderCreatedAt <= filterDate;
       });
     }
@@ -302,12 +321,15 @@ export const useSellerOrders = (
 
   // Filter by updated_at date ranges
   if (filters?.updated_at) {
+    // @todo fix any type
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const dateFilter = filters.updated_at as any;
 
     if (dateFilter.$gte) {
       const filterDate = new Date(dateFilter.$gte);
       processedOrders = processedOrders.filter((order) => {
         const orderUpdatedAt = new Date(order.updated_at || "");
+
         return orderUpdatedAt >= filterDate;
       });
     }
@@ -315,6 +337,7 @@ export const useSellerOrders = (
       const filterDate = new Date(dateFilter.$lte);
       processedOrders = processedOrders.filter((order) => {
         const orderUpdatedAt = new Date(order.updated_at || "");
+
         return orderUpdatedAt <= filterDate;
       });
     }
@@ -354,6 +377,8 @@ export const useUpdateSeller = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
+    // @todo fix any type
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     mutationFn: ({ id, data }: { id: string; data: any }) =>
       sdk.client.fetch(`/admin/sellers/${id}`, { method: "POST", body: data }),
     onSuccess: (_, { id }) => {
@@ -366,7 +391,9 @@ export const useUpdateSeller = () => {
 export const useSellerProducts = (
   id: string,
   query?: Record<string, string | number>,
-  filters?: any
+  // @todo fix any type
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  filters?: any,
 ) => {
   const { data, isLoading, refetch } = useQuery<
     { products: AdminProduct[] },
@@ -391,47 +418,54 @@ export const useSellerProducts = (
   if (filters?.q) {
     const searchTerm = String(filters.q).toLowerCase();
     processedProducts = processedProducts.filter((product) =>
-      product.title?.toLowerCase().includes(searchTerm)
+      product.title?.toLowerCase().includes(searchTerm),
     );
   }
 
   // Filter by tag_id
   if (filters?.tag_id && Array.isArray(filters.tag_id)) {
     processedProducts = processedProducts.filter((product) =>
-      product.tags?.some((tag: any) => filters.tag_id.includes(tag.id))
+      // @todo fix any type
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      product.tags?.some((tag: any) => filters.tag_id.includes(tag.id)),
     );
   }
 
   // Filter by type_id
   if (filters?.type_id && Array.isArray(filters.type_id)) {
     processedProducts = processedProducts.filter((product) =>
-      filters.type_id.includes(product.type_id)
+      filters.type_id.includes(product.type_id),
     );
   }
 
   // Filter by sales_channel_id
   if (filters?.sales_channel_id && Array.isArray(filters.sales_channel_id)) {
     processedProducts = processedProducts.filter((product) =>
+      // @todo fix any type
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       product.sales_channels?.some((channel: any) =>
-        filters.sales_channel_id.includes(channel.id)
-      )
+        filters.sales_channel_id.includes(channel.id),
+      ),
     );
   }
 
   // Filter by status
   if (filters?.status && Array.isArray(filters.status)) {
     processedProducts = processedProducts.filter((product) =>
-      filters.status.includes(product.status)
+      filters.status.includes(product.status),
     );
   }
 
   // Filter by created_at date ranges
   if (filters?.created_at) {
+    // @todo fix any type
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const dateFilter = filters.created_at as any;
     if (dateFilter.$gte) {
       const filterDate = new Date(dateFilter.$gte);
       processedProducts = processedProducts.filter((product) => {
         const productCreatedAt = new Date(product.created_at || "");
+
         return productCreatedAt >= filterDate;
       });
     }
@@ -439,6 +473,7 @@ export const useSellerProducts = (
       const filterDate = new Date(dateFilter.$lte);
       processedProducts = processedProducts.filter((product) => {
         const productCreatedAt = new Date(product.created_at || "");
+
         return productCreatedAt <= filterDate;
       });
     }
@@ -446,11 +481,14 @@ export const useSellerProducts = (
 
   // Filter by updated_at date ranges
   if (filters?.updated_at) {
+    // @todo fix any type
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const dateFilter = filters.updated_at as any;
     if (dateFilter.$gte) {
       const filterDate = new Date(dateFilter.$gte);
       processedProducts = processedProducts.filter((product) => {
         const productUpdatedAt = new Date(product.updated_at || "");
+
         return productUpdatedAt >= filterDate;
       });
     }
@@ -458,6 +496,7 @@ export const useSellerProducts = (
       const filterDate = new Date(dateFilter.$lte);
       processedProducts = processedProducts.filter((product) => {
         const productUpdatedAt = new Date(product.updated_at || "");
+
         return productUpdatedAt <= filterDate;
       });
     }
@@ -498,7 +537,7 @@ export const useSellerProducts = (
 export const useSellerCustomerGroups = (
   id: string,
   query?: Record<string, string | number>,
-  filters?: Record<string, string | number>
+  filters?: Record<string, string | number>,
 ) => {
   const { data, isLoading, refetch } = useQuery<
     { customer_groups: AdminCustomerGroup[] },
@@ -522,6 +561,8 @@ export const useSellerCustomerGroups = (
   }
 
   let processedCustomerGroups = [
+    // @todo fix any type
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ...data.customer_groups.filter((group: any) => !!group),
   ];
 
@@ -529,17 +570,20 @@ export const useSellerCustomerGroups = (
   if (filters?.q) {
     const searchTerm = String(filters.q).toLowerCase();
     processedCustomerGroups = processedCustomerGroups.filter((group) =>
-      group.name?.toLowerCase().includes(searchTerm)
+      group.name?.toLowerCase().includes(searchTerm),
     );
   }
 
   // Filter by created_at date ranges
   if (filters?.created_at) {
+    // @todo fix any type
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const dateFilter = filters.created_at as any;
     if (dateFilter.$gte) {
       const filterDate = new Date(dateFilter.$gte);
       processedCustomerGroups = processedCustomerGroups.filter((group) => {
         const groupCreatedAt = new Date(group.created_at || "");
+
         return groupCreatedAt >= filterDate;
       });
     }
@@ -547,6 +591,7 @@ export const useSellerCustomerGroups = (
       const filterDate = new Date(dateFilter.$lte);
       processedCustomerGroups = processedCustomerGroups.filter((group) => {
         const groupCreatedAt = new Date(group.created_at || "");
+
         return groupCreatedAt <= filterDate;
       });
     }
@@ -554,11 +599,14 @@ export const useSellerCustomerGroups = (
 
   // Filter by updated_at date ranges
   if (filters?.updated_at) {
+    // @todo fix any type
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const dateFilter = filters.updated_at as any;
     if (dateFilter.$gte) {
       const filterDate = new Date(dateFilter.$gte);
       processedCustomerGroups = processedCustomerGroups.filter((group) => {
         const groupUpdatedAt = new Date(group.updated_at || "");
+
         return groupUpdatedAt >= filterDate;
       });
     }
@@ -566,6 +614,7 @@ export const useSellerCustomerGroups = (
       const filterDate = new Date(dateFilter.$lte);
       processedCustomerGroups = processedCustomerGroups.filter((group) => {
         const groupUpdatedAt = new Date(group.updated_at || "");
+
         return groupUpdatedAt <= filterDate;
       });
     }
@@ -586,7 +635,7 @@ export const useSellerCustomerGroups = (
     if (validOrders.includes(order as (typeof validOrders)[number])) {
       processedCustomerGroups = sortCustomerGroups(
         processedCustomerGroups,
-        order
+        order,
       );
     }
   }

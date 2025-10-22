@@ -1,18 +1,19 @@
-import { FetchError } from "@medusajs/js-sdk"
-import { HttpTypes } from "@medusajs/types"
-import {
+import type { FetchError } from "@medusajs/js-sdk";
+import type { HttpTypes } from "@medusajs/types";
+
+import type {
   QueryKey,
   UseMutationOptions,
   UseQueryOptions,
-  useMutation,
-  useQuery,
-} from "@tanstack/react-query"
-import { sdk } from "../../lib/client"
-import { queryClient } from "../../lib/query-client"
-import { queryKeysFactory } from "../../lib/query-key-factory"
+} from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
-const TAX_REGIONS_QUERY_KEY = "tax_regions" as const
-export const taxRegionsQueryKeys = queryKeysFactory(TAX_REGIONS_QUERY_KEY)
+import { sdk } from "@lib/client";
+import { queryClient } from "@lib/query-client";
+import { queryKeysFactory } from "@lib/query-key-factory";
+
+const TAX_REGIONS_QUERY_KEY = "tax_regions" as const;
+export const taxRegionsQueryKeys = queryKeysFactory(TAX_REGIONS_QUERY_KEY);
 
 export const useTaxRegion = (
   id: string,
@@ -25,16 +26,16 @@ export const useTaxRegion = (
       QueryKey
     >,
     "queryFn" | "queryKey"
-  >
+  >,
 ) => {
   const { data, ...rest } = useQuery({
     queryKey: taxRegionsQueryKeys.detail(id),
     queryFn: async () => sdk.admin.taxRegion.retrieve(id, query),
     ...options,
-  })
+  });
 
-  return { ...data, ...rest }
-}
+  return { ...data, ...rest };
+};
 
 export const useTaxRegions = (
   query?: HttpTypes.AdminTaxRegionListParams,
@@ -46,33 +47,32 @@ export const useTaxRegions = (
       QueryKey
     >,
     "queryFn" | "queryKey"
-  >
+  >,
 ) => {
   const { data, ...rest } = useQuery({
     queryFn: () => sdk.admin.taxRegion.list(query),
     queryKey: taxRegionsQueryKeys.list(query),
     ...options,
-  })
+  });
 
-  return { ...data, ...rest }
-}
+  return { ...data, ...rest };
+};
 
 export const useCreateTaxRegion = (
   options?: UseMutationOptions<
     HttpTypes.AdminTaxRegionResponse,
     FetchError,
     HttpTypes.AdminCreateTaxRegion
-  >
-) => {
-  return useMutation({
+  >,
+) =>
+  useMutation({
     mutationFn: (payload) => sdk.admin.taxRegion.create(payload),
     onSuccess: (data, variables, context) => {
-      queryClient.invalidateQueries({ queryKey: taxRegionsQueryKeys.all })
-      options?.onSuccess?.(data, variables, context)
+      queryClient.invalidateQueries({ queryKey: taxRegionsQueryKeys.all });
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
 
 export const useUpdateTaxRegion = (
   id: string,
@@ -82,21 +82,20 @@ export const useUpdateTaxRegion = (
     FetchError,
     HttpTypes.AdminUpdateTaxRegion,
     QueryKey
-  >
-) => {
-  return useMutation({
+  >,
+) =>
+  useMutation({
     mutationFn: (payload) => sdk.admin.taxRegion.update(id, payload, query),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: taxRegionsQueryKeys.detail(id),
-      })
-      queryClient.invalidateQueries({ queryKey: taxRegionsQueryKeys.lists() })
+      });
+      queryClient.invalidateQueries({ queryKey: taxRegionsQueryKeys.lists() });
 
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
 
 export const useDeleteTaxRegion = (
   id: string,
@@ -104,21 +103,22 @@ export const useDeleteTaxRegion = (
     HttpTypes.AdminTaxRegionDeleteResponse,
     FetchError,
     void
-  >
-) => {
-  return useMutation({
+  >,
+) =>
+  useMutation({
     mutationFn: () => sdk.admin.taxRegion.delete(id),
     onSuccess: (data, variables, context) => {
-      queryClient.invalidateQueries({ queryKey: taxRegionsQueryKeys.lists() })
+      queryClient.invalidateQueries({ queryKey: taxRegionsQueryKeys.lists() });
       queryClient.invalidateQueries({
         queryKey: taxRegionsQueryKeys.detail(id),
-      })
+      });
 
       // Invalidate all detail queries, as the deleted tax region may have been a sublevel region
-      queryClient.invalidateQueries({ queryKey: taxRegionsQueryKeys.details() })
+      queryClient.invalidateQueries({
+        queryKey: taxRegionsQueryKeys.details(),
+      });
 
-      options?.onSuccess?.(data, variables, context)
+      options?.onSuccess?.(data, variables, context);
     },
     ...options,
-  })
-}
+  });
