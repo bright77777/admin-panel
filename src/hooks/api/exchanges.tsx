@@ -337,7 +337,8 @@ export const useRemoveExchangeOutboundItem = (
   return useMutation({
     mutationFn: (actionId: string) =>
       sdk.admin.exchange.removeOutboundItem(id, actionId),
-    v
+    // @todo fix any type
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onSuccess: (data: any, variables: any, context: any) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.details(),
