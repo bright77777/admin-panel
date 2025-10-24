@@ -3,7 +3,6 @@ import { useLoaderData, useParams } from "react-router-dom";
 import { TwoColumnPageSkeleton } from "../../../components/common/skeleton";
 import { TwoColumnPage } from "../../../components/layout/pages";
 import { useProduct } from "../../../hooks/api/products";
-import isB2B from "../../../lib/is-b2b";
 import { useExtension } from "../../../providers/extension-provider";
 import { ProductAdditionalAttributeSection } from "./components/product-additional-attribute-section";
 import { ProductAttributeSection } from "./components/product-attribute-section";
