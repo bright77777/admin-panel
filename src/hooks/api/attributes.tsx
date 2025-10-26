@@ -182,3 +182,44 @@ export const useProductApplicableAttributes = (
 
   return { ...data, ...rest };
 };
+
+export const useReorderAttributePossibleValues = (
+  attributeId: string,
+  options?: UseMutationOptions<
+    { updated: string[] },
+    FetchError,
+    Array<{ id: string; rank: number }>
+  >,
+) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (updates) => {
+      if (!updates || updates.length === 0) {
+        return { updated: [] };
+      }
+
+      await Promise.all(
+        updates.map((u) =>
+          sdk.client.fetch(`/admin/attributes/${attributeId}/values/${u.id}`, {
+            method: "POST",
+            body: { rank: u.rank },
+          }),
+        ),
+      );
+
+      return { updated: updates.map((u) => u.id) };
+    },
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({
+        queryKey: attributeQueryKeys.detail(attributeId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: attributeQueryKeys.list(),
+      });
+
+      options?.onSuccess?.(data, variables, context);
+    },
+    ...options,
+  });
+};

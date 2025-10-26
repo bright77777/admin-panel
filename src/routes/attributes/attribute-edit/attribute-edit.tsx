@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 import type { AdminProductCategory } from "@medusajs/types";
-import { Button, FocusModal, ProgressTabs, toast } from "@medusajs/ui";
+import { Button, Drawer, FocusModal, toast } from "@medusajs/ui";
 
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router-dom";
@@ -15,22 +15,14 @@ import {
 
 import { sdk } from "@lib/client";
 
+import type { UpdateAttributeFormSchema } from "@routes/attributes/attribute-edit/components/attribute-form.tsx";
 import { AttributeForm } from "@routes/attributes/attribute-edit/components/attribute-form.tsx";
-
-import type { CreateAttributeFormSchema } from "./schema";
 
 export const AttributeEdit = () => {
   const navigate = useNavigate();
+  const [open, setOpen] = useState(true);
   const { id } = useParams();
   const [categories, setCategories] = useState<AdminProductCategory[]>([]);
-  const [activeTab, setActiveTab] = useState<"details" | "type">("details");
-  const [tabStatuses, setTabStatuses] = useState<{
-    detailsStatus: "not-started" | "in-progress" | "completed";
-    typeStatus: "not-started" | "in-progress" | "completed";
-  }>({
-    detailsStatus: "completed", // Edit mode starts with completed status
-    typeStatus: "completed", // Edit mode starts with completed status
-  });
   const queryClient = useQueryClient();
 
   const { attribute, isLoading } = useAttribute(
@@ -61,7 +53,7 @@ export const AttributeEdit = () => {
   }, []);
 
   const handleSave = async (
-    data: z.infer<typeof CreateAttributeFormSchema>,
+    data: z.infer<typeof UpdateAttributeFormSchema>,
   ) => {
     try {
       const { ...payload } = data;
@@ -78,6 +70,7 @@ export const AttributeEdit = () => {
   };
 
   const handleClose = () => {
+    setOpen(false);
     navigate(-1);
   };
 
@@ -90,50 +83,24 @@ export const AttributeEdit = () => {
   }
 
   return (
-    <FocusModal
-      open={true}
+    <Drawer
+      open={open}
       onOpenChange={(open) => {
         if (!open) handleClose();
       }}
     >
-      <FocusModal.Content>
-        <ProgressTabs
-          value={activeTab}
-          onValueChange={(value) => setActiveTab(value as "details" | "type")}
-          className="h-full w-full"
-        >
-          <FocusModal.Header className="flex h-fit w-full items-center justify-between py-0">
-            <div className="h-full w-full border-l">
-              <ProgressTabs.List className="flex w-full items-center justify-start">
-                <ProgressTabs.Trigger
-                  value="details"
-                  status={tabStatuses.detailsStatus}
-                >
-                  Details
-                </ProgressTabs.Trigger>
-                <ProgressTabs.Trigger
-                  value="type"
-                  status={tabStatuses.typeStatus}
-                >
-                  Type
-                </ProgressTabs.Trigger>
-              </ProgressTabs.List>
-            </div>
-          </FocusModal.Header>
-          <FocusModal.Body className="flex flex-col items-center py-16">
-            <div>
-              <AttributeForm
-                initialData={attribute}
-                //@ts-expect-error correct data type will be received here
-                onSubmit={handleSave}
-                onCancel={handleClose}
-                categories={categories}
-                activeTab={activeTab}
-                onFormStateChange={setTabStatuses}
-              />
-            </div>
-          </FocusModal.Body>
-        </ProgressTabs>
+      <Drawer.Content>
+        <Drawer.Header>Edit Attribute</Drawer.Header>
+        <Drawer.Body className="flex flex-col items-center">
+          <div>
+            <AttributeForm
+              initialData={attribute}
+              mode="update"
+              onSubmit={handleSave}
+              categories={categories}
+            />
+          </div>
+        </Drawer.Body>
         <FocusModal.Footer>
           <Button variant="secondary" onClick={handleClose}>
             Cancel
@@ -142,7 +109,7 @@ export const AttributeEdit = () => {
             Save
           </Button>
         </FocusModal.Footer>
-      </FocusModal.Content>
-    </FocusModal>
+      </Drawer.Content>
+    </Drawer>
   );
 };

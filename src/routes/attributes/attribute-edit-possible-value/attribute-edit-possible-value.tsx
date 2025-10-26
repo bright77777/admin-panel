@@ -103,7 +103,7 @@ export const EditPossibleValue = () => {
       {
         value: data.value,
         rank: data.rank,
-        //@ts-ignore
+        //@ts-expect-error @todo fix this
         metadata:
           Object.keys(transformedMetadata).length > 0
             ? transformedMetadata

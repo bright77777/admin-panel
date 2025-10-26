@@ -31,39 +31,43 @@ enum AttributeUIComponent {
   TOGGLE = "toggle",
   TEXTAREA = "text_area",
 }
+export const UpdateAttributeFormSchema = AdminUpdateAttribute;
 
 type CreateFormValues = z.infer<typeof CreateAttributeFormSchema>;
+type Mode = "create" | "update";
 
-export const UdpateAttributeFormSchema = AdminUpdateAttribute;
+type OnSubmit<T extends Mode> = (
+  data: T extends "create" ? CreateFormValues : UpdateFormValues,
+) => Promise<void>;
 
-type UpdateFormValues = z.infer<typeof UdpateAttributeFormSchema>;
-interface AttributeFormProps {
+type UpdateFormValues = z.infer<typeof UpdateAttributeFormSchema>;
+type AttributeFormProps<T extends Mode> = {
   initialData?: AttributeDTO;
-  onSubmit: (data: CreateFormValues | UpdateFormValues) => Promise<void>;
   categories?: AdminProductCategory[];
-  mode?: "create" | "update";
+  mode?: T;
   activeTab?: "details" | "type";
+  onSubmit: OnSubmit<T>;
   onFormStateChange?: (formState: {
     detailsStatus: "not-started" | "in-progress" | "completed";
     typeStatus: "not-started" | "in-progress" | "completed";
   }) => void;
-}
+};
 
-export const AttributeForm = ({
+export function AttributeForm<T extends Mode>({
   initialData,
   onSubmit,
   categories,
-  mode = "create",
+  mode = "create" as T,
   activeTab = "details",
   onFormStateChange,
-}: AttributeFormProps) => {
+}: AttributeFormProps<T>) {
   const [showCategorySection, setShowCategorySection] = useState(
     (initialData?.product_categories?.length || 0) > 0,
   );
 
   const form = useForm<CreateFormValues | UpdateFormValues>({
     resolver: zodResolver(
-      mode === "create" ? CreateAttributeFormSchema : UdpateAttributeFormSchema,
+      mode === "create" ? CreateAttributeFormSchema : UpdateAttributeFormSchema,
     ),
     defaultValues: {
       name: initialData?.name || "",
@@ -72,17 +76,18 @@ export const AttributeForm = ({
       ui_component: initialData?.ui_component || AttributeUIComponent.SELECT,
       is_filterable: initialData?.is_filterable ?? true,
       is_required: initialData?.is_required ?? false,
-      //@ts-ignore
+      //@ts-expect-error dependency issue possible to split this into two forms
       possible_values: initialData?.possible_values || [],
       product_category_ids:
         initialData?.product_categories?.map((c) => c.id) || [],
-      //@ts-ignore
+      //@ts-expect-error dependency issue possible to split this into two forms
       metadata: initialData?.metadata || {},
     },
   });
 
   const handleSubmit = form.handleSubmit(async (data) => {
     try {
+      // @ts-expect-error dependency issue possible to split this into two forms
       await onSubmit(data);
     } catch (error) {
       console.error(error);
@@ -356,4 +361,4 @@ export const AttributeForm = ({
       </form>
     </FormProvider>
   );
-};
+}
