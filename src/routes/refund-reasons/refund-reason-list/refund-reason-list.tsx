@@ -1,9 +1,11 @@
-import { SingleColumnPage } from "../../../components/layout/pages"
-import { useExtension } from "../../../providers/extension-provider"
-import { RefundReasonListTable } from "./components/refund-reason-list-table"
+import { SingleColumnPage } from "@components/layout/pages";
+
+import { RefundReasonListTable } from "@routes/refund-reasons/refund-reason-list/components/refund-reason-list-table";
+
+import { useExtension } from "@providers/extension-provider";
 
 export const RefundReasonList = () => {
-  const { getWidgets } = useExtension()
+  const { getWidgets } = useExtension();
 
   return (
     <SingleColumnPage
@@ -17,5 +19,5 @@ export const RefundReasonList = () => {
     >
       <RefundReasonListTable />
     </SingleColumnPage>
-  )
-}
+  );
+};
