@@ -1,9 +1,11 @@
-import { SingleColumnPage } from "../../../components/layout/pages"
-import { useExtension } from "../../../providers/extension-provider"
-import { RegionListTable } from "./components/region-list-table"
+import { SingleColumnPage } from "@components/layout/pages";
+
+import { RegionListTable } from "@routes/regions/region-list/components/region-list-table";
+
+import { useExtension } from "@providers/extension-provider";
 
 export const RegionList = () => {
-  const { getWidgets } = useExtension()
+  const { getWidgets } = useExtension();
 
   return (
     <SingleColumnPage
@@ -14,5 +16,5 @@ export const RegionList = () => {
     >
       <RegionListTable />
     </SingleColumnPage>
-  )
-}
+  );
+};

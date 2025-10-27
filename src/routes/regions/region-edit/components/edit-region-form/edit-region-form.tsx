@@ -1,28 +1,28 @@
-import { HttpTypes, PaymentProviderDTO } from "@medusajs/types"
-import { Button, Input, Select, Switch, Text, toast } from "@medusajs/ui"
-import { useForm } from "react-hook-form"
-import { useTranslation } from "react-i18next"
-import * as zod from "zod"
+import type { HttpTypes } from "@medusajs/types";
+import { Button, Input, Select, Switch, Text, toast } from "@medusajs/ui";
 
-import { Form } from "../../../../../components/common/form/index.ts"
-import { Combobox } from "../../../../../components/inputs/combobox"
-import {
-  RouteDrawer,
-  useRouteModal,
-} from "../../../../../components/modals/index.ts"
-import { KeyboundForm } from "../../../../../components/utilities/keybound-form/keybound-form.tsx"
-import { useUpdateRegion } from "../../../../../hooks/api/regions.tsx"
-import { CurrencyInfo } from "../../../../../lib/data/currencies.ts"
-import { formatProvider } from "../../../../../lib/format-provider.ts"
-import { useDocumentDirection } from "../../../../../hooks/use-document-direction"
-import { useComboboxData } from "../../../../../hooks/use-combobox-data.tsx"
-import { sdk } from "../../../../../lib/client/index.ts"
+import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
+import * as zod from "zod";
+
+import { Form } from "@components/common/form";
+import { Combobox } from "@components/inputs/combobox";
+import { RouteDrawer, useRouteModal } from "@components/modals";
+import { KeyboundForm } from "@components/utilities/keybound-form";
+
+import { useUpdateRegion } from "@hooks/api";
+import { useComboboxData } from "@hooks/use-combobox-data";
+import { useDocumentDirection } from "@hooks/use-document-direction";
+
+import { sdk } from "@lib/client";
+import type { CurrencyInfo } from "@lib/data/currencies";
+import { formatProvider } from "@lib/format-provider";
 
 type EditRegionFormProps = {
-  region: HttpTypes.AdminRegion
-  currencies: CurrencyInfo[]
-  pricePreferences: HttpTypes.AdminPricePreference[]
-}
+  region: HttpTypes.AdminRegion;
+  currencies: CurrencyInfo[];
+  pricePreferences: HttpTypes.AdminPricePreference[];
+};
 
 const EditRegionSchema = zod.object({
   name: zod.string().min(1),
@@ -30,20 +30,20 @@ const EditRegionSchema = zod.object({
   payment_providers: zod.array(zod.string()),
   automatic_taxes: zod.boolean(),
   is_tax_inclusive: zod.boolean(),
-})
+});
 
 export const EditRegionForm = ({
   region,
   currencies,
   pricePreferences,
 }: EditRegionFormProps) => {
-  const { t } = useTranslation()
-  const { handleSuccess } = useRouteModal()
+  const { t } = useTranslation();
+  const { handleSuccess } = useRouteModal();
   const pricePreferenceForRegion = pricePreferences?.find(
     (preference) =>
-      preference.attribute === "region_id" && preference.value === region.id
-  )
-  const direction = useDocumentDirection()
+      preference.attribute === "region_id" && preference.value === region.id,
+  );
+  const direction = useDocumentDirection();
   const form = useForm<zod.infer<typeof EditRegionSchema>>({
     defaultValues: {
       name: region.name,
@@ -52,7 +52,7 @@ export const EditRegionForm = ({
       automatic_taxes: region.automatic_taxes,
       is_tax_inclusive: pricePreferenceForRegion?.is_tax_inclusive || false,
     },
-  })
+  });
 
   const comboboxProviders = useComboboxData({
     queryKey: ["payment_providers"],
@@ -63,10 +63,10 @@ export const EditRegionForm = ({
         label: formatProvider(pp.id),
         value: pp.id,
       })),
-  })
+  });
 
   const { mutateAsync: updateRegion, isPending: isPendingRegion } =
-    useUpdateRegion(region.id)
+    useUpdateRegion(region.id);
 
   const handleSubmit = form.handleSubmit(async (values) => {
     await updateRegion(
@@ -79,15 +79,15 @@ export const EditRegionForm = ({
       },
       {
         onSuccess: () => {
-          toast.success(t("regions.toast.edit"))
-          handleSuccess()
+          toast.success(t("regions.toast.edit"));
+          handleSuccess();
         },
         onError: (e) => {
-          toast.error(e.message)
+          toast.error(e.message);
         },
-      }
-    )
-  })
+      },
+    );
+  });
 
   return (
     <RouteDrawer.Form form={form}>
@@ -110,7 +110,7 @@ export const EditRegionForm = ({
                       </Form.Control>
                       <Form.ErrorMessage />
                     </Form.Item>
-                  )
+                  );
                 }}
               />
               <Form.Field
@@ -140,7 +140,7 @@ export const EditRegionForm = ({
                       </Form.Control>
                       <Form.ErrorMessage />
                     </Form.Item>
-                  )
+                  );
                 }}
               />
             </div>
@@ -168,7 +168,7 @@ export const EditRegionForm = ({
                         <Form.ErrorMessage />
                       </div>
                     </Form.Item>
-                  )
+                  );
                 }}
               />
 
@@ -197,7 +197,7 @@ export const EditRegionForm = ({
                         <Form.ErrorMessage />
                       </div>
                     </Form.Item>
-                  )
+                  );
                 }}
               />
             </div>
@@ -227,7 +227,7 @@ export const EditRegionForm = ({
                       </Form.Control>
                       <Form.ErrorMessage />
                     </Form.Item>
-                  )
+                  );
                 }}
               />
             </div>
@@ -247,5 +247,5 @@ export const EditRegionForm = ({
         </RouteDrawer.Footer>
       </KeyboundForm>
     </RouteDrawer.Form>
-  )
-}
+  );
+};

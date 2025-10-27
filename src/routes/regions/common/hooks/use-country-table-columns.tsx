@@ -1,13 +1,14 @@
-import { createColumnHelper } from "@tanstack/react-table"
-import { useMemo } from "react"
-import { useTranslation } from "react-i18next"
+import { useMemo } from "react";
 
-import { StaticCountry } from "../../../../lib/data/countries"
+import { createColumnHelper } from "@tanstack/react-table";
+import { useTranslation } from "react-i18next";
 
-const columnHelper = createColumnHelper<StaticCountry>()
+import type { StaticCountry } from "@lib/data/countries";
+
+const columnHelper = createColumnHelper<StaticCountry>();
 
 export const useCountryTableColumns = () => {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   return useMemo(
     () => [
@@ -20,6 +21,6 @@ export const useCountryTableColumns = () => {
         cell: ({ getValue }) => <span className="uppercase">{getValue()}</span>,
       }),
     ],
-    [t]
-  )
-}
+    [t],
+  );
+};

@@ -1,12 +1,15 @@
-import { HttpTypes } from "@medusajs/types"
-import { UIMatch } from "react-router-dom"
-import { useRegion } from "../../../hooks/api/regions"
-import { REGION_DETAIL_FIELDS } from "./constants"
+import type { HttpTypes } from "@medusajs/types";
 
-type RegionDetailBreadcrumbProps = UIMatch<HttpTypes.AdminRegionResponse>
+import type { UIMatch } from "react-router-dom";
+
+import { useRegion } from "@hooks/api";
+
+import { REGION_DETAIL_FIELDS } from "./constants";
+
+type RegionDetailBreadcrumbProps = UIMatch<HttpTypes.AdminRegionResponse>;
 
 export const RegionDetailBreadcrumb = (props: RegionDetailBreadcrumbProps) => {
-  const { id } = props.params || {}
+  const { id } = props.params || {};
 
   const { region } = useRegion(
     id!,
@@ -16,12 +19,12 @@ export const RegionDetailBreadcrumb = (props: RegionDetailBreadcrumbProps) => {
     {
       initialData: props.data,
       enabled: Boolean(id),
-    }
-  )
+    },
+  );
 
   if (!region) {
-    return null
+    return null;
   }
 
-  return <span>{region.name}</span>
-}
+  return <span>{region.name}</span>;
+};
