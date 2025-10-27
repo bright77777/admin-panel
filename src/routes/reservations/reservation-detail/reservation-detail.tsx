@@ -1,37 +1,41 @@
-import { useLoaderData, useParams } from "react-router-dom"
+import { useLoaderData, useParams } from "react-router-dom";
 
-import { TwoColumnPageSkeleton } from "../../../components/common/skeleton"
-import { TwoColumnPage } from "../../../components/layout/pages"
-import { useInventoryItem } from "../../../hooks/api"
-import { useReservationItem } from "../../../hooks/api/reservations"
-import { useExtension } from "../../../providers/extension-provider"
-import { InventoryItemGeneralSection } from "../../inventory/inventory-detail/components/inventory-item-general-section"
-import { ReservationGeneralSection } from "./components/reservation-general-section"
-import { reservationItemLoader } from "./loader"
+import { TwoColumnPageSkeleton } from "@components/common/skeleton";
+import { TwoColumnPage } from "@components/layout/pages";
+
+import { useInventoryItem } from "@hooks/api";
+import { useReservationItem } from "@hooks/api";
+
+import { InventoryItemGeneralSection } from "@routes/inventory/inventory-detail/components/inventory-item-general-section.tsx";
+import { ReservationGeneralSection } from "@routes/reservations/reservation-detail/components/reservation-general-section";
+
+import { useExtension } from "@providers/extension-provider";
+
+import type { reservationItemLoader } from "./loader";
 
 export const ReservationDetail = () => {
-  const { id } = useParams()
+  const { id } = useParams();
 
   const initialData = useLoaderData() as Awaited<
     ReturnType<typeof reservationItemLoader>
-  >
+  >;
 
   const { reservation, isLoading, isError, error } = useReservationItem(
     id!,
     undefined,
     {
       initialData,
-    }
-  )
+    },
+  );
 
   // TEMP: fetch directly since the fields are not populated with reservation call
   const { inventory_item } = useInventoryItem(
     reservation?.inventory_item?.id!,
     undefined,
-    { enabled: !!reservation?.inventory_item?.id! }
-  )
+    { enabled: !!reservation?.inventory_item?.id! },
+  );
 
-  const { getWidgets } = useExtension()
+  const { getWidgets } = useExtension();
 
   if (isLoading || !reservation) {
     return (
@@ -41,11 +45,11 @@ export const ReservationDetail = () => {
         showJSON
         showMetadata
       />
-    )
+    );
   }
 
   if (isError) {
-    throw error
+    throw error;
   }
 
   return (
@@ -69,5 +73,5 @@ export const ReservationDetail = () => {
         )}
       </TwoColumnPage.Sidebar>
     </TwoColumnPage>
-  )
-}
+  );
+};

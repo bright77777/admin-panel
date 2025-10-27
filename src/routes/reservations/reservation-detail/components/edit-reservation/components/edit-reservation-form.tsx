@@ -1,35 +1,37 @@
-import { HttpTypes } from "@medusajs/types"
-import { Button, Input, Select, Text, Textarea, toast } from "@medusajs/ui"
-import * as zod from "zod"
-import { RouteDrawer, useRouteModal } from "../../../../../../components/modals"
+import type { HttpTypes } from "@medusajs/types";
+import { Button, Input, Select, Text, Textarea, toast } from "@medusajs/ui";
 
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import { useTranslation } from "react-i18next"
-import { z } from "zod"
-import { Form } from "../../../../../../components/common/form"
-import { KeyboundForm } from "../../../../../../components/utilities/keybound-form"
-import { useUpdateReservationItem } from "../../../../../../hooks/api/reservations"
-import { useDocumentDirection } from "../../../../../../hooks/use-document-direction"
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
+import type * as zod from "zod";
+import { z } from "zod";
+
+import { Form } from "@components/common/form";
+import { RouteDrawer, useRouteModal } from "@components/modals";
+import { KeyboundForm } from "@components/utilities/keybound-form";
+
+import { useUpdateReservationItem } from "@hooks/api";
+import { useDocumentDirection } from "@hooks/use-document-direction";
 
 type EditReservationFormProps = {
-  reservation: HttpTypes.AdminReservationResponse["reservation"]
-  locations: HttpTypes.AdminStockLocation[]
-  item: HttpTypes.AdminInventoryItemResponse["inventory_item"]
-}
+  reservation: HttpTypes.AdminReservationResponse["reservation"];
+  locations: HttpTypes.AdminStockLocation[];
+  item: HttpTypes.AdminInventoryItemResponse["inventory_item"];
+};
 
 const EditReservationSchema = z.object({
   location_id: z.string(),
   description: z.string().optional(),
   quantity: z.number().min(1),
-})
+});
 
 const AttributeGridRow = ({
   title,
   value,
 }: {
-  title: string
-  value: string | number
+  title: string;
+  value: string | number;
 }) => {
   return (
     <div className="grid grid-cols-2 divide-x">
@@ -40,52 +42,52 @@ const AttributeGridRow = ({
         {value}
       </Text>
     </div>
-  )
-}
+  );
+};
 
 const getDefaultValues = (
-  reservation: HttpTypes.AdminReservationResponse["reservation"]
+  reservation: HttpTypes.AdminReservationResponse["reservation"],
 ) => {
   return {
     quantity: reservation.quantity,
     location_id: reservation.location_id,
     description: reservation.description ?? undefined,
-  }
-}
+  };
+};
 
 export const EditReservationForm = ({
   reservation,
   item,
   locations,
 }: EditReservationFormProps) => {
-  const { t } = useTranslation()
-  const { handleSuccess } = useRouteModal()
-  const direction = useDocumentDirection()
+  const { t } = useTranslation();
+  const { handleSuccess } = useRouteModal();
+  const direction = useDocumentDirection();
   const form = useForm<zod.infer<typeof EditReservationSchema>>({
     defaultValues: getDefaultValues(reservation),
     resolver: zodResolver(EditReservationSchema),
-  })
+  });
 
-  const { mutateAsync } = useUpdateReservationItem(reservation.id)
+  const { mutateAsync } = useUpdateReservationItem(reservation.id);
 
   const handleSubmit = form.handleSubmit(async (values) => {
     mutateAsync(values as any, {
       onSuccess: () => {
-        toast.success(t("inventory.reservation.updateSuccessToast"))
-        handleSuccess()
+        toast.success(t("inventory.reservation.updateSuccessToast"));
+        handleSuccess();
       },
       onError: (e) => {
-        toast.error(e.message)
+        toast.error(e.message);
       },
-    })
-  })
+    });
+  });
 
-  const reservedQuantity = form.watch("quantity")
-  const locationId = form.watch("location_id")
+  const reservedQuantity = form.watch("quantity");
+  const locationId = form.watch("location_id");
 
   const level = item.location_levels!.find(
-    (level: HttpTypes.AdminInventoryLevel) => level.location_id === locationId
-  )
+    (level: HttpTypes.AdminInventoryLevel) => level.location_id === locationId,
+  );
 
   return (
     <RouteDrawer.Form form={form}>
@@ -106,7 +108,7 @@ export const EditReservationForm = ({
                       dir={direction}
                       value={value}
                       onValueChange={(v) => {
-                        onChange(v)
+                        onChange(v);
                       }}
                       {...field}
                     >
@@ -124,10 +126,10 @@ export const EditReservationForm = ({
                   </Form.Control>
                   <Form.ErrorMessage />
                 </Form.Item>
-              )
+              );
             }}
           />
-          <div className="text-ui-fg-subtle shadow-elevation-card-rest grid grid-rows-4 divide-y rounded-lg border">
+          <div className="grid grid-rows-4 divide-y rounded-lg border text-ui-fg-subtle shadow-elevation-card-rest">
             <AttributeGridRow
               title={t("fields.title")}
               value={item.title ?? item.sku!}
@@ -165,12 +167,12 @@ export const EditReservationForm = ({
                       }
                       value={value || ""}
                       onChange={(e) => {
-                        const value = e.target.value
+                        const value = e.target.value;
 
                         if (value === "") {
-                          onChange(null)
+                          onChange(null);
                         } else {
-                          onChange(parseFloat(value))
+                          onChange(parseFloat(value));
                         }
                       }}
                       {...field}
@@ -178,7 +180,7 @@ export const EditReservationForm = ({
                   </Form.Control>
                   <Form.ErrorMessage />
                 </Form.Item>
-              )
+              );
             }}
           />
           <Form.Field
@@ -193,7 +195,7 @@ export const EditReservationForm = ({
                   </Form.Control>
                   <Form.ErrorMessage />
                 </Form.Item>
-              )
+              );
             }}
           />
         </RouteDrawer.Body>
@@ -211,5 +213,5 @@ export const EditReservationForm = ({
         </RouteDrawer.Footer>
       </KeyboundForm>
     </RouteDrawer.Form>
-  )
-}
+  );
+};
