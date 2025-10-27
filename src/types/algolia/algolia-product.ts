@@ -1,5 +1,6 @@
 import { z } from "zod";
-import { StoreStatus } from "../seller";
+
+import { StoreStatus } from "@/types";
 
 export type AlgoliaProduct = z.infer<typeof AlgoliaProductValidator>;
 export const AlgoliaProductValidator = z.object({
@@ -18,7 +19,7 @@ export const AlgoliaProductValidator = z.object({
         id: z.string(),
         url: z.string(),
         rank: z.number(),
-      })
+      }),
     )
     .nullable()
     .optional(),
@@ -38,7 +39,7 @@ export const AlgoliaProductValidator = z.object({
     .array(
       z.object({
         value: z.string(),
-      })
+      }),
     )
     .optional(),
   categories: z
@@ -46,7 +47,7 @@ export const AlgoliaProductValidator = z.object({
       z.object({
         name: z.string(),
         id: z.string(),
-      })
+      }),
     )
     .optional(),
   variants: z.any().nullable().default(null),
@@ -62,7 +63,7 @@ export const AlgoliaProductValidator = z.object({
         value: z.string(),
         is_filterable: z.boolean(),
         ui_component: z.string(),
-      })
+      }),
     )
     .optional(),
   sku: z.string().nullable().optional(),
@@ -112,7 +113,7 @@ export const AlgoliaVariantValidator = z.object({
         id: z.string(),
         title: z.string(),
       }),
-    })
+    }),
   ),
   prices: z.array(
     z.object({
@@ -123,6 +124,6 @@ export const AlgoliaVariantValidator = z.object({
       max_quantity: z.number().nullish(),
       rules_count: z.number(),
       amount: z.number(),
-    })
+    }),
   ),
 });
