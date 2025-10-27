@@ -1,9 +1,11 @@
-import { SingleColumnPage } from "../../../components/layout/pages"
-import { useExtension } from "../../../providers/extension-provider"
-import { PromotionListTable } from "./components/promotion-list-table"
+import { SingleColumnPage } from "@components/layout/pages";
+
+import { PromotionListTable } from "@routes/promotions/promotion-list/components/promotion-list-table";
+
+import { useExtension } from "@providers/extension-provider";
 
 export const PromotionsList = () => {
-  const { getWidgets } = useExtension()
+  const { getWidgets } = useExtension();
 
   return (
     <SingleColumnPage
@@ -14,5 +16,5 @@ export const PromotionsList = () => {
     >
       <PromotionListTable />
     </SingleColumnPage>
-  )
-}
+  );
+};

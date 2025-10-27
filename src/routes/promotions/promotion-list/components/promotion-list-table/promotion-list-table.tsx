@@ -1,43 +1,44 @@
-import { PencilSquare, Trash } from "@medusajs/icons"
-import { PromotionDTO } from "@medusajs/types"
-import { Button, Container, Heading, usePrompt } from "@medusajs/ui"
-import { createColumnHelper } from "@tanstack/react-table"
-import { useMemo } from "react"
-import { useTranslation } from "react-i18next"
-import { Link, Outlet, useLoaderData, useNavigate } from "react-router-dom"
+import { useMemo } from "react";
 
-import { keepPreviousData } from "@tanstack/react-query"
-import { ActionMenu } from "../../../../../components/common/action-menu"
-import { _DataTable } from "../../../../../components/table/data-table"
-import {
-  useDeletePromotion,
-  usePromotions,
-} from "../../../../../hooks/api/promotions"
-import { usePromotionTableColumns } from "../../../../../hooks/table/columns/use-promotion-table-columns"
-import { usePromotionTableFilters } from "../../../../../hooks/table/filters/use-promotion-table-filters"
-import { usePromotionTableQuery } from "../../../../../hooks/table/query/use-promotion-table-query"
-import { useDataTable } from "../../../../../hooks/use-data-table"
-import { promotionsLoader } from "../../loader"
+import { PencilSquare, Trash } from "@medusajs/icons";
+import type { PromotionDTO } from "@medusajs/types";
+import { Button, Container, Heading, usePrompt } from "@medusajs/ui";
 
-const PAGE_SIZE = 20
+import { keepPreviousData } from "@tanstack/react-query";
+import { createColumnHelper } from "@tanstack/react-table";
+import { useTranslation } from "react-i18next";
+import { Link, Outlet, useLoaderData, useNavigate } from "react-router-dom";
+
+import { ActionMenu } from "@components/common/action-menu";
+import { _DataTable } from "@components/table/data-table";
+
+import { useDeletePromotion, usePromotions } from "@hooks/api";
+import { usePromotionTableColumns } from "@hooks/table/columns/use-promotion-table-columns";
+import { usePromotionTableFilters } from "@hooks/table/filters";
+import { usePromotionTableQuery } from "@hooks/table/query/use-promotion-table-query";
+import { useDataTable } from "@hooks/use-data-table";
+
+import type { promotionsLoader } from "@routes/promotions/promotion-list";
+
+const PAGE_SIZE = 20;
 
 export const PromotionListTable = () => {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
   const initialData = useLoaderData() as Awaited<
     ReturnType<ReturnType<typeof promotionsLoader>>
-  >
+  >;
 
-  const { searchParams, raw } = usePromotionTableQuery({ pageSize: PAGE_SIZE })
+  const { searchParams, raw } = usePromotionTableQuery({ pageSize: PAGE_SIZE });
   const { promotions, count, isLoading, isError, error } = usePromotions(
     { ...searchParams },
     {
       initialData,
       placeholderData: keepPreviousData,
-    }
-  )
+    },
+  );
 
-  const filters = usePromotionTableFilters()
-  const columns = useColumns()
+  const filters = usePromotionTableFilters();
+  const columns = useColumns();
 
   const { table } = useDataTable({
     data: (promotions ?? []) as PromotionDTO[],
@@ -46,10 +47,10 @@ export const PromotionListTable = () => {
     enablePagination: true,
     pageSize: PAGE_SIZE,
     getRowId: (row) => row.id,
-  })
+  });
 
   if (isError) {
-    throw error
+    throw error;
   }
 
   return (
@@ -80,14 +81,14 @@ export const PromotionListTable = () => {
       />
       <Outlet />
     </Container>
-  )
-}
+  );
+};
 
 const PromotionActions = ({ promotion }: { promotion: PromotionDTO }) => {
-  const { t } = useTranslation()
-  const prompt = usePrompt()
-  const navigate = useNavigate()
-  const { mutateAsync } = useDeletePromotion(promotion.id)
+  const { t } = useTranslation();
+  const prompt = usePrompt();
+  const navigate = useNavigate();
+  const { mutateAsync } = useDeletePromotion(promotion.id);
 
   const handleDelete = async () => {
     const res = await prompt({
@@ -97,24 +98,24 @@ const PromotionActions = ({ promotion }: { promotion: PromotionDTO }) => {
       cancelText: t("actions.cancel"),
       verificationInstruction: t("general.typeToConfirm"),
       verificationText: promotion.code,
-    })
+    });
 
     if (!res) {
-      return
+      return;
     }
 
     try {
       await mutateAsync(undefined, {
         onSuccess: () => {
-          navigate("/promotions", { replace: true })
+          navigate("/promotions", { replace: true });
         },
-      })
+      });
     } catch {
       throw new Error(
-        `Promotion with code ${promotion.code} could not be deleted`
-      )
+        `Promotion with code ${promotion.code} could not be deleted`,
+      );
     }
-  }
+  };
 
   return (
     <ActionMenu
@@ -135,13 +136,13 @@ const PromotionActions = ({ promotion }: { promotion: PromotionDTO }) => {
         },
       ]}
     />
-  )
-}
+  );
+};
 
-const columnHelper = createColumnHelper<PromotionDTO>()
+const columnHelper = createColumnHelper<PromotionDTO>();
 
 const useColumns = () => {
-  const base = usePromotionTableColumns()
+  const base = usePromotionTableColumns();
 
   return useMemo(
     () => [
@@ -149,10 +150,10 @@ const useColumns = () => {
       columnHelper.display({
         id: "actions",
         cell: ({ row }) => {
-          return <PromotionActions promotion={row.original} />
+          return <PromotionActions promotion={row.original} />;
         },
       }),
     ],
-    [base]
-  )
-}
+    [base],
+  );
+};

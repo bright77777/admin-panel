@@ -1,24 +1,29 @@
-import { PencilSquare } from "@medusajs/icons"
-import { ApplicationMethodTargetTypeValues, HttpTypes, PromotionRuleTypes, } from "@medusajs/types"
-import { Badge, Container, Heading } from "@medusajs/ui"
-import { useTranslation } from "react-i18next"
+import { PencilSquare } from "@medusajs/icons";
+import type {
+  ApplicationMethodTargetTypeValues,
+  HttpTypes,
+  PromotionRuleTypes,
+} from "@medusajs/types";
+import { Badge, Container, Heading } from "@medusajs/ui";
 
-import { ActionMenu } from "../../../../../components/common/action-menu"
-import { BadgeListSummary } from "../../../../../components/common/badge-list-summary"
-import { NoRecords } from "../../../../../components/common/empty-table-content"
+import { useTranslation } from "react-i18next";
+
+import { ActionMenu } from "@components/common/action-menu";
+import { BadgeListSummary } from "@components/common/badge-list-summary";
+import { NoRecords } from "@components/common/empty-table-content";
 
 type RuleProps = {
-  rule: HttpTypes.AdminPromotionRule
-}
+  rule: HttpTypes.AdminPromotionRule;
+};
 
 function RuleBlock({ rule }: RuleProps) {
   return (
-    <div className="bg-ui-bg-subtle shadow-borders-base align-center flex justify-around rounded-md p-2">
-      <div className="text-ui-fg-subtle txt-compact-xsmall flex items-center whitespace-nowrap">
+    <div className="align-center flex justify-around rounded-md bg-ui-bg-subtle p-2 shadow-borders-base">
+      <div className="txt-compact-xsmall flex items-center whitespace-nowrap text-ui-fg-subtle">
         <Badge
           size="2xsmall"
           key="rule-attribute"
-          className="txt-compact-xsmall-plus tag-neutral-text mx-1 inline-block truncate"
+          className="tag-neutral-text txt-compact-xsmall-plus mx-1 inline-block truncate"
         >
           {rule.attribute_label}
         </Badge>
@@ -38,21 +43,21 @@ function RuleBlock({ rule }: RuleProps) {
         />
       </div>
     </div>
-  )
+  );
 }
 
 type PromotionConditionsSectionProps = {
-  rules: HttpTypes.AdminPromotionRule[]
-  ruleType: PromotionRuleTypes
-  applicationMethodTargetType: ApplicationMethodTargetTypeValues
-}
+  rules: HttpTypes.AdminPromotionRule[];
+  ruleType: PromotionRuleTypes;
+  applicationMethodTargetType: ApplicationMethodTargetTypeValues;
+};
 
 export const PromotionConditionsSection = ({
   rules,
   ruleType,
   applicationMethodTargetType,
 }: PromotionConditionsSectionProps) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   return (
     <Container className="p-0">
@@ -62,7 +67,7 @@ export const PromotionConditionsSection = ({
             {t(
               ruleType === "target-rules"
                 ? `promotions.fields.conditions.${ruleType}.${applicationMethodTargetType}.title`
-                : `promotions.fields.conditions.${ruleType}.title`
+                : `promotions.fields.conditions.${ruleType}.title`,
             )}
           </Heading>
         </div>
@@ -82,7 +87,7 @@ export const PromotionConditionsSection = ({
         />
       </div>
 
-      <div className="text-ui-fg-subtle flex flex-col gap-2 px-6 pb-4 pt-2">
+      <div className="flex flex-col gap-2 px-6 pb-4 pt-2 text-ui-fg-subtle">
         {!rules.length && (
           <NoRecords
             className="h-[180px]"
@@ -101,5 +106,5 @@ export const PromotionConditionsSection = ({
         ))}
       </div>
     </Container>
-  )
-}
+  );
+};

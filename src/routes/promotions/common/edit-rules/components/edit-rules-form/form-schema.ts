@@ -1,5 +1,5 @@
-import i18n from "i18next"
-import { z } from "zod"
+import i18n from "i18next";
+import { z } from "zod";
 
 export const EditRules = z.object({
   type: z.string().optional(),
@@ -22,11 +22,11 @@ export const EditRules = z.object({
       required: z.boolean().optional(),
       disguised: z.boolean().optional(),
       field_type: z.string().optional(),
-    })
+    }),
   ),
   application_method: z.object({
     target_type: z.enum(["order", "shipping_methods", "items"]),
   }),
-})
+});
 
-export type EditRulesType = z.infer<typeof EditRules>
+export type EditRulesType = z.infer<typeof EditRules>;
