@@ -2,7 +2,6 @@ import { HttpTypes } from "@medusajs/types"
 import { useQueryParams } from "../../use-query-params"
 
 type UseShippingOptionTableQueryProps = {
-  regionId: string
   isReturn?: boolean
   pageSize?: number
   prefix?: string

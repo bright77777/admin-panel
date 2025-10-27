@@ -16,34 +16,22 @@ import {
 } from "../../../../../components/modals"
 import { _DataTable } from "../../../../../components/table/data-table"
 import {
-  useCollections,
-  useCustomerGroups,
-  useProductTags,
   useProductTypes,
   useProducts,
   useShippingOptions,
   useStockLocations,
 } from "../../../../../hooks/api"
 import {
-  useCollectionTableColumns,
-  useCustomerGroupTableColumns,
   useProductTableColumns,
-  useProductTagTableColumns,
   useProductTypeTableColumns,
 } from "../../../../../hooks/table/columns"
 import {
-  useCollectionTableFilters,
-  useCustomerGroupTableFilters,
   useProductTableFilters,
-  useProductTagTableFilters,
   useProductTypeTableFilters,
   useShippingOptionTableFilters,
 } from "../../../../../hooks/table/filters"
 import {
-  useCollectionTableQuery,
-  useCustomerGroupTableQuery,
   useProductTableQuery,
-  useProductTagTableQuery,
   useProductTypeTableQuery,
   useShippingOptionTableQuery,
 } from "../../../../../hooks/table/query"
