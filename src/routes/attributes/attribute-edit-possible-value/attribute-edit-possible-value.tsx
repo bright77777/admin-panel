@@ -1,5 +1,3 @@
-import { useEffect } from "react";
-
 import {
   Button,
   Drawer,
@@ -15,25 +13,11 @@ import { useForm } from "react-hook-form";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { z } from "zod";
 
-import { MetadataEditor } from "@components/common/metadata-editor";
-
 import { useAttribute } from "@hooks/api/attributes";
 import { useUpdateAttributePossibleValue } from "@hooks/api/attributes";
 
 const formSchema = z.object({
   value: z.string().min(1, "Value is required"),
-  rank: z.preprocess(
-    (val) => (val === "" ? undefined : Number(val)),
-    z.number().min(0, "Rank must be non-negative").optional(),
-  ),
-  metadata: z
-    .array(
-      z.object({
-        key: z.string(),
-        value: z.string(),
-      }),
-    )
-    .default([]),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -66,49 +50,13 @@ export const EditPossibleValue = () => {
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      value: "",
-      rank: undefined,
-      metadata: [],
+      value: possibleValue?.value || "",
     },
   });
 
-  useEffect(() => {
-    if (possibleValue) {
-      const metadataArray = Object.entries(possibleValue.metadata || {}).map(
-        ([key, value]) => ({ key, value: String(value) }),
-      );
-      form.reset({
-        value: possibleValue.value,
-        rank: possibleValue.rank,
-        metadata:
-          metadataArray.length > 0 ? metadataArray : [{ key: "", value: "" }],
-      });
-    }
-  }, [possibleValue, form]);
-
   const handleSave = form.handleSubmit(async (data) => {
-    const transformedMetadata = data.metadata.reduce(
-      (acc, item) => {
-        // Only include valid key-value pairs where both key and value are non-empty
-        if (item.key.trim() !== "" && item.value.trim() !== "") {
-          acc[item.key] = item.value;
-        }
-
-        return acc;
-      },
-      {} as Record<string, unknown>,
-    );
-
     await mutateAsync(
-      {
-        value: data.value,
-        rank: data.rank,
-        //@ts-expect-error @todo fix this
-        metadata:
-          Object.keys(transformedMetadata).length > 0
-            ? transformedMetadata
-            : null,
-      },
+      { value: data.value },
       {
         onSuccess: () => {
           toast.success("Possible value updated!");
@@ -162,29 +110,18 @@ export const EditPossibleValue = () => {
               <form id="edit-possible-value-form" onSubmit={handleSave}>
                 <div className="grid gap-4">
                   <div>
-                    <Label htmlFor="value">Value</Label>
-                    <Input id="value" {...form.register("value")} />
+                    <Label htmlFor="value">Name</Label>
+                    <Input
+                      id="value"
+                      {...form.register("value")}
+                      className="mt-2"
+                    />
                     {form.formState.errors.value && (
                       <Text className="mt-1 text-sm text-red-500">
                         {form.formState.errors.value.message}
                       </Text>
                     )}
                   </div>
-                  <div>
-                    <Label htmlFor="rank">Rank</Label>
-                    <Input
-                      id="rank"
-                      type="number"
-                      {...form.register("rank", { valueAsNumber: true })}
-                    />
-                    {form.formState.errors.rank && (
-                      <Text className="mt-1 text-sm text-red-500">
-                        {form.formState.errors.rank.message}
-                      </Text>
-                    )}
-                  </div>
-
-                  <MetadataEditor form={form} />
                 </div>
               </form>
             </Drawer.Body>
