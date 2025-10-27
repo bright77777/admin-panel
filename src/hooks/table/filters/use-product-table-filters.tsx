@@ -36,10 +36,6 @@ export const useProductTableFilters = (
     offset: 0,
   })
 
-  // const { product_tags } = useAdminProductTags({
-  //   limit: 1000,
-  //   offset: 0,
-  // })
 
   const isSalesChannelExcluded = exclude?.includes("sales_channel_id")
 
@@ -52,8 +48,7 @@ export const useProductTableFilters = (
       enabled: !isSalesChannelExcluded,
     }
   )
-
-  const isCategoryExcluded = exclude?.includes("categories")
+  // const isCategoryExcluded = exclude?.includes("categories")
 
   // const { product_categories } = useAdminProductCategories({
   //   limit: 1000,
@@ -64,7 +59,7 @@ export const useProductTableFilters = (
   //  enabled: !isCategoryExcluded,
   // })
 
-  const isCollectionExcluded = exclude?.includes("collections")
+  // const isCollectionExcluded = exclude?.includes("collections")
 
   // const { collections } = useAdminCollections(
   //   {

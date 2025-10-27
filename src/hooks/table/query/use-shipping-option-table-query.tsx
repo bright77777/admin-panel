@@ -9,7 +9,6 @@ type UseShippingOptionTableQueryProps = {
 }
 
 export const useShippingOptionTableQuery = ({
-  regionId,
   pageSize = 10,
   prefix,
 }: UseShippingOptionTableQueryProps) => {
@@ -31,8 +30,6 @@ export const useShippingOptionTableQuery = ({
     offset,
     order,
     q,
-    admin_only,
-    is_return,
     created_at,
     updated_at,
     stock_location_id,

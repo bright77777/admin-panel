@@ -147,7 +147,7 @@ export const useLocationListTableColumns = () => {
                 icon: <PencilSquare />,
                 label: t("actions.edit"),
 
-                onClick: (row) => {
+                onClick: () => {
                   navigate(`locations/${level.location_id}`)
                 },
               },
