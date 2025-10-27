@@ -1,33 +1,36 @@
-import { zodResolver } from "@hookform/resolvers/zod"
-import { Button, Input, Select, toast } from "@medusajs/ui"
-import { useForm } from "react-hook-form"
-import { useTranslation } from "react-i18next"
-import * as zod from "zod"
+import type { HttpTypes } from "@medusajs/types";
+import { Button, Input, Select, toast } from "@medusajs/ui";
 
-import { HttpTypes } from "@medusajs/types"
-import { Form } from "../../../../../components/common/form"
-import { RouteDrawer, useRouteModal } from "../../../../../components/modals"
-import { KeyboundForm } from "../../../../../components/utilities/keybound-form"
-import { useUpdateUser } from "../../../../../hooks/api/users"
-import { languages } from "../../../../../i18n/languages"
-import { useDocumentDirection } from "../../../../../hooks/use-document-direction"
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
+import * as zod from "zod";
+
+import { Form } from "@components/common/form";
+import { RouteDrawer, useRouteModal } from "@components/modals";
+import { KeyboundForm } from "@components/utilities/keybound-form";
+
+import { useUpdateUser } from "@hooks/api";
+import { useDocumentDirection } from "@hooks/use-document-direction";
+
+import { languages } from "@/i18n/languages";
 
 type EditProfileProps = {
-  user: HttpTypes.AdminUser
+  user: HttpTypes.AdminUser;
   // usageInsights: boolean
-}
+};
 
 const EditProfileSchema = zod.object({
   first_name: zod.string().optional(),
   last_name: zod.string().optional(),
   language: zod.string(),
   // usage_insights: zod.boolean(),
-})
+});
 
 export const EditProfileForm = ({ user }: EditProfileProps) => {
-  const { t, i18n } = useTranslation()
-  const { handleSuccess } = useRouteModal()
-  const direction = useDocumentDirection()
+  const { t, i18n } = useTranslation();
+  const { handleSuccess } = useRouteModal();
+  const direction = useDocumentDirection();
   const form = useForm<zod.infer<typeof EditProfileSchema>>({
     defaultValues: {
       first_name: user.first_name ?? "",
@@ -36,17 +39,17 @@ export const EditProfileForm = ({ user }: EditProfileProps) => {
       // usage_insights: usageInsights,
     },
     resolver: zodResolver(EditProfileSchema),
-  })
+  });
 
   const changeLanguage = async (code: string) => {
-    await i18n.changeLanguage(code)
-  }
+    await i18n.changeLanguage(code);
+  };
 
   const sortedLanguages = languages.sort((a, b) =>
-    a.display_name.localeCompare(b.display_name)
-  )
+    a.display_name.localeCompare(b.display_name),
+  );
 
-  const { mutateAsync, isPending } = useUpdateUser(user.id!)
+  const { mutateAsync, isPending } = useUpdateUser(user.id!);
 
   const handleSubmit = form.handleSubmit(async (values) => {
     await mutateAsync(
@@ -56,17 +59,18 @@ export const EditProfileForm = ({ user }: EditProfileProps) => {
       },
       {
         onError: (error) => {
-          toast.error(error.message)
-          return
+          toast.error(error.message);
+
+          return;
         },
-      }
-    )
+      },
+    );
 
-    await changeLanguage(values.language)
+    await changeLanguage(values.language);
 
-    toast.success(t("profile.toast.edit"))
-    handleSuccess()
-  })
+    toast.success(t("profile.toast.edit"));
+    handleSuccess();
+  });
 
   return (
     <RouteDrawer.Form form={form}>
@@ -123,7 +127,7 @@ export const EditProfileForm = ({ user }: EditProfileProps) => {
                           >
                             {
                               sortedLanguages.find(
-                                (language) => language.code === field.value
+                                (language) => language.code === field.value,
                               )?.display_name
                             }
                           </Select.Value>
@@ -201,5 +205,5 @@ export const EditProfileForm = ({ user }: EditProfileProps) => {
         </RouteDrawer.Footer>
       </KeyboundForm>
     </RouteDrawer.Form>
-  )
-}
+  );
+};
