@@ -3,12 +3,12 @@ import { useState } from "react";
 import { InformationCircle } from "@medusajs/icons";
 import { Button, Container, Drawer, Text } from "@medusajs/ui";
 
-import { formatDate } from "@lib/date";
-
 import type { AdminRequest } from "@custom-types/requests";
 import type { ReviewRemoveRequest } from "@custom-types/requests";
 
 import { useReview } from "@hooks/api/reviews";
+
+import { formatDate } from "@lib/date";
 
 import { ResolveRequestPrompt } from "@routes/requests/common/components/resolve-request";
 

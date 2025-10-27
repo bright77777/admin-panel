@@ -4,11 +4,11 @@ import { InformationCircle } from "@medusajs/icons";
 import type { OrderDTO } from "@medusajs/types";
 import { Button, Container, Drawer, Text } from "@medusajs/ui";
 
-import { formatDate } from "@lib/date";
-
 import type { AdminOrderReturnRequest } from "@custom-types/requests";
 
 import { useOrder } from "@hooks/api";
+
+import { formatDate } from "@lib/date";
 
 import { ResolveReturnRequestPrompt } from "@routes/requests/common/components/resolve-return-request";
 

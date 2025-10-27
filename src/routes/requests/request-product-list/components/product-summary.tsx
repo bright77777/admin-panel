@@ -2,10 +2,11 @@ import { InformationCircle } from "@medusajs/icons";
 import type { ProductDTO } from "@medusajs/types";
 import { Button, Container, Drawer, Text } from "@medusajs/ui";
 
-import { formatDate } from "@lib/date";
 import { useNavigate } from "react-router-dom";
 
 import type { AdminRequest } from "@custom-types/requests";
+
+import { formatDate } from "@lib/date";
 
 type Props = {
   request?: AdminRequest;

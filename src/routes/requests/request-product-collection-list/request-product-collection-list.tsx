@@ -4,11 +4,11 @@ import { History } from "@medusajs/icons";
 import type { ProductCollectionDTO } from "@medusajs/types";
 import { Container, Heading, Table, Text } from "@medusajs/ui";
 
-import { formatDate } from "@lib/date";
-
 import type { AdminRequest } from "@custom-types/requests";
 
 import { useVendorRequests } from "@hooks/api/requests";
+
+import { formatDate } from "@lib/date";
 
 import {
   FilterRequests,

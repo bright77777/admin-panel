@@ -3,11 +3,11 @@ import { useState } from "react";
 import { History } from "@medusajs/icons";
 import { Container, Heading, Table, Text } from "@medusajs/ui";
 
-import { formatDate } from "@lib/date";
-
 import type { AdminOrderReturnRequest } from "@custom-types/requests";
 
 import { useReturnRequests } from "@hooks/api/return-requests";
+
+import { formatDate } from "@lib/date";
 
 import {
   FilterReturnRequests,
