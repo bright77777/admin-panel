@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 
+import { ExclamationCircleSolid } from "@medusajs/icons";
 import type { AdminProductCategory } from "@medusajs/types";
 import {
+  Alert,
   InlineTip,
   Input,
   Label,
@@ -51,6 +53,7 @@ type AttributeFormProps<T extends Mode> = {
     detailsStatus: "not-started" | "in-progress" | "completed";
     typeStatus: "not-started" | "in-progress" | "completed";
   }) => void;
+  onRequestTabChange?: (tab: "details" | "type") => void;
 };
 
 export function AttributeForm<T extends Mode>({
@@ -60,6 +63,7 @@ export function AttributeForm<T extends Mode>({
   mode = "create" as T,
   activeTab = "details",
   onFormStateChange,
+  onRequestTabChange,
 }: AttributeFormProps<T>) {
   const [showCategorySection, setShowCategorySection] = useState(
     (initialData?.product_categories?.length || 0) > 0,
@@ -85,14 +89,60 @@ export function AttributeForm<T extends Mode>({
     },
   });
 
-  const handleSubmit = form.handleSubmit(async (data) => {
-    try {
-      // @ts-expect-error dependency issue possible to split this into two forms
-      await onSubmit(data);
-    } catch (error) {
-      console.error(error);
-    }
-  });
+  const handleSubmit = form.handleSubmit(
+    async (data) => {
+      const mustPickCategory = showCategorySection;
+      const selected = data?.product_category_ids || [];
+
+      if (mustPickCategory && selected.length === 0) {
+        form.setError("product_category_ids", {
+          type: "manual",
+          message: "Please select category",
+        });
+        // Ensure the user sees the error on the correct tab
+        onRequestTabChange?.("details");
+
+        return;
+      }
+
+      // Require at least one possible value for Single Select
+      if (
+        data?.ui_component === (AttributeUIComponent.SELECT as unknown) &&
+        (data?.possible_values?.length || 0) === 0
+      ) {
+        form.setError("possible_values", {
+          type: "manual",
+          message: "Please add at least one value",
+        });
+        // Navigate to Type tab so the user sees the inline error
+        onRequestTabChange?.("type");
+
+        return;
+      }
+
+      try {
+        // @ts-expect-error dependency issue possible to split this into two forms
+        await onSubmit(data);
+      } catch (error) {
+        console.error(error);
+      }
+    },
+    (errors) => {
+      const hasTypeError = !!errors?.ui_component || !!errors?.possible_values;
+      const hasDetailsError =
+        !!errors?.name ||
+        !!errors?.description ||
+        !!errors?.handle ||
+        !!errors?.product_category_ids;
+
+      if (hasTypeError && !hasDetailsError) {
+        onRequestTabChange?.("type");
+      } else {
+        // Default to details if both or unknown
+        onRequestTabChange?.("details");
+      }
+    },
+  );
 
   // Determine tab statuses based on form data
   const getTabStatus = () => {
@@ -243,7 +293,11 @@ export function AttributeForm<T extends Mode>({
               }
               onCheckedChange={(checked) => {
                 if (checked) {
-                  form.setValue("product_category_ids", []);
+                  form.setValue("product_category_ids", [], {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                  });
+                  form.clearErrors("product_category_ids");
                   setShowCategorySection(false);
                 } else {
                   setShowCategorySection(true);
@@ -273,12 +327,19 @@ export function AttributeForm<T extends Mode>({
               <MultiSelectCategory
                 categories={categories || []}
                 value={form.watch("product_category_ids") || []}
-                onChange={(value) =>
-                  form.setValue("product_category_ids", value)
-                }
+                onChange={(value) => {
+                  form.setValue("product_category_ids", value, {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                  });
+                  if ((value?.length || 0) > 0) {
+                    form.clearErrors("product_category_ids");
+                  }
+                }}
               />
               {form.formState.errors.product_category_ids && (
-                <Text className="mt-1 text-sm text-red-500">
+                <Text className="mt-1 flex gap-2 text-xs text-red-500">
+                  <ExclamationCircleSolid />{" "}
                   {form.formState.errors.product_category_ids.message}
                 </Text>
               )}
@@ -331,9 +392,9 @@ export function AttributeForm<T extends Mode>({
           </Select.Content>
         </Select>
         {form.formState.errors.ui_component && (
-          <Text className="mt-1 text-sm text-red-500">
+          <Alert className="mt-1 text-sm text-red-500" variant="error">
             {form.formState.errors.ui_component.message}
-          </Text>
+          </Alert>
         )}
       </div>
 

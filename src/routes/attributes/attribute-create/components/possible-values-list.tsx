@@ -1,5 +1,7 @@
+import { useEffect } from "react";
+
 import { DotsSix, XMark } from "@medusajs/icons";
-import { Button, IconButton, Input, Label } from "@medusajs/ui";
+import { Alert, Button, IconButton, Input, Label } from "@medusajs/ui";
 
 import type { DragEndEvent } from "@dnd-kit/core";
 import {
@@ -79,11 +81,32 @@ const SortableItem = ({ id, index, onRemove }: SortableItemProps) => {
 };
 
 const PossibleValuesList = () => {
-  const { control, getValues } = useFormContext<FormValues>();
+  const { control, getValues, clearErrors, watch, formState } =
+    useFormContext<FormValues>();
   const { fields, append, remove, update } = useFieldArray({
     control,
     name: "possible_values",
   });
+
+  // Watch needed values to control error visibility
+  const uiComponent = watch("ui_component");
+  const possibleValues = watch("possible_values") as
+    | AttributeValueType[]
+    | undefined;
+
+  // Clear error when not Single Select anymore
+  useEffect(() => {
+    if (uiComponent && uiComponent !== "select") {
+      clearErrors("possible_values");
+    }
+  }, [uiComponent, clearErrors]);
+
+  // Clear error as soon as at least one value exists
+  useEffect(() => {
+    if ((possibleValues?.length || 0) > 0) {
+      clearErrors("possible_values");
+    }
+  }, [possibleValues?.length, clearErrors]);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -124,6 +147,8 @@ const PossibleValuesList = () => {
       rank: fields.length,
       metadata: {},
     });
+    // If a value is added, clear any existing error on possible_values
+    clearErrors("possible_values");
   };
 
   return (
@@ -159,6 +184,17 @@ const PossibleValuesList = () => {
           ))}
         </SortableContext>
       </DndContext>
+
+      {formState.errors.possible_values && (
+        <Alert
+          variant="error"
+          className="mt-1 flex items-center gap-2 text-sm font-medium"
+        >
+          {/*@ts-ignore*/}
+          {formState.errors.possible_values.message ||
+            "Please add at least one value"}
+        </Alert>
+      )}
     </div>
   );
 };

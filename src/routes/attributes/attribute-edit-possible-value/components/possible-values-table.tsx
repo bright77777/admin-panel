@@ -18,6 +18,7 @@ import { useNavigate, useParams } from "react-router-dom";
 
 import { useReorderAttributePossibleValues } from "@hooks/api/attributes.tsx";
 
+import { CreateRankingModal } from "@routes/attributes/attribute-create/components/create-ranking-modal.tsx";
 import type { RankingItem } from "@routes/attributes/attribute-edit-possible-value/components/edit-ranking-drawer";
 import { EditRankingDrawer } from "@routes/attributes/attribute-edit-possible-value/components/edit-ranking-drawer";
 import { SortingPossibleValues } from "@routes/attributes/attribute-edit-possible-value/components/sorting-possible-value";
@@ -155,9 +156,7 @@ export const PossibleValuesTable = ({
 
     // Map current ranks from backend for comparison
     const currentById = new Map<string, number>(
-      // @todo fix any type
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (attribute?.possible_values ?? []).map((pv: any) => [
+      (attribute?.possible_values ?? []).map((pv) => [
         String(pv.id),
         pv.rank ?? 0,
       ]),
@@ -224,6 +223,11 @@ export const PossibleValuesTable = ({
                   items={rankingItems}
                   onSave={handleRankingSave}
                   title="Edit ranking"
+                />
+                <CreateRankingModal
+                  title="Create"
+                  items={rankingItems}
+                  onSave={handleRankingSave}
                 />
               </div>
             </DataTable.Toolbar>

@@ -1,56 +1,66 @@
-import { useEffect, useState } from 'react'
-import { Button, Drawer, Text, toast } from '@medusajs/ui'
+import { useEffect, useState } from "react";
+
+import { Button, Drawer, Text, toast } from "@medusajs/ui";
+
 import { SortableTree } from "@components/common/sortable-tree";
 
 export type RankingItem = {
-  id: string | number
-  value: string
-  // allow any additional fields, but only id/value are required for UI
-  [key: string]: number | string | undefined
-}
+  id: string | number;
+  value: string;
+  [key: string]: number | string | undefined;
+};
 
 type EditRankingDrawerProps = {
-  items: RankingItem[]
-  onSave?: (orderedItems: RankingItem[]) => Promise<void> | void
-  title?: string
-}
+  items: RankingItem[];
+  onSave?: (orderedItems: RankingItem[]) => Promise<void> | void;
+  title?: string;
+};
 
-export const EditRankingDrawer = ({ items, onSave, title = 'Edit ranking' }: EditRankingDrawerProps) => {
-  const [open, setOpen] = useState(false)
-  const [saving, setSaving] = useState(false)
-  const [localItems, setLocalItems] = useState<RankingItem[]>(items ?? [])
-
+export const EditRankingDrawer = ({
+  items,
+  onSave,
+  title = "Edit ranking",
+}: EditRankingDrawerProps) => {
+  const [open, setOpen] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [localItems, setLocalItems] = useState<RankingItem[]>(items ?? []);
 
   // When opening the drawer or items change from parent, reset local state to reflect latest data
   useEffect(() => {
     if (open) {
-      setLocalItems(items ?? [])
+      setLocalItems(items ?? []);
     }
-  }, [open, items])
+  }, [open, items]);
 
-  const handleChange = (_updatedItem: { id: string | number; parentId: string | number | null; index: number }, updatedItems: RankingItem[]) => {
+  const handleChange = (
+    _updatedItem: {
+      id: string | number;
+      parentId: string | number | null;
+      index: number;
+    },
+    updatedItems: RankingItem[],
+  ) => {
     // Only update local state; do not persist yet
-    setLocalItems(updatedItems)
-  }
+    setLocalItems(updatedItems);
+  };
 
   const handleSave = async () => {
     try {
-      setSaving(true)
+      setSaving(true);
       if (onSave) {
-        await onSave(localItems)
+        await onSave(localItems);
       } else {
         // If no onSave handler is provided by the parent, still inform the user
-        toast.success('Ranking was successfully updated.')
+        toast.success("Ranking was successfully updated.");
       }
-      setOpen(false)
+      setOpen(false);
     } catch (e) {
-      console.error(e)
-      toast.error('Failed to update')
+      console.error(e);
+      toast.error("Failed to update");
     } finally {
-      setSaving(false)
+      setSaving(false);
     }
-  }
-
+  };
 
   return (
     <Drawer open={open} onOpenChange={setOpen}>
@@ -69,11 +79,13 @@ export const EditRankingDrawer = ({ items, onSave, title = 'Edit ranking' }: Edi
             <SortableTree
               items={localItems}
               childrenProp="children"
-              enableDrag={true} 
+              enableDrag={true}
               onChange={handleChange}
               renderValue={(item: RankingItem) => (
                 <div className="flex items-center gap-x-2">
-                  <span className="text-ui-fg-subtle">{String(item.value)}</span>
+                  <span className="text-ui-fg-subtle">
+                    {String(item.value)}
+                  </span>
                 </div>
               )}
             />
@@ -82,14 +94,25 @@ export const EditRankingDrawer = ({ items, onSave, title = 'Edit ranking' }: Edi
           )}
         </Drawer.Body>
         <Drawer.Footer>
-          <Button size="small" variant="secondary" onClick={() => setOpen(false)} disabled={saving}>
+          <Button
+            size="small"
+            variant="secondary"
+            onClick={() => setOpen(false)}
+            disabled={saving}
+          >
             Cancel
           </Button>
-          <Button size="small" variant="primary" onClick={handleSave} disabled={saving} isLoading={saving}>
+          <Button
+            size="small"
+            variant="primary"
+            onClick={handleSave}
+            disabled={saving}
+            isLoading={saving}
+          >
             Save
           </Button>
         </Drawer.Footer>
       </Drawer.Content>
     </Drawer>
-  )
-}
+  );
+};
