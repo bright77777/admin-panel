@@ -7,6 +7,10 @@ export const ReservationCreate = () => {
   const [params] = useSearchParams()
 
   const inventoryItemId = params.get("item_id")
+  
+  if (!inventoryItemId) {
+    throw new Error("Inventory item ID is required")
+  }
 
   return (
     <RouteFocusModal>
