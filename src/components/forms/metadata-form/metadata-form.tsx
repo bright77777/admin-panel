@@ -28,12 +28,12 @@ import { KeyboundForm } from "../../utilities/keybound-form"
 import { useDocumentDirection } from "../../../hooks/use-document-direction"
 
 type MetaDataSubmitHook<TRes> = (
-  params: { metadata?: Record<string, any> | null },
-  callbacks: { onSuccess: () => void; onError: (error: FetchError) => void }
+  params: { metadata?: Record<string, unknown> | null },
+  callbacks: { onSuccess: () => void; onError: (error: FetchError | string) => void }
 ) => Promise<TRes>
 
 type MetadataFormProps<TRes> = {
-  metadata?: Record<string, any> | null
+  metadata?: Record<string, unknown> | null
   hook: MetaDataSubmitHook<TRes>
   isPending: boolean
   isMutating: boolean
@@ -101,7 +101,7 @@ const InnerForm = <TRes,>({
           handleSuccess()
         },
         onError: (error) => {
-          toast.error(error.message)
+          toast.error(error instanceof FetchError ? error.message : error)
         },
       }
     )
@@ -331,7 +331,7 @@ const PlaceholderInner = () => {
 const EDITABLE_TYPES = ["string", "number", "boolean"]
 
 function getDefaultValues(
-  metadata?: Record<string, any> | null
+  metadata?: Record<string, unknown> | null
 ): z.infer<typeof MetadataFieldSchema>[] {
   if (!metadata || !Object.keys(metadata).length) {
     return [
@@ -368,8 +368,8 @@ function getDefaultValues(
 
 function parseValues(
   values: z.infer<typeof MetadataSchema>,
-  original?: Record<string, any> | null
-): Record<string, any> | null {
+  original?: Record<string, unknown> | null
+): Record<string, unknown> | null {
   const metadata = values.metadata
 
   const isEmpty =
@@ -380,7 +380,7 @@ function parseValues(
     return null
   }
 
-  const update: Record<string, any> = {}
+  const update: Record<string, unknown> = {}
 
   // First, handle removed keys from original
   if (original) {
@@ -427,7 +427,7 @@ function parseValues(
   return update
 }
 
-function getHasUneditableRows(metadata?: Record<string, any> | null) {
+function getHasUneditableRows(metadata?: Record<string, unknown> | null) {
   if (!metadata) {
     return false
   }
