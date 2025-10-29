@@ -66,7 +66,7 @@ export const useLocationListTableColumns = () => {
         queryKey: inventoryItemLevelsQueryKeys.detail(level.inventory_item_id),
       })
     } catch (e) {
-      toast.error(e.message)
+      toast.error(e instanceof Error ? e.message : "An error occurred")
     }
   }
 

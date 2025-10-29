@@ -6,6 +6,11 @@ type UseOrderTableQueryProps = {
   pageSize?: number
 }
 
+type ExtendedAdminOrderFilters = HttpTypes.AdminOrderFilters & {
+  fulfillment_status?: string[]
+  payment_status?: string[]
+}
+
 export const useOrderTableQuery = ({
   prefix,
   pageSize = 20,
@@ -37,7 +42,7 @@ export const useOrderTableQuery = ({
     order,
   } = queryObject
 
-  const searchParams: HttpTypes.AdminOrderFilters = {
+  const searchParams: ExtendedAdminOrderFilters ={
     limit: pageSize,
     offset: offset ? Number(offset) : 0,
     sales_channel_id: sales_channel_id?.split(","),
