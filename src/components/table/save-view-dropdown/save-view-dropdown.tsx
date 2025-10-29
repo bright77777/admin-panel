@@ -6,7 +6,7 @@ import {
 } from "@medusajs/ui"
 import {
   CloudArrowUp,
-  SquarePlusMicro,
+  SquarePlus,
 } from "@medusajs/icons"
 
 interface SaveViewDropdownProps {
@@ -76,7 +76,7 @@ export const SaveViewDropdown: React.FC<SaveViewDropdownProps> = ({
         )}
         {onSaveAsNew && (
           <DropdownMenu.Item onClick={onSaveAsNew}>
-            <SquarePlusMicro className="h-4 w-4" />
+            <SquarePlus className="h-4 w-4" />
             Save as new view
           </DropdownMenu.Item>
         )}
