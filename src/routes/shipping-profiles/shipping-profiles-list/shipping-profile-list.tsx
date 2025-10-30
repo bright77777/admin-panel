@@ -1,9 +1,11 @@
-import { SingleColumnPage } from "../../../components/layout/pages"
-import { useExtension } from "../../../providers/extension-provider"
-import { ShippingProfileListTable } from "./components/shipping-profile-list-table"
+import { SingleColumnPage } from "@components/layout/pages";
+
+import { ShippingProfileListTable } from "@routes/shipping-profiles/shipping-profiles-list/components/shipping-profile-list-table";
+
+import { useExtension } from "@providers/extension-provider";
 
 export const ShippingProfileList = () => {
-  const { getWidgets } = useExtension()
+  const { getWidgets } = useExtension();
 
   return (
     <SingleColumnPage
@@ -14,5 +16,5 @@ export const ShippingProfileList = () => {
     >
       <ShippingProfileListTable />
     </SingleColumnPage>
-  )
-}
+  );
+};
