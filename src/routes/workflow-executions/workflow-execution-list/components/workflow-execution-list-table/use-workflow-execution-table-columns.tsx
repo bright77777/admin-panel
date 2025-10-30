@@ -1,22 +1,30 @@
-import { Badge } from "@medusajs/ui"
-import { ColumnDef, createColumnHelper } from "@tanstack/react-table"
-import { useMemo } from "react"
-import { useTranslation } from "react-i18next"
-import { StatusCell } from "../../../../../components/table/table-cells/common/status-cell"
-import { TransactionStepState } from "../../../types"
-import { getTransactionState, getTransactionStateColor } from "../../../utils"
-import { HttpTypes } from "@medusajs/types"
+import { useMemo } from "react";
+
+import type { HttpTypes } from "@medusajs/types";
+import { Badge } from "@medusajs/ui";
+
+import type { ColumnDef } from "@tanstack/react-table";
+import { createColumnHelper } from "@tanstack/react-table";
+import { useTranslation } from "react-i18next";
+
+import { StatusCell } from "@components/table/table-cells/common/status-cell";
+
+import { TransactionStepState } from "@routes/workflow-executions/types";
+import {
+  getTransactionState,
+  getTransactionStateColor,
+} from "@routes/workflow-executions/utils";
 
 const columnHelper =
   createColumnHelper<
     HttpTypes.AdminWorkflowExecutionResponse["workflow_execution"]
-  >()
+  >();
 
 export const useWorkflowExecutionTableColumns = (): ColumnDef<
   HttpTypes.AdminWorkflowExecutionResponse["workflow_execution"],
   any
 >[] => {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   return useMemo(
     () => [
@@ -27,16 +35,16 @@ export const useWorkflowExecutionTableColumns = (): ColumnDef<
       columnHelper.accessor("state", {
         header: t("fields.state"),
         cell: ({ getValue }) => {
-          const state = getValue()
+          const state = getValue();
 
-          const color = getTransactionStateColor(state)
-          const translatedState = getTransactionState(t, state)
+          const color = getTransactionStateColor(state);
+          const translatedState = getTransactionState(t, state);
 
           return (
             <StatusCell color={color}>
               <span className="capitalize">{translatedState}</span>
             </StatusCell>
-          )
+          );
         },
       }),
       columnHelper.accessor("execution", {
@@ -44,29 +52,29 @@ export const useWorkflowExecutionTableColumns = (): ColumnDef<
         cell: ({ getValue }) => {
           const steps = getValue()?.steps as
             | Record<string, HttpTypes.AdminWorkflowExecutionStep>
-            | undefined
+            | undefined;
 
           if (!steps) {
-            return "0 of 0 steps"
+            return "0 of 0 steps";
           }
 
           const actionableSteps = Object.values(steps).filter(
-            (step) => step.id !== ROOT_PREFIX
-          )
+            (step) => step.id !== ROOT_PREFIX,
+          );
 
           const completedSteps = actionableSteps.filter(
-            (step) => step.invoke.state === TransactionStepState.DONE
-          )
+            (step) => step.invoke.state === TransactionStepState.DONE,
+          );
 
           return t("workflowExecutions.stepsCompletedLabel", {
             completed: completedSteps.length,
             count: actionableSteps.length,
-          })
+          });
         },
       }),
     ],
-    [t]
-  )
-}
+    [t],
+  );
+};
 
-const ROOT_PREFIX = "_root"
+const ROOT_PREFIX = "_root";

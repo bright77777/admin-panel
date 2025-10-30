@@ -1,20 +1,24 @@
-import { Container, Heading, Text } from "@medusajs/ui"
-import { keepPreviousData } from "@tanstack/react-query"
-import { useTranslation } from "react-i18next"
-import { _DataTable } from "../../../../../components/table/data-table"
-import { useWorkflowExecutions } from "../../../../../hooks/api/workflow-executions"
-import { useDataTable } from "../../../../../hooks/use-data-table"
-import { useWorkflowExecutionTableColumns } from "./use-workflow-execution-table-columns"
-import { useWorkflowExecutionTableQuery } from "./use-workflow-execution-table-query"
+import { Container, Heading, Text } from "@medusajs/ui";
 
-const PAGE_SIZE = 20
+import { keepPreviousData } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
+
+import { _DataTable } from "@components/table/data-table";
+
+import { useWorkflowExecutions } from "@hooks/api";
+import { useDataTable } from "@hooks/use-data-table";
+
+import { useWorkflowExecutionTableColumns } from "./use-workflow-execution-table-columns";
+import { useWorkflowExecutionTableQuery } from "./use-workflow-execution-table-query";
+
+const PAGE_SIZE = 20;
 
 export const WorkflowExecutionListTable = () => {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   const { searchParams, raw } = useWorkflowExecutionTableQuery({
     pageSize: PAGE_SIZE,
-  })
+  });
   const { workflow_executions, count, isLoading, isError, error } =
     useWorkflowExecutions(
       {
@@ -22,10 +26,10 @@ export const WorkflowExecutionListTable = () => {
       },
       {
         placeholderData: keepPreviousData,
-      }
-    )
+      },
+    );
 
-  const columns = useWorkflowExecutionTableColumns()
+  const columns = useWorkflowExecutionTableColumns();
 
   const { table } = useDataTable({
     data: workflow_executions || [],
@@ -34,10 +38,10 @@ export const WorkflowExecutionListTable = () => {
     pageSize: PAGE_SIZE,
     enablePagination: true,
     getRowId: (row) => row.id,
-  })
+  });
 
   if (isError) {
-    throw error
+    throw error;
   }
 
   return (
@@ -65,5 +69,5 @@ export const WorkflowExecutionListTable = () => {
         }}
       />
     </Container>
-  )
-}
+  );
+};

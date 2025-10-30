@@ -1,33 +1,36 @@
-import { ArrowPathMini, MinusMini, PlusMini } from "@medusajs/icons"
-import { Container, DropdownMenu, Heading, Text, clx } from "@medusajs/ui"
+import { useEffect, useRef, useState } from "react";
+
+import { ArrowPathMini, MinusMini, PlusMini } from "@medusajs/icons";
+import type { HttpTypes } from "@medusajs/types";
+import { Container, DropdownMenu, Heading, Text, clx } from "@medusajs/ui";
+
 import {
   motion,
   useAnimationControls,
   useDragControls,
   useMotionValue,
-} from "motion/react"
-import { useEffect, useRef, useState } from "react"
-import { useTranslation } from "react-i18next"
-import { Link } from "react-router-dom"
+} from "motion/react";
+import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
 
-import { HttpTypes } from "@medusajs/types"
+import { useDocumentDirection } from "@hooks/use-document-direction";
+
 import {
   STEP_ERROR_STATES,
   STEP_INACTIVE_STATES,
   STEP_IN_PROGRESS_STATES,
   STEP_OK_STATES,
   STEP_SKIPPED_STATES,
-} from "../../../constants"
-import { useDocumentDirection } from "../../../../../hooks/use-document-direction"
+} from "@routes/workflow-executions/constants";
 
 type WorkflowExecutionTimelineSectionProps = {
-  execution: HttpTypes.AdminWorkflowExecutionResponse["workflow_execution"]
-}
+  execution: HttpTypes.AdminWorkflowExecutionResponse["workflow_execution"];
+};
 
 export const WorkflowExecutionTimelineSection = ({
   execution,
 }: WorkflowExecutionTimelineSectionProps) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   return (
     <Container className="overflow-hidden px-0 pb-8 pt-0">
@@ -38,122 +41,124 @@ export const WorkflowExecutionTimelineSection = ({
         <Canvas execution={execution} />
       </div>
     </Container>
-  )
-}
+  );
+};
 
 const createNodeClusters = (
-  steps: Record<string, HttpTypes.AdminWorkflowExecutionStep>
+  steps: Record<string, HttpTypes.AdminWorkflowExecutionStep>,
 ) => {
   const actionableSteps = Object.values(steps).filter(
-    (step) => step.id !== "_root"
-  )
+    (step) => step.id !== "_root",
+  );
 
-  const clusters: Record<number, HttpTypes.AdminWorkflowExecutionStep[]> = {}
+  const clusters: Record<number, HttpTypes.AdminWorkflowExecutionStep[]> = {};
 
   actionableSteps.forEach((step) => {
     if (!clusters[step.depth]) {
-      clusters[step.depth] = []
+      clusters[step.depth] = [];
     }
 
-    clusters[step.depth].push(step)
-  })
+    clusters[step.depth].push(step);
+  });
 
-  return clusters
-}
+  return clusters;
+};
 
 const getNextCluster = (
   clusters: Record<number, HttpTypes.AdminWorkflowExecutionStep[]>,
-  depth: number
+  depth: number,
 ) => {
-  const nextDepth = depth + 1
-  return clusters[nextDepth]
-}
+  const nextDepth = depth + 1;
 
-type ZoomScale = 0.5 | 0.75 | 1
+  return clusters[nextDepth];
+};
+
+type ZoomScale = 0.5 | 0.75 | 1;
 
 const defaultState = {
   x: -860,
   y: -1020,
   scale: 1,
-}
+};
 
-const MAX_ZOOM = 1.5
-const MIN_ZOOM = 0.5
-const ZOOM_STEP = 0.25
+const MAX_ZOOM = 1.5;
+const MIN_ZOOM = 0.5;
+const ZOOM_STEP = 0.25;
 
 const Canvas = ({
   execution,
 }: {
-  execution: HttpTypes.AdminWorkflowExecutionResponse["workflow_execution"]
+  execution: HttpTypes.AdminWorkflowExecutionResponse["workflow_execution"];
 }) => {
-  const [zoom, setZoom] = useState<number>(1)
-  const [isDragging, setIsDragging] = useState(false)
-  const direction = useDocumentDirection()
-  const scale = useMotionValue(defaultState.scale)
-  const x = useMotionValue(defaultState.x)
-  const y = useMotionValue(defaultState.y)
+  const [zoom, setZoom] = useState<number>(1);
+  const [isDragging, setIsDragging] = useState(false);
+  const direction = useDocumentDirection();
+  const scale = useMotionValue(defaultState.scale);
+  const x = useMotionValue(defaultState.x);
+  const y = useMotionValue(defaultState.y);
 
-  const controls = useAnimationControls()
+  const controls = useAnimationControls();
 
-  const dragControls = useDragControls()
-  const dragConstraints = useRef<HTMLDivElement>(null)
+  const dragControls = useDragControls();
+  const dragConstraints = useRef<HTMLDivElement>(null);
 
-  const canZoomIn = zoom < MAX_ZOOM
-  const canZoomOut = zoom > MIN_ZOOM
+  const canZoomIn = zoom < MAX_ZOOM;
+  const canZoomOut = zoom > MIN_ZOOM;
 
   useEffect(() => {
     const unsubscribe = scale.on("change", (latest) => {
-      setZoom(latest as ZoomScale)
-    })
+      setZoom(latest as ZoomScale);
+    });
 
     return () => {
-      unsubscribe()
-    }
-  }, [scale])
+      unsubscribe();
+    };
+  }, [scale]);
 
-  const clusters = createNodeClusters(execution.execution?.steps || {})
+  const clusters = createNodeClusters(execution.execution?.steps || {});
 
   function scaleXandY(
     prevScale: number,
     newScale: number,
     x: number,
-    y: number
+    y: number,
   ) {
-    const scaleRatio = newScale / prevScale
+    const scaleRatio = newScale / prevScale;
+
     return {
       x: x * scaleRatio,
       y: y * scaleRatio,
-    }
+    };
   }
 
   const changeZoom = (newScale: number) => {
-    const { x: newX, y: newY } = scaleXandY(zoom, newScale, x.get(), y.get())
+    const { x: newX, y: newY } = scaleXandY(zoom, newScale, x.get(), y.get());
 
-    setZoom(newScale)
-    controls.set({ scale: newScale, x: newX, y: newY })
-  }
+    setZoom(newScale);
+    controls.set({ scale: newScale, x: newX, y: newY });
+  };
 
   const zoomIn = () => {
-    const curr = scale.get()
+    const curr = scale.get();
 
     if (curr < 1.5) {
-      const newScale = curr + ZOOM_STEP
-      changeZoom(newScale)
+      const newScale = curr + ZOOM_STEP;
+      changeZoom(newScale);
     }
-  }
+  };
 
   const zoomOut = () => {
-    const curr = scale.get()
+    const curr = scale.get();
 
     if (curr > 0.5) {
-      const newScale = curr - ZOOM_STEP
-      changeZoom(newScale)
+      const newScale = curr - ZOOM_STEP;
+      changeZoom(newScale);
     }
-  }
+  };
 
   const resetCanvas = () => {
-    controls.start(defaultState)
-  }
+    controls.start(defaultState);
+  };
 
   return (
     <div className="h-[400px] w-full">
@@ -177,18 +182,18 @@ const Canvas = ({
                 scale,
               }}
               className={clx(
-                "bg-ui-bg-subtle relative size-[500rem] origin-top-left items-start justify-start overflow-hidden",
+                "relative size-[500rem] origin-top-left items-start justify-start overflow-hidden bg-ui-bg-subtle",
                 "bg-[radial-gradient(var(--border-base)_1.5px,transparent_0)] bg-[length:20px_20px] bg-repeat",
                 {
                   "cursor-grab": !isDragging,
                   "cursor-grabbing": isDragging,
-                }
+                },
               )}
             >
               <main className="size-full">
                 <div className="absolute left-[1100px] top-[1100px] flex select-none items-start">
                   {Object.entries(clusters).map(([depth, cluster]) => {
-                    const next = getNextCluster(clusters, Number(depth))
+                    const next = getNextCluster(clusters, Number(depth));
 
                     return (
                       <div key={depth} className="flex items-start">
@@ -199,27 +204,27 @@ const Canvas = ({
                         </div>
                         <Line next={next} />
                       </div>
-                    )
+                    );
                   })}
                 </div>
               </main>
             </motion.div>
           </div>
         </div>
-        <div className="bg-ui-bg-base shadow-borders-base text-ui-fg-subtle absolute bottom-4 left-6 flex h-7 items-center overflow-hidden rounded-md">
+        <div className="absolute bottom-4 left-6 flex h-7 items-center overflow-hidden rounded-md bg-ui-bg-base text-ui-fg-subtle shadow-borders-base">
           <div className="flex items-center">
             <button
               onClick={zoomIn}
               type="button"
               disabled={!canZoomIn}
               aria-label="Zoom in"
-              className="disabled:text-ui-fg-disabled transition-fg hover:bg-ui-bg-base-hover active:bg-ui-bg-base-pressed focus-visible:bg-ui-bg-base-pressed border-r p-1 outline-none"
+              className="border-r p-1 outline-none transition-fg hover:bg-ui-bg-base-hover focus-visible:bg-ui-bg-base-pressed active:bg-ui-bg-base-pressed disabled:text-ui-fg-disabled"
             >
               <PlusMini />
             </button>
             <div>
               <DropdownMenu dir={direction}>
-                <DropdownMenu.Trigger className="disabled:text-ui-fg-disabled transition-fg hover:bg-ui-bg-base-hover active:bg-ui-bg-base-pressed focus-visible:bg-ui-bg-base-pressed flex w-[50px] items-center justify-center border-r p-1 outline-none">
+                <DropdownMenu.Trigger className="flex w-[50px] items-center justify-center border-r p-1 outline-none transition-fg hover:bg-ui-bg-base-hover focus-visible:bg-ui-bg-base-pressed active:bg-ui-bg-base-pressed disabled:text-ui-fg-disabled">
                   <Text
                     as="span"
                     size="xsmall"
@@ -246,7 +251,7 @@ const Canvas = ({
               type="button"
               disabled={!canZoomOut}
               aria-label="Zoom out"
-              className="disabled:text-ui-fg-disabled transition-fg hover:bg-ui-bg-base-hover active:bg-ui-bg-base-pressed focus-visible:bg-ui-bg-base-pressed border-r p-1 outline-none"
+              className="border-r p-1 outline-none transition-fg hover:bg-ui-bg-base-hover focus-visible:bg-ui-bg-base-pressed active:bg-ui-bg-base-pressed disabled:text-ui-fg-disabled"
             >
               <MinusMini />
             </button>
@@ -255,15 +260,15 @@ const Canvas = ({
             onClick={resetCanvas}
             type="button"
             aria-label="Reset canvas"
-            className="disabled:text-ui-fg-disabled transition-fg hover:bg-ui-bg-base-hover active:bg-ui-bg-base-pressed focus-visible:bg-ui-bg-base-pressed p-1 outline-none"
+            className="p-1 outline-none transition-fg hover:bg-ui-bg-base-hover focus-visible:bg-ui-bg-base-pressed active:bg-ui-bg-base-pressed disabled:text-ui-fg-disabled"
           >
             <ArrowPathMini />
           </button>
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
 const HorizontalArrow = () => {
   return (
@@ -279,8 +284,8 @@ const HorizontalArrow = () => {
         fill="var(--border-strong)"
       />
     </svg>
-  )
-}
+  );
+};
 
 const MiddleArrow = () => {
   return (
@@ -297,8 +302,8 @@ const MiddleArrow = () => {
         fill="var(--border-strong)"
       />
     </svg>
-  )
-}
+  );
+};
 
 const EndArrow = () => {
   return (
@@ -315,12 +320,12 @@ const EndArrow = () => {
         fill="var(--border-strong)"
       />
     </svg>
-  )
-}
+  );
+};
 
 const Arrow = ({ depth }: { depth: number }) => {
   if (depth === 1) {
-    return <HorizontalArrow />
+    return <HorizontalArrow />;
   }
 
   if (depth === 2) {
@@ -329,12 +334,12 @@ const Arrow = ({ depth }: { depth: number }) => {
         <HorizontalArrow />
         <EndArrow />
       </div>
-    )
+    );
   }
 
   const inbetween = Array.from({ length: depth - 2 }).map((_, index) => (
     <MiddleArrow key={index} />
-  ))
+  ));
 
   return (
     <div className="flex flex-col items-end">
@@ -342,34 +347,34 @@ const Arrow = ({ depth }: { depth: number }) => {
       {inbetween}
       <EndArrow />
     </div>
-  )
-}
+  );
+};
 
 const Line = ({ next }: { next?: HttpTypes.AdminWorkflowExecutionStep[] }) => {
   if (!next) {
-    return null
+    return null;
   }
 
   return (
     <div className="-ml-[5px] -mr-[7px] w-[60px] pr-[7px]">
       <div className="flex min-h-[24px] w-full items-start">
         <div className="flex h-6 w-2.5 items-center justify-center">
-          <div className="bg-ui-button-neutral shadow-borders-base size-2.5 shrink-0 rounded-full" />
+          <div className="size-2.5 shrink-0 rounded-full bg-ui-button-neutral shadow-borders-base" />
         </div>
         <div className="pt-1.5">
           <Arrow depth={next.length} />
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
 const Node = ({ step }: { step: HttpTypes.AdminWorkflowExecutionStep }) => {
   if (step.id === "_root") {
-    return null
+    return null;
   }
 
-  const stepId = step.id.split(".").pop()
+  const stepId = step.id.split(".").pop();
 
   /**
    * We can't rely on the built-in hash scrolling because the collapsible,
@@ -377,13 +382,13 @@ const Node = ({ step }: { step: HttpTypes.AdminWorkflowExecutionStep }) => {
    */
   const handleScrollTo = () => {
     if (!stepId) {
-      return
+      return;
     }
 
-    const historyItem = document.getElementById(stepId)
+    const historyItem = document.getElementById(stepId);
 
     if (!historyItem) {
-      return
+      return;
     }
 
     /**
@@ -394,18 +399,18 @@ const Node = ({ step }: { step: HttpTypes.AdminWorkflowExecutionStep }) => {
       historyItem.scrollIntoView({
         behavior: "smooth",
         block: "end",
-      })
-    }, 100)
-  }
+      });
+    }, 100);
+  };
 
   return (
     <Link
       to={`#${stepId}`}
       onClick={handleScrollTo}
-      className="focus-visible:shadow-borders-focus transition-fg rounded-md outline-none"
+      className="rounded-md outline-none transition-fg focus-visible:shadow-borders-focus"
     >
       <div
-        className="bg-ui-bg-base shadow-borders-base flex min-w-[120px] items-center gap-x-0.5 rounded-md p-0.5"
+        className="flex min-w-[120px] items-center gap-x-0.5 rounded-md bg-ui-bg-base p-0.5 shadow-borders-base"
         data-step-id={step.id}
       >
         <div className="flex size-5 items-center justify-center">
@@ -414,21 +419,21 @@ const Node = ({ step }: { step: HttpTypes.AdminWorkflowExecutionStep }) => {
               "size-2 rounded-sm shadow-[inset_0_0_0_1px_rgba(0,0,0,0.12)]",
               {
                 "bg-ui-tag-neutral-bg": STEP_SKIPPED_STATES.includes(
-                  step.invoke.state
+                  step.invoke.state,
                 ),
                 "bg-ui-tag-green-icon": STEP_OK_STATES.includes(
-                  step.invoke.state
+                  step.invoke.state,
                 ),
                 "bg-ui-tag-orange-icon": STEP_IN_PROGRESS_STATES.includes(
-                  step.invoke.state
+                  step.invoke.state,
                 ),
                 "bg-ui-tag-red-icon": STEP_ERROR_STATES.includes(
-                  step.invoke.state
+                  step.invoke.state,
                 ),
                 "bg-ui-tag-neutral-icon": STEP_INACTIVE_STATES.includes(
-                  step.invoke.state
+                  step.invoke.state,
                 ),
-              }
+              },
             )}
           />
         </div>
@@ -442,5 +447,5 @@ const Node = ({ step }: { step: HttpTypes.AdminWorkflowExecutionStep }) => {
         </Text>
       </div>
     </Link>
-  )
-}
+  );
+};

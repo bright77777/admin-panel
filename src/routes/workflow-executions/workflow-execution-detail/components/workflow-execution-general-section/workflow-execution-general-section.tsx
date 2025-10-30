@@ -1,3 +1,4 @@
+import type { HttpTypes } from "@medusajs/types";
 import {
   Badge,
   Container,
@@ -6,29 +7,34 @@ import {
   StatusBadge,
   Text,
   clx,
-} from "@medusajs/ui"
-import { useTranslation } from "react-i18next"
-import { getTransactionState, getTransactionStateColor } from "../../../utils"
-import { HttpTypes } from "@medusajs/types"
-import { TransactionState, TransactionStepState } from "../../../types"
+} from "@medusajs/ui";
+
+import { useTranslation } from "react-i18next";
+
+import type { TransactionState } from "@routes/workflow-executions/types";
+import { TransactionStepState } from "@routes/workflow-executions/types";
+import {
+  getTransactionState,
+  getTransactionStateColor,
+} from "@routes/workflow-executions/utils";
 
 type WorkflowExecutionGeneralSectionProps = {
-  execution: HttpTypes.AdminWorkflowExecution
-}
+  execution: HttpTypes.AdminWorkflowExecution;
+};
 
 export const WorkflowExecutionGeneralSection = ({
   execution,
 }: WorkflowExecutionGeneralSectionProps) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
-  const cleanId = execution.id.replace("wf_exec_", "")
+  const cleanId = execution.id.replace("wf_exec_", "");
   const translatedState = getTransactionState(
     t,
-    execution.state as TransactionState
-  )
+    execution.state as TransactionState,
+  );
   const stateColor = getTransactionStateColor(
-    execution.state as TransactionState
-  )
+    execution.state as TransactionState,
+  );
 
   return (
     <Container className="divide-y p-0">
@@ -39,7 +45,7 @@ export const WorkflowExecutionGeneralSection = ({
         </div>
         <StatusBadge color={stateColor}>{translatedState}</StatusBadge>
       </div>
-      <div className="text-ui-fg-subtle grid grid-cols-2 px-6 py-4">
+      <div className="grid grid-cols-2 px-6 py-4 text-ui-fg-subtle">
         <Text size="small" leading="compact" weight="plus">
           {t("workflowExecutions.workflowIdLabel")}
         </Text>
@@ -47,7 +53,7 @@ export const WorkflowExecutionGeneralSection = ({
           {execution.workflow_id}
         </Badge>
       </div>
-      <div className="text-ui-fg-subtle grid grid-cols-2 px-6 py-4">
+      <div className="grid grid-cols-2 px-6 py-4 text-ui-fg-subtle">
         <Text size="small" leading="compact" weight="plus">
           {t("workflowExecutions.transactionIdLabel")}
         </Text>
@@ -55,24 +61,24 @@ export const WorkflowExecutionGeneralSection = ({
           {execution.transaction_id}
         </Badge>
       </div>
-      <div className="text-ui-fg-subtle grid grid-cols-2 px-6 py-4">
+      <div className="grid grid-cols-2 px-6 py-4 text-ui-fg-subtle">
         <Text size="small" leading="compact" weight="plus">
           {t("workflowExecutions.progressLabel")}
         </Text>
         <Progress steps={execution.execution?.steps} />
       </div>
     </Container>
-  )
-}
+  );
+};
 
-const ROOT_PREFIX = "_root"
+const ROOT_PREFIX = "_root";
 
 const Progress = ({
   steps,
 }: {
-  steps?: Record<string, HttpTypes.AdminWorkflowExecutionStep> | null
+  steps?: Record<string, HttpTypes.AdminWorkflowExecutionStep> | null;
 }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   if (!steps) {
     return (
@@ -82,16 +88,16 @@ const Progress = ({
           total: 0,
         })}
       </Text>
-    )
+    );
   }
 
   const actionableSteps = Object.values(steps).filter(
-    (step) => step.id !== ROOT_PREFIX
-  )
+    (step) => step.id !== ROOT_PREFIX,
+  );
 
   const completedSteps = actionableSteps.filter(
-    (step) => step.invoke.state === TransactionStepState.DONE
-  )
+    (step) => step.invoke.state === TransactionStepState.DONE,
+  );
 
   return (
     <div className="flex w-fit items-center gap-x-2">
@@ -100,11 +106,11 @@ const Progress = ({
           <div
             key={step.id}
             className={clx(
-              "bg-ui-bg-switch-off shadow-details-switch-background h-3 w-1.5 rounded-full",
+              "h-3 w-1.5 rounded-full bg-ui-bg-switch-off shadow-details-switch-background",
               {
                 "bg-ui-fg-muted":
                   step.invoke.state === TransactionStepState.DONE,
-              }
+              },
             )}
           />
         ))}
@@ -116,5 +122,5 @@ const Progress = ({
         })}
       </Text>
     </div>
-  )
-}
+  );
+};

@@ -1,10 +1,11 @@
-import { WorkflowExecutionListTable } from "./components/workflow-execution-list-table"
+import { SingleColumnPage } from "@components/layout/pages";
 
-import { SingleColumnPage } from "../../../components/layout/pages"
-import { useExtension } from "../../../providers/extension-provider"
+import { WorkflowExecutionListTable } from "@routes/workflow-executions/workflow-execution-list/components/workflow-execution-list-table";
+
+import { useExtension } from "@providers/extension-provider";
 
 export const WorkflowExcecutionList = () => {
-  const { getWidgets } = useExtension()
+  const { getWidgets } = useExtension();
 
   return (
     <SingleColumnPage
@@ -16,5 +17,5 @@ export const WorkflowExcecutionList = () => {
     >
       <WorkflowExecutionListTable />
     </SingleColumnPage>
-  )
-}
+  );
+};
