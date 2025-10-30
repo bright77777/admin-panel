@@ -1,4 +1,5 @@
-import { PencilSquare, Trash } from "@medusajs/icons"
+import { PencilSquare, Trash } from "@medusajs/icons";
+import type { SalesChannelDTO } from "@medusajs/types";
 import {
   Container,
   Heading,
@@ -6,26 +7,27 @@ import {
   Text,
   toast,
   usePrompt,
-} from "@medusajs/ui"
-import { useTranslation } from "react-i18next"
+} from "@medusajs/ui";
 
-import { SalesChannelDTO } from "@medusajs/types"
-import { useNavigate } from "react-router-dom"
-import { ActionMenu } from "../../../../../components/common/action-menu"
-import { useDeleteSalesChannel } from "../../../../../hooks/api/sales-channels"
+import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
+
+import { ActionMenu } from "@components/common/action-menu";
+
+import { useDeleteSalesChannel } from "@hooks/api";
 
 type SalesChannelGeneralSectionProps = {
-  salesChannel: SalesChannelDTO
-}
+  salesChannel: SalesChannelDTO;
+};
 
 export const SalesChannelGeneralSection = ({
   salesChannel,
 }: SalesChannelGeneralSectionProps) => {
-  const { t } = useTranslation()
-  const prompt = usePrompt()
-  const navigate = useNavigate()
+  const { t } = useTranslation();
+  const prompt = usePrompt();
+  const navigate = useNavigate();
 
-  const { mutateAsync } = useDeleteSalesChannel(salesChannel.id)
+  const { mutateAsync } = useDeleteSalesChannel(salesChannel.id);
 
   const handleDelete = async () => {
     const confirm = await prompt({
@@ -37,22 +39,22 @@ export const SalesChannelGeneralSection = ({
       verificationText: salesChannel.name,
       confirmText: t("actions.delete"),
       cancelText: t("actions.cancel"),
-    })
+    });
 
     if (!confirm) {
-      return
+      return;
     }
 
     await mutateAsync(undefined, {
       onSuccess: () => {
-        toast.success(t("salesChannels.toast.delete"))
-        navigate("/settings/sales-channels", { replace: true })
+        toast.success(t("salesChannels.toast.delete"));
+        navigate("/settings/sales-channels", { replace: true });
       },
       onError: (e) => {
-        toast.error(e.message)
+        toast.error(e.message);
       },
-    })
-  }
+    });
+  };
 
   return (
     <Container className="divide-y p-0">
@@ -86,7 +88,7 @@ export const SalesChannelGeneralSection = ({
           />
         </div>
       </div>
-      <div className="text-ui-fg-subtle grid grid-cols-2 items-start px-6 py-4">
+      <div className="grid grid-cols-2 items-start px-6 py-4 text-ui-fg-subtle">
         <Text size="small" leading="compact" weight="plus">
           {t("fields.description")}
         </Text>
@@ -95,5 +97,5 @@ export const SalesChannelGeneralSection = ({
         </Text>
       </div>
     </Container>
-  )
-}
+  );
+};

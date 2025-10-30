@@ -1,10 +1,11 @@
-import { SalesChannelListTable } from "./components/sales-channel-list-table"
+import { SingleColumnPage } from "@components/layout/pages";
 
-import { SingleColumnPage } from "../../../components/layout/pages"
-import { useExtension } from "../../../providers/extension-provider"
+import { SalesChannelListTable } from "@routes/sales-channels/sales-channel-list/components/sales-channel-list-table";
+
+import { useExtension } from "@providers/extension-provider";
 
 export const SalesChannelList = () => {
-  const { getWidgets } = useExtension()
+  const { getWidgets } = useExtension();
 
   return (
     <SingleColumnPage
@@ -16,5 +17,5 @@ export const SalesChannelList = () => {
     >
       <SalesChannelListTable />
     </SingleColumnPage>
-  )
-}
+  );
+};

@@ -1,69 +1,71 @@
-import { zodResolver } from "@hookform/resolvers/zod"
-import { HttpTypes, SalesChannelDTO } from "@medusajs/types"
-import { Button, Checkbox, Hint, Tooltip, toast } from "@medusajs/ui"
-import { keepPreviousData } from "@tanstack/react-query"
-import {
-  OnChangeFn,
-  RowSelectionState,
-  createColumnHelper,
-} from "@tanstack/react-table"
-import { useMemo, useState } from "react"
-import { useForm } from "react-hook-form"
-import { useTranslation } from "react-i18next"
-import * as zod from "zod"
-import { RouteFocusModal, useRouteModal } from "../../../../components/modals"
-import { _DataTable } from "../../../../components/table/data-table"
-import { KeyboundForm } from "../../../../components/utilities/keybound-form"
-import { useProducts } from "../../../../hooks/api/products"
-import { useSalesChannelAddProducts } from "../../../../hooks/api/sales-channels"
-import { useProductTableColumns } from "../../../../hooks/table/columns/use-product-table-columns"
-import { useProductTableFilters } from "../../../../hooks/table/filters/use-product-table-filters"
-import { useProductTableQuery } from "../../../../hooks/table/query/use-product-table-query"
-import { useDataTable } from "../../../../hooks/use-data-table"
+import { useMemo, useState } from "react";
+
+import type { HttpTypes, SalesChannelDTO } from "@medusajs/types";
+import { Button, Checkbox, Hint, Tooltip, toast } from "@medusajs/ui";
+
+import { zodResolver } from "@hookform/resolvers/zod";
+import { keepPreviousData } from "@tanstack/react-query";
+import type { OnChangeFn, RowSelectionState } from "@tanstack/react-table";
+import { createColumnHelper } from "@tanstack/react-table";
+import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
+import * as zod from "zod";
+
+import { RouteFocusModal, useRouteModal } from "@components/modals";
+import { _DataTable } from "@components/table/data-table";
+import { KeyboundForm } from "@components/utilities/keybound-form";
+
+import { useProducts, useSalesChannelAddProducts } from "@hooks/api";
+import { useProductTableColumns } from "@hooks/table/columns";
+import { useProductTableFilters } from "@hooks/table/filters";
+import { useProductTableQuery } from "@hooks/table/query";
+import { useDataTable } from "@hooks/use-data-table";
 
 type AddProductsToSalesChannelFormProps = {
-  salesChannel: SalesChannelDTO
-}
+  salesChannel: SalesChannelDTO;
+};
 
 const AddProductsToSalesChannelSchema = zod.object({
   product_ids: zod.array(zod.string()).min(1),
-})
+});
 
-const PAGE_SIZE = 50
+const PAGE_SIZE = 50;
 
 export const AddProductsToSalesChannelForm = ({
   salesChannel,
 }: AddProductsToSalesChannelFormProps) => {
-  const { t } = useTranslation()
-  const { handleSuccess } = useRouteModal()
+  const { t } = useTranslation();
+  const { handleSuccess } = useRouteModal();
 
   const form = useForm<zod.infer<typeof AddProductsToSalesChannelSchema>>({
     defaultValues: {
       product_ids: [],
     },
     resolver: zodResolver(AddProductsToSalesChannelSchema),
-  })
+  });
 
-  const { setValue } = form
+  const { setValue } = form;
 
-  const { mutateAsync, isPending } = useSalesChannelAddProducts(salesChannel.id)
+  const { mutateAsync, isPending } = useSalesChannelAddProducts(
+    salesChannel.id,
+  );
 
-  const [rowSelection, setRowSelection] = useState<RowSelectionState>({})
+  const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
 
   const updater: OnChangeFn<RowSelectionState> = (fn) => {
-    const state = typeof fn === "function" ? fn(rowSelection) : fn
+    const state = typeof fn === "function" ? fn(rowSelection) : fn;
 
-    const ids = Object.keys(state)
+    const ids = Object.keys(state);
 
     setValue("product_ids", ids, {
       shouldDirty: true,
       shouldTouch: true,
-    })
+    });
 
-    setRowSelection(state)
-  }
+    setRowSelection(state);
+  };
 
-  const { searchParams, raw } = useProductTableQuery({ pageSize: PAGE_SIZE })
+  const { searchParams, raw } = useProductTableQuery({ pageSize: PAGE_SIZE });
   const {
     products,
     count,
@@ -77,11 +79,11 @@ export const AddProductsToSalesChannelForm = ({
     },
     {
       placeholderData: keepPreviousData,
-    }
-  )
+    },
+  );
 
-  const columns = useColumns()
-  const filters = useProductTableFilters(["sales_channel_id"])
+  const columns = useColumns();
+  const filters = useProductTableFilters(["sales_channel_id"]);
 
   const { table } = useDataTable({
     data: products ?? [],
@@ -89,7 +91,7 @@ export const AddProductsToSalesChannelForm = ({
     enableRowSelection: (row) => {
       return !row.original.sales_channels
         ?.map((sc) => sc.id)
-        .includes(salesChannel.id)
+        .includes(salesChannel.id);
     },
     enablePagination: true,
     getRowId: (row) => row.id,
@@ -102,20 +104,20 @@ export const AddProductsToSalesChannelForm = ({
     meta: {
       salesChannelId: salesChannel.id,
     },
-  })
+  });
 
   const handleSubmit = form.handleSubmit(async (values) => {
     await mutateAsync(values.product_ids, {
       onSuccess: () => {
-        toast.success(t("salesChannels.toast.update"))
-        handleSuccess()
+        toast.success(t("salesChannels.toast.update"));
+        handleSuccess();
       },
       onError: (error) => toast.error(error.message),
-    })
-  })
+    });
+  });
 
   if (isError) {
-    throw error
+    throw error;
   }
 
   return (
@@ -170,14 +172,14 @@ export const AddProductsToSalesChannelForm = ({
         </RouteFocusModal.Footer>
       </KeyboundForm>
     </RouteFocusModal.Form>
-  )
-}
+  );
+};
 
-const columnHelper = createColumnHelper<HttpTypes.AdminProduct>()
+const columnHelper = createColumnHelper<HttpTypes.AdminProduct>();
 
 const useColumns = () => {
-  const base = useProductTableColumns()
-  const { t } = useTranslation()
+  const base = useProductTableColumns();
+  const { t } = useTranslation();
 
   return useMemo(
     () => [
@@ -195,18 +197,18 @@ const useColumns = () => {
                 table.toggleAllPageRowsSelected(!!value)
               }
             />
-          )
+          );
         },
         cell: ({ row, table }) => {
           const { salesChannelId } = table.options.meta as {
-            salesChannelId: string
-          }
+            salesChannelId: string;
+          };
 
           const isAdded = row.original.sales_channels
             ?.map((sc) => sc.id)
-            .includes(salesChannelId)
+            .includes(salesChannelId);
 
-          const isSelected = row.getIsSelected() || isAdded
+          const isSelected = row.getIsSelected() || isAdded;
 
           const Component = (
             <Checkbox
@@ -214,10 +216,10 @@ const useColumns = () => {
               disabled={isAdded}
               onCheckedChange={(value) => row.toggleSelected(!!value)}
               onClick={(e) => {
-                e.stopPropagation()
+                e.stopPropagation();
               }}
             />
-          )
+          );
 
           if (isAdded) {
             return (
@@ -227,14 +229,14 @@ const useColumns = () => {
               >
                 {Component}
               </Tooltip>
-            )
+            );
           }
 
-          return Component
+          return Component;
         },
       }),
       ...base,
     ],
-    [t, base]
-  )
-}
+    [t, base],
+  );
+};
