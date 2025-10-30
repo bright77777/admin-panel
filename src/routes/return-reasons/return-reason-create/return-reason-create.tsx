@@ -1,10 +1,9 @@
-import { RouteFocusModal } from "../../../components/modals"
-import { ReturnReasonCreateForm } from "./components/return-reason-create-form"
+import { RouteFocusModal } from "@components/modals";
 
-export const ReturnReasonCreate = () => {
-  return (
-    <RouteFocusModal>
-      <ReturnReasonCreateForm />
-    </RouteFocusModal>
-  )
-}
+import { ReturnReasonCreateForm } from "@routes/return-reasons/return-reason-create/components/return-reason-create-form";
+
+export const ReturnReasonCreate = () => (
+  <RouteFocusModal>
+    <ReturnReasonCreateForm />
+  </RouteFocusModal>
+);
