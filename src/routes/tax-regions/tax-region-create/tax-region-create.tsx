@@ -1,10 +1,9 @@
-import { RouteFocusModal } from "../../../components/modals"
-import { TaxRegionCreateForm } from "./components/tax-region-create-form"
+import { RouteFocusModal } from "@components/modals";
 
-export const TaxRegionCreate = () => {
-  return (
-    <RouteFocusModal>
-      <TaxRegionCreateForm />
-    </RouteFocusModal>
-  )
-}
+import { TaxRegionCreateForm } from "@routes/tax-regions/tax-region-create/components/tax-region-create-form";
+
+export const TaxRegionCreate = () => (
+  <RouteFocusModal>
+    <TaxRegionCreateForm />
+  </RouteFocusModal>
+);

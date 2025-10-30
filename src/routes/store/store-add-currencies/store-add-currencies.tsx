@@ -1,10 +1,12 @@
-import { RouteFocusModal } from "../../../components/modals"
-import { usePricePreferences } from "../../../hooks/api/price-preferences"
-import { useStore } from "../../../hooks/api/store"
-import { AddCurrenciesForm } from "./components/add-currencies-form/add-currencies-form"
+import { RouteFocusModal } from "@components/modals";
+
+import { useStore } from "@hooks/api";
+import { usePricePreferences } from "@hooks/api/price-preferences";
+
+import { AddCurrenciesForm } from "@routes/store/store-add-currencies/components/add-currencies-form/add-currencies-form";
 
 export const StoreAddCurrencies = () => {
-  const { store, isPending, isError, error } = useStore()
+  const { store, isPending, isError, error } = useStore();
 
   const {
     price_preferences: pricePreferences,
@@ -18,18 +20,18 @@ export const StoreAddCurrencies = () => {
     },
     {
       enabled: !!store,
-    }
-  )
+    },
+  );
 
   const ready =
-    !!store && !isPending && !!pricePreferences && !isPricePreferencesPending
+    !!store && !isPending && !!pricePreferences && !isPricePreferencesPending;
 
   if (isError) {
-    throw error
+    throw error;
   }
 
   if (isPricePreferencesError) {
-    throw pricePreferencesError
+    throw pricePreferencesError;
   }
 
   return (
@@ -38,5 +40,5 @@ export const StoreAddCurrencies = () => {
         <AddCurrenciesForm store={store} pricePreferences={pricePreferences} />
       )}
     </RouteFocusModal>
-  )
-}
+  );
+};

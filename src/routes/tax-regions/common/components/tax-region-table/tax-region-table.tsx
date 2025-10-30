@@ -1,27 +1,28 @@
-import { HttpTypes } from "@medusajs/types"
-import { Button } from "@medusajs/ui"
-import { Table } from "@tanstack/react-table"
-import { ReactNode } from "react"
-import { Link } from "react-router-dom"
-import {
-  NoRecords,
-  NoResults,
-} from "../../../../../components/common/empty-table-content"
-import { TableFooterSkeleton } from "../../../../../components/common/skeleton"
-import { LocalizedTablePagination } from "../../../../../components/localization/localized-table-pagination"
-import { DataTableOrderBy } from "../../../../../components/table/data-table/data-table-order-by"
-import { TaxRegionCard } from "../tax-region-card"
+import type { ReactNode } from "react";
+
+import type { HttpTypes } from "@medusajs/types";
+import { Button } from "@medusajs/ui";
+
+import type { Table } from "@tanstack/react-table";
+import { Link } from "react-router-dom";
+
+import { NoRecords, NoResults } from "@components/common/empty-table-content";
+import { TableFooterSkeleton } from "@components/common/skeleton";
+import { LocalizedTablePagination } from "@components/localization/localized-table-pagination";
+import { DataTableOrderBy } from "@components/table/data-table/data-table-order-by";
+
+import { TaxRegionCard } from "@routes/tax-regions/common/components/tax-region-card";
 
 type TaxRegionTableProps = {
-  variant?: "country" | "province"
-  isPending: boolean
-  queryObject: Record<string, any>
-  count?: number
-  table: Table<HttpTypes.AdminTaxRegion>
-  action: { label: string; to: string }
-  prefix?: string
-  children?: ReactNode
-}
+  variant?: "country" | "province";
+  isPending: boolean;
+  queryObject: Record<string, any>;
+  count?: number;
+  table: Table<HttpTypes.AdminTaxRegion>;
+  action: { label: string; to: string };
+  prefix?: string;
+  children?: ReactNode;
+};
 
 export const TaxRegionTable = ({
   variant = "country",
@@ -40,21 +41,21 @@ export const TaxRegionTable = ({
           return (
             <div
               key={index}
-              className="bg-ui-bg-field-component h-[52px] w-full animate-pulse"
+              className="h-[52px] w-full animate-pulse bg-ui-bg-field-component"
             />
-          )
+          );
         })}
         <TableFooterSkeleton layout="fit" />
       </div>
-    )
+    );
   }
 
   const noQuery =
-    Object.values(queryObject).filter((v) => Boolean(v)).length === 0
-  const noResults = !isPending && count === 0 && !noQuery
-  const noRecords = !isPending && count === 0 && noQuery
+    Object.values(queryObject).filter((v) => Boolean(v)).length === 0;
+  const noResults = !isPending && count === 0 && !noQuery;
+  const noRecords = !isPending && count === 0 && noQuery;
 
-  const { pageIndex, pageSize } = table.getState().pagination
+  const { pageIndex, pageSize } = table.getState().pagination;
 
   return (
     <div className="flex flex-col divide-y">
@@ -93,15 +94,15 @@ export const TaxRegionTable = ({
                   role="row"
                   aria-rowindex={row.index}
                 />
-              )
+              );
             })
           : Array.from({ length: 3 }).map((_, index) => {
               return (
                 <div
                   key={index}
-                  className="bg-ui-bg-field-component h-[60px] w-full animate-pulse"
+                  className="h-[60px] w-full animate-pulse bg-ui-bg-field-component"
                 />
-              )
+              );
             })
         : null}
       {!noRecords && (
@@ -118,5 +119,5 @@ export const TaxRegionTable = ({
         />
       )}
     </div>
-  )
-}
+  );
+};

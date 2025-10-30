@@ -1,9 +1,11 @@
-import { SingleColumnPage } from "../../../components/layout/pages"
-import { useExtension } from "../../../providers/extension-provider"
-import { TaxRegionListView } from "./components/tax-region-list-view"
+import { SingleColumnPage } from "@components/layout/pages";
+
+import { TaxRegionListView } from "@routes/tax-regions/tax-region-list/components/tax-region-list-view";
+
+import { useExtension } from "@providers/extension-provider";
 
 export const TaxRegionsList = () => {
-  const { getWidgets } = useExtension()
+  const { getWidgets } = useExtension();
 
   return (
     <SingleColumnPage
@@ -15,5 +17,5 @@ export const TaxRegionsList = () => {
     >
       <TaxRegionListView />
     </SingleColumnPage>
-  )
-}
+  );
+};

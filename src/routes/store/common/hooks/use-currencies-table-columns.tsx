@@ -1,17 +1,19 @@
-import { HttpTypes } from "@medusajs/types"
-import { createColumnHelper } from "@tanstack/react-table"
-import { useMemo } from "react"
-import { useTranslation } from "react-i18next"
+import { useMemo } from "react";
+
+import type { HttpTypes } from "@medusajs/types";
+
+import { createColumnHelper } from "@tanstack/react-table";
+import { useTranslation } from "react-i18next";
 
 import {
   TextCell,
   TextHeader,
-} from "../../../../components/table/table-cells/common/text-cell"
+} from "@components/table/table-cells/common/text-cell";
 
-const columnHelper = createColumnHelper<HttpTypes.AdminCurrency>()
+const columnHelper = createColumnHelper<HttpTypes.AdminCurrency>();
 
 export const useCurrenciesTableColumns = () => {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   return useMemo(
     () => [
@@ -24,6 +26,6 @@ export const useCurrenciesTableColumns = () => {
         cell: ({ getValue }) => <TextCell text={getValue()} />,
       }),
     ],
-    [t]
-  )
-}
+    [t],
+  );
+};

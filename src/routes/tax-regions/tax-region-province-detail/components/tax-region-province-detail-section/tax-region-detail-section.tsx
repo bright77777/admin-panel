@@ -1,21 +1,22 @@
-import { HttpTypes } from "@medusajs/types"
-import { Badge, Container, Tooltip } from "@medusajs/ui"
-import { useTranslation } from "react-i18next"
+import type { HttpTypes } from "@medusajs/types";
+import { Badge, Container, Tooltip } from "@medusajs/ui";
 
-import { TaxRateLine } from "../../../common/components/tax-rate-line"
-import { TaxRegionCard } from "../../../common/components/tax-region-card"
+import { useTranslation } from "react-i18next";
+
+import { TaxRateLine } from "@routes/tax-regions/common/components/tax-rate-line";
+import { TaxRegionCard } from "@routes/tax-regions/common/components/tax-region-card";
 
 type TaxRegionProvinceDetailSectionProps = {
-  taxRegion: HttpTypes.AdminTaxRegion
-}
+  taxRegion: HttpTypes.AdminTaxRegion;
+};
 
 export const TaxRegionProvinceDetailSection = ({
   taxRegion,
 }: TaxRegionProvinceDetailSectionProps) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
-  const defaultRates = taxRegion.tax_rates.filter((r) => r.is_default === true)
-  const showBage = defaultRates.length === 0
+  const defaultRates = taxRegion.tax_rates.filter((r) => r.is_default);
+  const showBadge = defaultRates.length === 0;
 
   return (
     <Container className="divide-y p-0">
@@ -24,7 +25,7 @@ export const TaxRegionProvinceDetailSection = ({
         type="header"
         asLink={false}
         badge={
-          showBage && (
+          showBadge && (
             <Tooltip content={t("taxRegions.fields.noDefaultRate.tooltip")}>
               <Badge color="orange" size="2xsmall" className="cursor-default">
                 {t("taxRegions.fields.noDefaultRate.label")}
@@ -34,9 +35,9 @@ export const TaxRegionProvinceDetailSection = ({
         }
       />
 
-      {defaultRates.map((rate) => {
-        return <TaxRateLine key={rate.id} taxRate={rate} isSublevelTaxRate />
-      })}
+      {defaultRates.map((rate) => (
+        <TaxRateLine key={rate.id} taxRate={rate} isSublevelTaxRate />
+      ))}
     </Container>
-  )
-}
+  );
+};

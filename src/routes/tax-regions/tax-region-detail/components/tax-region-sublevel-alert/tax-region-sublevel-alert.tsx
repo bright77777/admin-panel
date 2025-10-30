@@ -1,24 +1,29 @@
-import { HttpTypes } from "@medusajs/types"
-import { Alert, Button, Text } from "@medusajs/ui"
-import { useState } from "react"
-import { useTranslation } from "react-i18next"
-import { getCountryProvinceObjectByIso2 } from "../../../../../lib/data/country-states"
+import { useState } from "react";
+
+import type { HttpTypes } from "@medusajs/types";
+import { Alert, Button, Text } from "@medusajs/ui";
+
+import { useTranslation } from "react-i18next";
+
+import { getCountryProvinceObjectByIso2 } from "@lib/data/country-states.ts";
 
 type TaxRegionSublevelAlertProps = {
-  taxRegion: HttpTypes.AdminTaxRegion
-  showSublevelRegions: boolean
-  setShowSublevelRegions: (state: boolean) => void
-}
+  taxRegion: HttpTypes.AdminTaxRegion;
+  showSublevelRegions: boolean;
+  setShowSublevelRegions: (state: boolean) => void;
+};
 
 export const TaxRegionSublevelAlert = ({
   taxRegion,
   showSublevelRegions,
   setShowSublevelRegions,
 }: TaxRegionSublevelAlertProps) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
-  const [dismissed, setDismissed] = useState(false)
-  const provinceObject = getCountryProvinceObjectByIso2(taxRegion.country_code!)
+  const [dismissed, setDismissed] = useState(false);
+  const provinceObject = getCountryProvinceObjectByIso2(
+    taxRegion.country_code!,
+  );
 
   if (
     provinceObject ||
@@ -26,7 +31,7 @@ export const TaxRegionSublevelAlert = ({
     dismissed ||
     taxRegion.children.length
   ) {
-    return null
+    return null;
   }
 
   return (
@@ -58,5 +63,5 @@ export const TaxRegionSublevelAlert = ({
         </div>
       </div>
     </Alert>
-  )
-}
+  );
+};

@@ -1,28 +1,28 @@
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import { z } from "zod"
+import { InformationCircleSolid } from "@medusajs/icons";
+import { Button, Heading, Input, Text, Tooltip, toast } from "@medusajs/ui";
 
-import { InformationCircleSolid } from "@medusajs/icons"
-import { Button, Heading, Input, Text, toast, Tooltip } from "@medusajs/ui"
-import { useTranslation } from "react-i18next"
-import { Form } from "../../../../../components/common/form"
-import { CountrySelect } from "../../../../../components/inputs/country-select"
-import { PercentageInput } from "../../../../../components/inputs/percentage-input"
-import {
-  RouteFocusModal,
-  useRouteModal,
-} from "../../../../../components/modals"
-import { KeyboundForm } from "../../../../../components/utilities/keybound-form"
-import { useCreateTaxRegion } from "../../../../../hooks/api"
-import { useComboboxData } from "../../../../../hooks/use-combobox-data"
-import { Combobox } from "../../../../../components/inputs/combobox"
-import { formatProvider } from "../../../../../lib/format-provider"
-import { sdk } from "../../../../../lib/client"
-import { i18n } from "../../../../../components/utilities/i18n"
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
+import { z } from "zod";
+
+import { Form } from "@components/common/form";
+import { Combobox } from "@components/inputs/combobox";
+import { CountrySelect } from "@components/inputs/country-select";
+import { PercentageInput } from "@components/inputs/percentage-input";
+import { RouteFocusModal, useRouteModal } from "@components/modals";
+import { i18n } from "@components/utilities/i18n";
+import { KeyboundForm } from "@components/utilities/keybound-form";
+
+import { useCreateTaxRegion } from "@hooks/api";
+import { useComboboxData } from "@hooks/use-combobox-data";
+
+import { sdk } from "@lib/client";
+import { formatProvider } from "@lib/format-provider";
 
 type TaxRegionCreateFormProps = {
-  parentId?: string
-}
+  parentId?: string;
+};
 
 const TaxRegionCreateSchema = z
   .object({
@@ -41,7 +41,7 @@ const TaxRegionCreateSchema = z
         code: z.ZodIssueCode.custom,
         message: i18n.t("taxRegions.create.errors.missingProvider"),
         path: ["provider_id"],
-      })
+      });
     }
 
     if (!country_code) {
@@ -49,13 +49,13 @@ const TaxRegionCreateSchema = z
         code: z.ZodIssueCode.custom,
         message: i18n.t("taxRegions.create.errors.missingCountry"),
         path: ["country_code"],
-      })
+      });
     }
-  })
+  });
 
 export const TaxRegionCreateForm = ({ parentId }: TaxRegionCreateFormProps) => {
-  const { t } = useTranslation()
-  const { handleSuccess } = useRouteModal()
+  const { t } = useTranslation();
+  const { handleSuccess } = useRouteModal();
 
   const taxProviders = useComboboxData({
     queryKey: ["tax_providers"],
@@ -65,7 +65,7 @@ export const TaxRegionCreateForm = ({ parentId }: TaxRegionCreateFormProps) => {
         label: formatProvider(provider.id),
         value: provider.id,
       })),
-  })
+  });
 
   const form = useForm<z.infer<typeof TaxRegionCreateSchema>>({
     defaultValues: {
@@ -78,9 +78,9 @@ export const TaxRegionCreateForm = ({ parentId }: TaxRegionCreateFormProps) => {
       provider_id: "",
     },
     resolver: zodResolver(TaxRegionCreateSchema),
-  })
+  });
 
-  const { mutateAsync, isPending } = useCreateTaxRegion()
+  const { mutateAsync, isPending } = useCreateTaxRegion();
 
   const handleSubmit = form.handleSubmit(async (values) => {
     const defaultRate = values.name
@@ -92,7 +92,7 @@ export const TaxRegionCreateForm = ({ parentId }: TaxRegionCreateFormProps) => {
               : parseFloat(values.rate.value!),
           code: values.code,
         }
-      : undefined
+      : undefined;
 
     await mutateAsync(
       {
@@ -103,15 +103,15 @@ export const TaxRegionCreateForm = ({ parentId }: TaxRegionCreateFormProps) => {
       },
       {
         onSuccess: ({ tax_region }) => {
-          toast.success(t("taxRegions.create.successToast"))
-          handleSuccess(`../${tax_region.id}`)
+          toast.success(t("taxRegions.create.successToast"));
+          handleSuccess(`../${tax_region.id}`);
         },
         onError: (error) => {
-          toast.error(error.message)
+          toast.error(error.message);
         },
-      }
-    )
-  })
+      },
+    );
+  });
 
   return (
     <RouteFocusModal.Form form={form}>
@@ -145,7 +145,7 @@ export const TaxRegionCreateForm = ({ parentId }: TaxRegionCreateFormProps) => {
                           </Form.Control>
                           <Form.ErrorMessage />
                         </Form.Item>
-                      )
+                      );
                     }}
                   />
                   <Form.Field
@@ -205,7 +205,7 @@ export const TaxRegionCreateForm = ({ parentId }: TaxRegionCreateFormProps) => {
                             </Form.Control>
                             <Form.ErrorMessage />
                           </Form.Item>
-                        )
+                        );
                       }}
                     />
                     <Form.Field
@@ -232,7 +232,7 @@ export const TaxRegionCreateForm = ({ parentId }: TaxRegionCreateFormProps) => {
                             </Form.Control>
                             <Form.ErrorMessage />
                           </Form.Item>
-                        )
+                        );
                       }}
                     />
                     <Form.Field
@@ -249,7 +249,7 @@ export const TaxRegionCreateForm = ({ parentId }: TaxRegionCreateFormProps) => {
                             </Form.Control>
                             <Form.ErrorMessage />
                           </Form.Item>
-                        )
+                        );
                       }}
                     />
                   </div>
@@ -272,5 +272,5 @@ export const TaxRegionCreateForm = ({ parentId }: TaxRegionCreateFormProps) => {
         </RouteFocusModal.Footer>
       </KeyboundForm>
     </RouteFocusModal.Form>
-  )
-}
+  );
+};

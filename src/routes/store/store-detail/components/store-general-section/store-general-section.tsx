@@ -1,29 +1,30 @@
-import { PencilSquare } from "@medusajs/icons"
-import { AdminStore } from "@medusajs/types"
-import { Badge, Container, Heading, Text } from "@medusajs/ui"
-import { useTranslation } from "react-i18next"
+import { PencilSquare } from "@medusajs/icons";
+import type { AdminStore } from "@medusajs/types";
+import { Badge, Container, Heading, Text } from "@medusajs/ui";
 
-import { Link } from "react-router-dom"
-import { ActionMenu } from "../../../../../components/common/action-menu"
-import { useSalesChannel, useStockLocation } from "../../../../../hooks/api"
-import { useRegion } from "../../../../../hooks/api/regions"
+import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
+
+import { ActionMenu } from "@components/common/action-menu";
+
+import { useRegion, useSalesChannel, useStockLocation } from "@hooks/api";
 
 type StoreGeneralSectionProps = {
-  store: AdminStore
-}
+  store: AdminStore;
+};
 
 export const StoreGeneralSection = ({ store }: StoreGeneralSectionProps) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   const { region } = useRegion(store.default_region_id!, undefined, {
     enabled: !!store.default_region_id,
-  })
+  });
 
-  const defaultCurrency = store.supported_currencies?.find((c) => c.is_default)
+  const defaultCurrency = store.supported_currencies?.find((c) => c.is_default);
 
   const { sales_channel } = useSalesChannel(store.default_sales_channel_id!, {
     enabled: !!store.default_sales_channel_id,
-  })
+  });
 
   const { stock_location } = useStockLocation(
     store.default_location_id!,
@@ -32,8 +33,8 @@ export const StoreGeneralSection = ({ store }: StoreGeneralSectionProps) => {
     },
     {
       enabled: !!store.default_location_id,
-    }
-  )
+    },
+  );
 
   return (
     <Container className="divide-y p-0">
@@ -58,7 +59,7 @@ export const StoreGeneralSection = ({ store }: StoreGeneralSectionProps) => {
           ]}
         />
       </div>
-      <div className="text-ui-fg-subtle grid grid-cols-2 px-6 py-4">
+      <div className="grid grid-cols-2 px-6 py-4 text-ui-fg-subtle">
         <Text size="small" leading="compact" weight="plus">
           {t("fields.name")}
         </Text>
@@ -66,7 +67,7 @@ export const StoreGeneralSection = ({ store }: StoreGeneralSectionProps) => {
           {store.name}
         </Text>
       </div>
-      <div className="text-ui-fg-subtle grid grid-cols-2 px-6 py-4">
+      <div className="grid grid-cols-2 px-6 py-4 text-ui-fg-subtle">
         <Text size="small" leading="compact" weight="plus">
           {t("store.defaultCurrency")}
         </Text>
@@ -85,7 +86,7 @@ export const StoreGeneralSection = ({ store }: StoreGeneralSectionProps) => {
           </Text>
         )}
       </div>
-      <div className="text-ui-fg-subtle grid grid-cols-2 px-6 py-4">
+      <div className="grid grid-cols-2 px-6 py-4 text-ui-fg-subtle">
         <Text size="small" leading="compact" weight="plus">
           {t("store.defaultRegion")}
         </Text>
@@ -101,7 +102,7 @@ export const StoreGeneralSection = ({ store }: StoreGeneralSectionProps) => {
           )}
         </div>
       </div>
-      <div className="text-ui-fg-subtle grid grid-cols-2 px-6 py-4">
+      <div className="grid grid-cols-2 px-6 py-4 text-ui-fg-subtle">
         <Text size="small" leading="compact" weight="plus">
           {t("store.defaultSalesChannel")}
         </Text>
@@ -119,7 +120,7 @@ export const StoreGeneralSection = ({ store }: StoreGeneralSectionProps) => {
           )}
         </div>
       </div>
-      <div className="text-ui-fg-subtle grid grid-cols-2 px-6 py-4">
+      <div className="grid grid-cols-2 px-6 py-4 text-ui-fg-subtle">
         <Text size="small" leading="compact" weight="plus">
           {t("store.defaultLocation")}
         </Text>
@@ -138,5 +139,5 @@ export const StoreGeneralSection = ({ store }: StoreGeneralSectionProps) => {
         </div>
       </div>
     </Container>
-  )
-}
+  );
+};

@@ -1,21 +1,22 @@
-import { useParams } from "react-router-dom"
+import { useParams } from "react-router-dom";
 
-import { useTaxRegion } from "../../../hooks/api"
-import { MetadataForm } from "../../../components/forms/metadata-form"
-import { RouteDrawer } from "../../../components/modals"
+import { MetadataForm } from "@components/forms/metadata-form";
+import { RouteDrawer } from "@components/modals";
+
+import { useTaxRegion } from "@hooks/api";
 
 /**
  * TODO: Tax region update endpoint is missing
  */
 
 export const TaxRegionMetadata = () => {
-  const { id } = useParams()
+  const { id } = useParams();
 
-  const { tax_region, isPending, isError, error } = useTaxRegion(id)
-  const { mutateAsync, isPending: isMutating } = {} // useUpdateTaxRegion(id)
+  const { tax_region, isPending, isError, error } = useTaxRegion(id);
+  const { mutateAsync, isPending: isMutating } = {}; // useUpdateTaxRegion(id)
 
   if (isError) {
-    throw error
+    throw error;
   }
 
   return (
@@ -27,5 +28,5 @@ export const TaxRegionMetadata = () => {
         metadata={tax_region?.metadata}
       />
     </RouteDrawer>
-  )
-}
+  );
+};

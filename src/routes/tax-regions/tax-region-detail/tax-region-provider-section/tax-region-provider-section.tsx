@@ -1,15 +1,16 @@
-import { useTranslation } from "react-i18next"
-import { HttpTypes } from "@medusajs/types"
-import { Container, Heading } from "@medusajs/ui"
+import type { HttpTypes } from "@medusajs/types";
+import { Container, Heading } from "@medusajs/ui";
 
-import { formatProvider } from "../../../../lib/format-provider"
+import { useTranslation } from "react-i18next";
+
+import { formatProvider } from "@lib/format-provider";
 
 export function TaxRegionProviderSection({
   taxRegion,
 }: {
-  taxRegion: HttpTypes.AdminTaxRegion
+  taxRegion: HttpTypes.AdminTaxRegion;
 }) {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   return (
     <Container className="divide-y p-0">
@@ -24,5 +25,5 @@ export function TaxRegionProviderSection({
         )}
       </div>
     </Container>
-  )
+  );
 }

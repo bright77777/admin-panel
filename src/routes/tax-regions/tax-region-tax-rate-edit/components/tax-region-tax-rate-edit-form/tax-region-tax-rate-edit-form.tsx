@@ -1,21 +1,23 @@
-import { zodResolver } from "@hookform/resolvers/zod"
-import { HttpTypes } from "@medusajs/types"
-import { Button, Input, toast } from "@medusajs/ui"
-import { useForm } from "react-hook-form"
-import { useTranslation } from "react-i18next"
-import { z } from "zod"
+import type { HttpTypes } from "@medusajs/types";
+import { Button, Input, toast } from "@medusajs/ui";
 
-import { Form } from "../../../../../components/common/form"
-import { SwitchBox } from "../../../../../components/common/switch-box"
-import { PercentageInput } from "../../../../../components/inputs/percentage-input"
-import { RouteDrawer, useRouteModal } from "../../../../../components/modals"
-import { KeyboundForm } from "../../../../../components/utilities/keybound-form"
-import { useUpdateTaxRate } from "../../../../../hooks/api/tax-rates"
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
+import { z } from "zod";
+
+import { Form } from "@components/common/form";
+import { SwitchBox } from "@components/common/switch-box";
+import { PercentageInput } from "@components/inputs/percentage-input";
+import { RouteDrawer, useRouteModal } from "@components/modals";
+import { KeyboundForm } from "@components/utilities/keybound-form";
+
+import { useUpdateTaxRate } from "@hooks/api";
 
 type TaxRegionTaxRateEditFormProps = {
-  taxRate: HttpTypes.AdminTaxRate
-  isSublevel?: boolean
-}
+  taxRate: HttpTypes.AdminTaxRate;
+  isSublevel?: boolean;
+};
 
 const TaxRegionTaxRateEditSchema = z.object({
   name: z.string().min(1),
@@ -25,14 +27,14 @@ const TaxRegionTaxRateEditSchema = z.object({
     value: z.string().optional(),
   }),
   is_combinable: z.boolean().optional(),
-})
+});
 
 export const TaxRegionTaxRateEditForm = ({
   taxRate,
   isSublevel = false,
 }: TaxRegionTaxRateEditFormProps) => {
-  const { t } = useTranslation()
-  const { handleSuccess } = useRouteModal()
+  const { t } = useTranslation();
+  const { handleSuccess } = useRouteModal();
 
   const form = useForm<z.infer<typeof TaxRegionTaxRateEditSchema>>({
     defaultValues: {
@@ -44,9 +46,9 @@ export const TaxRegionTaxRateEditForm = ({
       is_combinable: taxRate.is_combinable,
     },
     resolver: zodResolver(TaxRegionTaxRateEditSchema),
-  })
+  });
 
-  const { mutateAsync, isPending } = useUpdateTaxRate(taxRate.id)
+  const { mutateAsync, isPending } = useUpdateTaxRate(taxRate.id);
 
   const handleSubmit = form.handleSubmit(async (values) => {
     await mutateAsync(
@@ -58,15 +60,15 @@ export const TaxRegionTaxRateEditForm = ({
       },
       {
         onSuccess: () => {
-          toast.success(t("taxRegions.taxRates.edit.successToast"))
-          handleSuccess()
+          toast.success(t("taxRegions.taxRates.edit.successToast"));
+          handleSuccess();
         },
         onError: (error) => {
-          toast.error(error.message)
+          toast.error(error.message);
         },
-      }
-    )
-  })
+      },
+    );
+  });
 
   return (
     <RouteDrawer.Form form={form}>
@@ -79,57 +81,51 @@ export const TaxRegionTaxRateEditForm = ({
             <Form.Field
               control={form.control}
               name="name"
-              render={({ field }) => {
-                return (
-                  <Form.Item>
-                    <Form.Label>{t("fields.name")}</Form.Label>
-                    <Form.Control>
-                      <Input {...field} />
-                    </Form.Control>
-                    <Form.ErrorMessage />
-                  </Form.Item>
-                )
-              }}
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>{t("fields.name")}</Form.Label>
+                  <Form.Control>
+                    <Input {...field} />
+                  </Form.Control>
+                  <Form.ErrorMessage />
+                </Form.Item>
+              )}
             />
             <Form.Field
               control={form.control}
               name="code"
-              render={({ field }) => {
-                return (
-                  <Form.Item>
-                    <Form.Label>{t("taxRegions.fields.taxCode")}</Form.Label>
-                    <Form.Control>
-                      <Input {...field} />
-                    </Form.Control>
-                    <Form.ErrorMessage />
-                  </Form.Item>
-                )
-              }}
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>{t("taxRegions.fields.taxCode")}</Form.Label>
+                  <Form.Control>
+                    <Input {...field} />
+                  </Form.Control>
+                  <Form.ErrorMessage />
+                </Form.Item>
+              )}
             />
             <Form.Field
               control={form.control}
               name="rate"
-              render={({ field: { value, onChange, ...field } }) => {
-                return (
-                  <Form.Item>
-                    <Form.Label>{t("taxRegions.fields.taxRate")}</Form.Label>
-                    <Form.Control>
-                      <PercentageInput
-                        {...field}
-                        value={value?.value}
-                        decimalsLimit={4}
-                        onValueChange={(value, _name, values) =>
-                          onChange({
-                            value: value,
-                            float: values?.float,
-                          })
-                        }
-                      />
-                    </Form.Control>
-                    <Form.ErrorMessage />
-                  </Form.Item>
-                )
-              }}
+              render={({ field: { value, onChange, ...field } }) => (
+                <Form.Item>
+                  <Form.Label>{t("taxRegions.fields.taxRate")}</Form.Label>
+                  <Form.Control>
+                    <PercentageInput
+                      {...field}
+                      value={value?.value}
+                      decimalsLimit={4}
+                      onValueChange={(value, _name, values) =>
+                        onChange({
+                          value: value,
+                          float: values?.float,
+                        })
+                      }
+                    />
+                  </Form.Control>
+                  <Form.ErrorMessage />
+                </Form.Item>
+              )}
             />
           </div>
           {isSublevel && (
@@ -155,5 +151,5 @@ export const TaxRegionTaxRateEditForm = ({
         </RouteDrawer.Footer>
       </KeyboundForm>
     </RouteDrawer.Form>
-  )
-}
+  );
+};
