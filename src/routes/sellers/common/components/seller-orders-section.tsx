@@ -3,8 +3,6 @@ import { useMemo } from "react";
 import type { AdminOrder } from "@medusajs/types";
 import { Container, Divider, Heading } from "@medusajs/ui";
 
-import { formatDate } from "@lib/date";
-import { getStylizedAmount } from "@lib/money-amount-helpers";
 import { createColumnHelper } from "@tanstack/react-table";
 
 import type { AdminOrderListResponse } from "@custom-types/order";
@@ -17,6 +15,9 @@ import { _DataTable } from "@components/table/data-table";
 import { useOrderTableFilters } from "@hooks/table/filters";
 import { useSellerOrdersTableQuery } from "@hooks/table/query";
 import { useDataTable } from "@hooks/use-data-table";
+
+import { formatDate } from "@lib/date";
+import { getStylizedAmount } from "@lib/money-amount-helpers";
 
 const PAGE_SIZE = 10;
 const PREFIX = "so";

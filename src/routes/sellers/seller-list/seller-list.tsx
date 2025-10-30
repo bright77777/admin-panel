@@ -13,7 +13,6 @@ import {
   usePrompt,
 } from "@medusajs/ui";
 
-import { validateEmail } from "@lib/validate-email";
 import { createColumnHelper } from "@tanstack/react-table";
 import { useNavigate } from "react-router-dom";
 
@@ -30,6 +29,8 @@ import {
 import { useSellersTableColumns } from "@hooks/table/columns/use-seller-table-columns";
 import { useSellersTableQuery } from "@hooks/table/query";
 import { useDataTable } from "@hooks/use-data-table";
+
+import { validateEmail } from "@lib/validate-email";
 
 const PAGE_SIZE = 10;
 

@@ -1,10 +1,9 @@
-import { RouteFocusModal } from "../../../components/modals"
-import { CreateShippingOptionTypeForm } from "./components/create-shipping-option-type-form"
+import { RouteFocusModal } from "@components/modals";
 
-export const ShippingOptionTypeCreate = () => {
-  return (
-    <RouteFocusModal>
-      <CreateShippingOptionTypeForm />
-    </RouteFocusModal>
-  )
-}
+import { CreateShippingOptionTypeForm } from "@routes/shipping-option-types/shipping-option-type-create/components/create-shipping-option-type-form";
+
+export const ShippingOptionTypeCreate = () => (
+  <RouteFocusModal>
+    <CreateShippingOptionTypeForm />
+  </RouteFocusModal>
+);

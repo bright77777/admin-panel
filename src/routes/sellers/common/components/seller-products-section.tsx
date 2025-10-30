@@ -3,7 +3,6 @@ import { useMemo } from "react";
 import { PencilSquare, Trash } from "@medusajs/icons";
 import { Container, Divider, Heading, toast, usePrompt } from "@medusajs/ui";
 
-import { sdk } from "@lib/client";
 import { createColumnHelper } from "@tanstack/react-table";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
@@ -19,6 +18,8 @@ import { _DataTable } from "@components/table/data-table";
 import { useProductTableFilters } from "@hooks/table/filters";
 import { useSellerOrdersTableQuery } from "@hooks/table/query";
 import { useDataTable } from "@hooks/use-data-table";
+
+import { sdk } from "@lib/client";
 
 const PAGE_SIZE = 10;
 const PREFIX = "sp";

@@ -5,8 +5,6 @@ import type { AdminCustomerGroup } from "@medusajs/types";
 import { Container, Divider, Heading, usePrompt } from "@medusajs/ui";
 import { toast } from "@medusajs/ui";
 
-import { sdk } from "@lib/client";
-import { formatDate } from "@lib/date";
 import { createColumnHelper } from "@tanstack/react-table";
 import { useNavigate } from "react-router-dom";
 
@@ -18,6 +16,9 @@ import { _DataTable } from "@components/table/data-table";
 import { useCustomerGroupTableFilters } from "@hooks/table/filters";
 import { useSellerOrdersTableQuery } from "@hooks/table/query";
 import { useDataTable } from "@hooks/use-data-table";
+
+import { sdk } from "@lib/client";
+import { formatDate } from "@lib/date";
 
 const PAGE_SIZE = 10;
 const PREFIX = "scg";

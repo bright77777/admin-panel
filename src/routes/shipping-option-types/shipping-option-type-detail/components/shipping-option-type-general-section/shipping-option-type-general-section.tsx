@@ -1,26 +1,29 @@
-import { PencilSquare, Trash } from "@medusajs/icons"
-import { HttpTypes } from "@medusajs/types"
-import { Container, Heading, Text } from "@medusajs/ui"
-import { useTranslation } from "react-i18next"
-import { ActionMenu } from "../../../../../components/common/action-menu"
-import { useDeleteShippingOptionTypeAction } from "../../../common/hooks/use-delete-shipping-option-type-action"
+import { PencilSquare, Trash } from "@medusajs/icons";
+import type { HttpTypes } from "@medusajs/types";
+import { Container, Heading, Text } from "@medusajs/ui";
+
+import { useTranslation } from "react-i18next";
+
+import { ActionMenu } from "@components/common/action-menu";
+
+import { useDeleteShippingOptionTypeAction } from "@routes/shipping-option-types/common/hooks/use-delete-shipping-option-type-action";
 
 type ShippingOptionTypeGeneralSectionProps = {
-  shippingOptionType: HttpTypes.AdminShippingOptionType
-}
+  shippingOptionType: HttpTypes.AdminShippingOptionType;
+};
 
 export const ShippingOptionTypeGeneralSection = ({
   shippingOptionType,
 }: ShippingOptionTypeGeneralSectionProps) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
   const handleDelete = useDeleteShippingOptionTypeAction(
     shippingOptionType.id,
-    shippingOptionType.label
-  )
+    shippingOptionType.label,
+  );
 
   return (
     <Container className="divide-y p-0">
-      <div className="flex items-center justify-between  px-6 py-4">
+      <div className="flex items-center justify-between px-6 py-4">
         <Heading>{shippingOptionType.label}</Heading>
         <ActionMenu
           groups={[
@@ -45,7 +48,7 @@ export const ShippingOptionTypeGeneralSection = ({
           ]}
         />
       </div>
-      <div className="text-ui-fg-subtle grid grid-cols-2 items-start px-6 py-4">
+      <div className="grid grid-cols-2 items-start px-6 py-4 text-ui-fg-subtle">
         <Text size="small" leading="compact" weight="plus">
           {t("fields.code")}
         </Text>
@@ -53,7 +56,7 @@ export const ShippingOptionTypeGeneralSection = ({
           {shippingOptionType.code}
         </Text>
       </div>
-      <div className="text-ui-fg-subtle grid grid-cols-2 items-start px-6 py-4">
+      <div className="grid grid-cols-2 items-start px-6 py-4 text-ui-fg-subtle">
         <Text size="small" leading="compact" weight="plus">
           {t("fields.description")}
         </Text>
@@ -62,5 +65,5 @@ export const ShippingOptionTypeGeneralSection = ({
         </Text>
       </div>
     </Container>
-  )
-}
+  );
+};
