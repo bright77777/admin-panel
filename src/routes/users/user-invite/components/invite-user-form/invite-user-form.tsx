@@ -1,6 +1,7 @@
-import { zodResolver } from "@hookform/resolvers/zod"
-import { ArrowPath, Link, Trash } from "@medusajs/icons"
-import { HttpTypes } from "@medusajs/types"
+import { useMemo } from "react";
+
+import { ArrowPath, Link, Trash } from "@medusajs/icons";
+import type { HttpTypes } from "@medusajs/types";
 import {
   Alert,
   Button,
@@ -11,53 +12,57 @@ import {
   Text,
   Tooltip,
   usePrompt,
-} from "@medusajs/ui"
-import { createColumnHelper } from "@tanstack/react-table"
-import copy from "copy-to-clipboard"
-import { format } from "date-fns"
-import { useMemo } from "react"
-import { useForm } from "react-hook-form"
-import { Trans, useTranslation } from "react-i18next"
-import * as zod from "zod"
-import { ActionMenu } from "../../../../../components/common/action-menu"
-import { Form } from "../../../../../components/common/form"
-import { RouteFocusModal } from "../../../../../components/modals/index.ts"
-import { _DataTable } from "../../../../../components/table/data-table"
-import { KeyboundForm } from "../../../../../components/utilities/keybound-form/keybound-form.tsx"
+} from "@medusajs/ui";
+
+import { zodResolver } from "@hookform/resolvers/zod";
+import { createColumnHelper } from "@tanstack/react-table";
+import copy from "copy-to-clipboard";
+import { format } from "date-fns";
+import { useForm } from "react-hook-form";
+import { Trans, useTranslation } from "react-i18next";
+import * as zod from "zod";
+
+import { ActionMenu } from "@components/common/action-menu";
+import { Form } from "@components/common/form";
+import { RouteFocusModal } from "@components/modals";
+import { _DataTable } from "@components/table/data-table";
+import { KeyboundForm } from "@components/utilities/keybound-form";
+
 import {
   useCreateInvite,
   useDeleteInvite,
   useInvites,
   useResendInvite,
-} from "../../../../../hooks/api/invites"
-import { useUserInviteTableQuery } from "../../../../../hooks/table/query/use-user-invite-table-query"
-import { useDataTable } from "../../../../../hooks/use-data-table"
-import { isFetchError } from "../../../../../lib/is-fetch-error"
+} from "@hooks/api";
+import { useUserInviteTableQuery } from "@hooks/table/query";
+import { useDataTable } from "@hooks/use-data-table";
+
+import { isFetchError } from "@lib/is-fetch-error";
 
 const InviteUserSchema = zod.object({
   email: zod.string().email(),
-})
+});
 
-const PAGE_SIZE = 10
-const PREFIX = "usr_invite"
+const PAGE_SIZE = 10;
+const PREFIX = "usr_invite";
 const INVITE_URL = `${window.location.origin}${
   __BASE__ === "/" ? "" : __BASE__
-}/invite?token=`
+}/invite?token=`;
 
 export const InviteUserForm = () => {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   const form = useForm<zod.infer<typeof InviteUserSchema>>({
     defaultValues: {
       email: "",
     },
     resolver: zodResolver(InviteUserSchema),
-  })
+  });
 
   const { raw, searchParams } = useUserInviteTableQuery({
     prefix: PREFIX,
     pageSize: PAGE_SIZE,
-  })
+  });
 
   const {
     invites,
@@ -65,9 +70,9 @@ export const InviteUserForm = () => {
     isPending: isLoading,
     isError,
     error,
-  } = useInvites(searchParams)
+  } = useInvites(searchParams);
 
-  const columns = useColumns()
+  const columns = useColumns();
 
   const { table } = useDataTable({
     data: invites ?? [],
@@ -77,27 +82,28 @@ export const InviteUserForm = () => {
     getRowId: (row) => row.id,
     pageSize: PAGE_SIZE,
     prefix: PREFIX,
-  })
+  });
 
-  const { mutateAsync, isPending } = useCreateInvite()
+  const { mutateAsync, isPending } = useCreateInvite();
 
   const handleSubmit = form.handleSubmit(async (values) => {
     try {
-      await mutateAsync({ email: values.email })
-      form.reset()
+      await mutateAsync({ email: values.email });
+      form.reset();
     } catch (error) {
       if (isFetchError(error) && error.status === 400) {
         form.setError("root", {
           type: "manual",
           message: error.message,
-        })
-        return
+        });
+
+        return;
       }
     }
-  })
+  });
 
   if (isError) {
-    throw error
+    throw error;
   }
 
   return (
@@ -132,17 +138,15 @@ export const InviteUserForm = () => {
                   <Form.Field
                     control={form.control}
                     name="email"
-                    render={({ field }) => {
-                      return (
-                        <Form.Item>
-                          <Form.Label>{t("fields.email")}</Form.Label>
-                          <Form.Control>
-                            <Input {...field} />
-                          </Form.Control>
-                          <Form.ErrorMessage />
-                        </Form.Item>
-                      )
-                    }}
+                    render={({ field }) => (
+                      <Form.Item>
+                        <Form.Label>{t("fields.email")}</Form.Label>
+                        <Form.Control>
+                          <Input {...field} />
+                        </Form.Control>
+                        <Form.ErrorMessage />
+                      </Form.Item>
+                    )}
                   />
                 </div>
                 <div className="flex items-center justify-end">
@@ -182,15 +186,15 @@ export const InviteUserForm = () => {
         </RouteFocusModal.Body>
       </KeyboundForm>
     </RouteFocusModal.Form>
-  )
-}
+  );
+};
 
 const InviteActions = ({ invite }: { invite: HttpTypes.AdminInvite }) => {
-  const { mutateAsync: revokeAsync } = useDeleteInvite(invite.id)
-  const { mutateAsync: resendAsync } = useResendInvite(invite.id)
+  const { mutateAsync: revokeAsync } = useDeleteInvite(invite.id);
+  const { mutateAsync: resendAsync } = useResendInvite(invite.id);
 
-  const prompt = usePrompt()
-  const { t } = useTranslation()
+  const prompt = usePrompt();
+  const { t } = useTranslation();
 
   const handleDelete = async () => {
     const res = await prompt({
@@ -200,23 +204,23 @@ const InviteActions = ({ invite }: { invite: HttpTypes.AdminInvite }) => {
       }),
       cancelText: t("actions.cancel"),
       confirmText: t("actions.delete"),
-    })
+    });
 
     if (!res) {
-      return
+      return;
     }
 
-    await revokeAsync()
-  }
+    await revokeAsync();
+  };
 
   const handleResend = async () => {
-    await resendAsync()
-  }
+    await resendAsync();
+  };
 
   const handleCopyInviteLink = () => {
-    const inviteUrl = `${INVITE_URL}${invite.token}`
-    copy(inviteUrl)
-  }
+    const inviteUrl = `${INVITE_URL}${invite.token}`;
+    copy(inviteUrl);
+  };
 
   return (
     <ActionMenu
@@ -250,27 +254,27 @@ const InviteActions = ({ invite }: { invite: HttpTypes.AdminInvite }) => {
         },
       ]}
     />
-  )
-}
+  );
+};
 
-const columnHelper = createColumnHelper<HttpTypes.AdminInvite>()
+const columnHelper = createColumnHelper<HttpTypes.AdminInvite>();
 
 const useColumns = () => {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   return useMemo(
     () => [
       columnHelper.accessor("email", {
         header: t("fields.email"),
         cell: ({ getValue }) => {
-          return getValue()
+          return getValue();
         },
       }),
       columnHelper.accessor("accepted", {
         header: t("fields.status"),
         cell: ({ getValue, row }) => {
-          const accepted = getValue()
-          const expired = new Date(row.original.expires_at) < new Date()
+          const accepted = getValue();
+          const expired = new Date(row.original.expires_at) < new Date();
 
           if (accepted) {
             return (
@@ -278,7 +282,7 @@ const useColumns = () => {
                 content={t("users.acceptedOnDate", {
                   date: format(
                     new Date(row.original.updated_at),
-                    "dd MMM, yyyy"
+                    "dd MMM, yyyy",
                   ),
                 })}
               >
@@ -286,7 +290,7 @@ const useColumns = () => {
                   {t("users.inviteStatus.accepted")}
                 </StatusBadge>
               </Tooltip>
-            )
+            );
           }
 
           if (expired) {
@@ -295,7 +299,7 @@ const useColumns = () => {
                 content={t("users.expiredOnDate", {
                   date: format(
                     new Date(row.original.expires_at),
-                    "dd MMM, yyyy"
+                    "dd MMM, yyyy",
                   ),
                 })}
               >
@@ -303,14 +307,14 @@ const useColumns = () => {
                   {t("users.inviteStatus.expired")}
                 </StatusBadge>
               </Tooltip>
-            )
+            );
           }
 
           return (
             <Tooltip
               content={
                 <Trans
-                  i18nKey={"users.validFromUntil"}
+                  i18nKey="users.validFromUntil"
                   components={[
                     <span key="from" className="font-medium" />,
                     <span key="untill" className="font-medium" />,
@@ -318,11 +322,11 @@ const useColumns = () => {
                   values={{
                     from: format(
                       new Date(row.original.created_at),
-                      "dd MMM, yyyy"
+                      "dd MMM, yyyy",
                     ),
                     until: format(
                       new Date(row.original.expires_at),
-                      "dd MMM, yyyy"
+                      "dd MMM, yyyy",
                     ),
                   }}
                 />
@@ -332,7 +336,7 @@ const useColumns = () => {
                 {t("users.inviteStatus.pending")}
               </StatusBadge>
             </Tooltip>
-          )
+          );
         },
       }),
       columnHelper.display({
@@ -340,6 +344,6 @@ const useColumns = () => {
         cell: ({ row }) => <InviteActions invite={row.original} />,
       }),
     ],
-    [t]
-  )
-}
+    [t],
+  );
+};
