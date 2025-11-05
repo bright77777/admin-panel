@@ -226,11 +226,18 @@ export const useBatchInventoryItemLocationLevels = (
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) =>
-      sdk.admin.inventoryItem.batchInventoryItemLocationLevels(
+    mutationFn: (payload) => {
+      // force: true is required for admin batch endpoint to delete levels with stocked items
+      const payloadWithForce: HttpTypes.AdminBatchInventoryItemLocationLevels = {
+        ...payload,
+        force: payload?.delete?.length ? true : payload.force,
+      }
+      
+      return sdk.admin.inventoryItem.batchInventoryItemLocationLevels(
         inventoryItemId,
-        payload
-      ),
+        payloadWithForce
+      )
+    },
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: inventoryItemsQueryKeys.lists(),
@@ -258,8 +265,15 @@ export const useBatchInventoryItemsLocationLevels = (
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) =>
-      sdk.admin.inventoryItem.batchInventoryItemsLocationLevels(payload),
+    mutationFn: (payload) => {
+     // force: true is required for admin batch endpoint to delete levels with stocked items
+      const payloadWithForce: HttpTypes.AdminBatchInventoryItemsLocationLevels = {
+        ...payload,
+        force: payload?.delete?.length ? true : payload.force,
+      }
+      
+      return sdk.admin.inventoryItem.batchInventoryItemsLocationLevels(payloadWithForce)
+    },
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: inventoryItemsQueryKeys.all,
